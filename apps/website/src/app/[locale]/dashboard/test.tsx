@@ -1,8 +1,8 @@
 'use client'
 
+import { Button } from '@repo/ui/components/button'
+import { cn } from '@repo/ui/lib/utils'
 import { useState } from 'react'
-import { Button } from '@/components/shadcn/button'
-import { cn } from '@/lib/cn'
 import { api } from '@/trpc/react'
 
 export function Test() {

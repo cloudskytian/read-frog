@@ -1,7 +1,7 @@
 import { createContext } from 'react'
 import ReactDOM from 'react-dom/client'
 
-import { TooltipProvider } from '@/components/ui/tooltip'
+import { TooltipProvider } from '@repo/ui/components/tooltip'
 import { REACT_SHADOW_HOST_CLASS } from '../constants/dom-labels'
 import { ShadowHostBuilder } from './shadow-host-builder'
 
