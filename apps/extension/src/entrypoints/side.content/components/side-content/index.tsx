@@ -8,11 +8,6 @@ import { configFields } from '@/utils/atoms/config'
 import { isAnyAPIKey } from '@/utils/config/config'
 import { APP_NAME } from '@/utils/constants/app'
 import { MIN_SIDE_CONTENT_WIDTH } from '@/utils/constants/side'
-<<<<<<< HEAD
-=======
-import { cn } from '@repo/ui/lib/utils'
->>>>>>> df8441cb0a09210a122208f0934e57b9609d8463
-import { TestTRPC } from '@/utils/trpc/test-trpc'
 import { isSideOpenAtom } from '../../atoms'
 import Content from './content'
 import { Metadata } from './metadata'

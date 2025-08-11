@@ -27,7 +27,6 @@
     "@ai-sdk/react": "2.0.0-beta.28",
     "@mozilla/readability": "^0.6.0",
     "@repo/api": "workspace:*",
-    "@repo/constants": "workspace:*",
     "@repo/definitions": "workspace:*",
     "@repo/ui": "workspace:*",
     "@tabler/icons-react": "^3.34.0",
