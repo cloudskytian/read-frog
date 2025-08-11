@@ -6,10 +6,8 @@ import { TranslationError } from '@/components/tranlation/error'
 import { Spinner } from '@/components/tranlation/spinner'
 import { createReactShadowHost, removeReactShadowHost } from '@/utils/react-shadow-host/create-shadow-host'
 import {
-  BLOCK_CONTENT_CLASS,
   CONSECUTIVE_INLINE_END_ATTRIBUTE,
   CONTENT_WRAPPER_CLASS,
-  INLINE_CONTENT_CLASS,
   NOTRANSLATE_CLASS,
   REACT_SHADOW_HOST_CLASS,
   TRANSLATION_ERROR_CONTAINER_CLASS,
@@ -164,16 +162,18 @@ function insertTranslatedNodeIntoWrapper(
     = isHTMLElement(targetNode)
       && FORCE_INLINE_TRANSLATION_TAGS.has(targetNode.tagName)
 
+  let nodeType: 'inline' | 'block' | 'notranslate' = 'notranslate'
+
   if (isForceInlineTranslationElement || isInlineTransNode(targetNode)) {
     const spaceNode = ownerDoc.createElement('span')
     spaceNode.textContent = '  '
     translatedWrapperNode.appendChild(spaceNode)
-    translatedNode.className = `${NOTRANSLATE_CLASS} ${INLINE_CONTENT_CLASS}`
+    nodeType = 'inline'
   }
   else if (isBlockTransNode(targetNode)) {
     const brNode = ownerDoc.createElement('br')
     translatedWrapperNode.appendChild(brNode)
-    translatedNode.className = `${NOTRANSLATE_CLASS} ${BLOCK_CONTENT_CLASS}`
+    nodeType = 'block'
   }
   else {
     // not inline or block, maybe notranslate
@@ -181,7 +181,7 @@ function insertTranslatedNodeIntoWrapper(
   }
 
   translatedNode.textContent = translatedText
-  decorateTranslationNode(translatedNode)
+  decorateTranslationNode(translatedNode, undefined, nodeType)
   translatedWrapperNode.appendChild(translatedNode)
 }
 
