@@ -10,7 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@repo/ui/components/select'
 import { configFields } from '@/utils/atoms/config'
 import { TRANSLATION_NODE_STYLE } from '@/utils/constants/translation-node-style'
 import { decorateTranslationNode } from '@/utils/host/translate/decorate-translation'

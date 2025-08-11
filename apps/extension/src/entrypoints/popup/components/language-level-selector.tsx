@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@repo/ui/components/select'
 import { configFields } from '@/utils/atoms/config'
 
 export default function LanguageLevelSelector() {

@@ -4,7 +4,7 @@ import { setRequestLocale } from 'next-intl/server'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Container } from '@/components/container'
-import { cn } from '@/lib/cn'
+import { cn } from '@repo/ui/lib/utils'
 import { APP_NAME_LOCALE } from '@/lib/constants'
 
 const navigation = {

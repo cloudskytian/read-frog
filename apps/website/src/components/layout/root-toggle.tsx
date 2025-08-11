@@ -4,10 +4,10 @@ import { usePathname } from 'fumadocs-core/framework'
 import Link from 'fumadocs-core/link'
 import { useSidebar } from 'fumadocs-ui/contexts/sidebar'
 import { useMemo, useState } from 'react'
-import { cn } from '../../lib/cn'
+import { cn } from '@repo/ui/lib/utils'
 import { isActive } from '../../lib/is-active'
 import { ChevronsUpDown } from '../icons'
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/popover'
 
 export interface Option {
   /**
