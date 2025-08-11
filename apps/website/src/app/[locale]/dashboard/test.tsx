@@ -1,5 +1,6 @@
 'use client'
 
+<<<<<<< HEAD
 import type { AppRouter } from '@repo/api'
 import type { TRPCClientErrorLike } from '@trpc/client'
 import type { RouterOutputs } from '@/trpc/react'
@@ -8,6 +9,12 @@ import { cn } from '@repo/ui/lib/utils'
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTRPC } from '@/trpc/react'
+=======
+import { Button } from '@repo/ui/components/button'
+import { cn } from '@repo/ui/lib/utils'
+import { useState } from 'react'
+import { api } from '@/trpc/react'
+>>>>>>> df8441cb0a09210a122208f0934e57b9609d8463
 
 export function Test() {
   const [helloText, setHelloText] = useState('')
