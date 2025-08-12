@@ -8,7 +8,6 @@ import { configFields } from '@/utils/atoms/config'
 import { isAnyAPIKey } from '@/utils/config/config'
 import { APP_NAME } from '@/utils/constants/app'
 import { MIN_SIDE_CONTENT_WIDTH } from '@/utils/constants/side'
-
 import { isSideOpenAtom } from '../../atoms'
 import Content from './content'
 import { Metadata } from './metadata'
