@@ -8,7 +8,7 @@ import { configFields } from '@/utils/atoms/config'
 import { hasSetAPIKey } from '@/utils/config/config'
 import { removeAllTranslatedWrapperNodes } from '@/utils/host/translate/node-manipulation'
 import { sendMessage } from '@/utils/message'
-import { cn } from '@/utils/tailwind'
+import { cn } from '@repo/ui/lib/utils'
 import { enablePageTranslationAtom } from '../../atoms'
 import HiddenButton from './components/hidden-button'
 

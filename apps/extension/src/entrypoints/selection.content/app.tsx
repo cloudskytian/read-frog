@@ -1,6 +1,6 @@
 import { Toaster } from 'sonner'
 import { NOTRANSLATE_CLASS } from '@/utils/constants/dom-labels'
-import { cn } from '@/utils/tailwind'
+import { cn } from '@repo/ui/lib/utils'
 import { SelectionTooltip } from './selection-tooltip'
 
 export default function App() {
