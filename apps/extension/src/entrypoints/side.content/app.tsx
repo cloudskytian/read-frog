@@ -1,5 +1,5 @@
-import { NOTRANSLATE_CLASS } from '@/utils/constants/dom-labels'
 import { cn } from '@repo/ui/lib/utils'
+import { NOTRANSLATE_CLASS } from '@/utils/constants/dom-labels'
 import FloatingButton from './components/floating-button'
 import SideContent from './components/side-content'
 

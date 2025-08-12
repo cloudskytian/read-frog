@@ -1,7 +1,6 @@
 import type { LangLevel } from '@/types/config/languages'
 
 import { i18n } from '#imports'
-import { useAtom } from 'jotai'
 import {
   Select,
   SelectContent,
@@ -9,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@repo/ui/components/select'
+import { useAtom } from 'jotai'
 import { configFields } from '@/utils/atoms/config'
 
 export default function LanguageLevelSelector() {

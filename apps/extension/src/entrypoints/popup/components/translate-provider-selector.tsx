@@ -1,9 +1,6 @@
 import type { TranslateProviderNames } from '@/types/config/provider'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
-import { useAtom } from 'jotai'
-import ProviderIcon from '@/components/provider-icon'
-
 import {
   Select,
   SelectContent,
@@ -14,6 +11,9 @@ import {
   SelectValue,
 } from '@repo/ui/components/select'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/components/tooltip'
+
+import { useAtom } from 'jotai'
+import ProviderIcon from '@/components/provider-icon'
 import { configFields } from '@/utils/atoms/config'
 import { LLM_TRANSLATE_PROVIDER_ITEMS, PURE_TRANSLATE_PROVIDER_ITEMS } from '@/utils/constants/config'
 

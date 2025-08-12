@@ -2,9 +2,6 @@ import type { PromptConfigList } from '../../utils/prompt-file'
 import type { TranslatePromptObj } from '@/types/config/provider'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
-import { useAtom, useAtomValue } from 'jotai'
-import { useState } from 'react'
-import { toast } from 'sonner'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +35,9 @@ import {
   SheetTrigger,
 } from '@repo/ui/components/sheet'
 import { Textarea } from '@repo/ui/components/textarea'
+import { useAtom, useAtomValue } from 'jotai'
+import { useState } from 'react'
+import { toast } from 'sonner'
 import { configFields } from '@/utils/atoms/config'
 import { DEFAULT_TRANSLATE_PROMPT_ID } from '@/utils/constants/prompt'
 import { ConfigCard } from '../../components/config-card'

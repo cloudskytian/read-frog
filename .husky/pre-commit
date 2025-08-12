@@ -1,1 +1,1 @@
-pnpm dlx lint stage
+npx lint-staged

@@ -1,5 +1,4 @@
 import { i18n } from '#imports'
-import { useSetAtom } from 'jotai'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,6 +11,7 @@ import {
   AlertDialogTrigger,
 } from '@repo/ui/components/alert-dialog'
 import { Button } from '@repo/ui/components/button'
+import { useSetAtom } from 'jotai'
 import { writeConfigAtom } from '@/utils/atoms/config'
 import { DEFAULT_CONFIG } from '@/utils/constants/config'
 import { ConfigCard } from '../../components/config-card'
