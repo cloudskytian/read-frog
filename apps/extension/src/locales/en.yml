@@ -140,4 +140,4 @@ noConfig:
     page: page
 translation:
   sameLanguage: Source and target languages must be different
-  autoModeSameLanguage: Detected language '$1' is the same as target language '$2'
+  autoModeSameLanguage: Detected language '$1' is the same as target language

@@ -138,4 +138,4 @@ noConfig:
     page: ）
 translation:
   sameLanguage: ソース言語とターゲット言語は異なる必要があります
-  autoModeSameLanguage: 検出された言語 '$1' はターゲット言語 '$2' と同じです
+  autoModeSameLanguage: 検出された言語 '$1' はターゲット言語と同じです

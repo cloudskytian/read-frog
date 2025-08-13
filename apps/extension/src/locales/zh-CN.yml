@@ -141,4 +141,4 @@ noConfig:
     page: 页
 translation:
   sameLanguage: 源语言和目标语言必须不同
-  autoModeSameLanguage: 检测到的语言 '$1' 与目标语言 '$2' 相同
+  autoModeSameLanguage: 检测到的语言 '$1' 与目标语言相同
