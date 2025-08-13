@@ -22,6 +22,10 @@ function langCodeLabel(langCode: LangCodeISO6393) {
   return `${LANG_CODE_TO_EN_NAME[langCode]} (${LANG_CODE_TO_LOCALE_NAME[langCode]})`
 }
 
+const langSelectorTriggerClasses = 'cursor-pointer bg-input/50 hover:bg-input border-input !h-14 w-30 rounded-lg border shadow-xs pr-2 gap-1'
+
+const langSelectorContentClasses = 'flex flex-col items-start text-base font-medium min-w-0 flex-1'
+
 export default function LanguageOptionsSelector() {
   const [language, setLanguage] = useAtom(configFields.language)
 
@@ -42,8 +46,8 @@ export default function LanguageOptionsSelector() {
   return (
     <div className="flex items-center justify-between">
       <Select value={language.sourceCode} onValueChange={handleSourceLangChange}>
-        <SelectTrigger hideChevron className="cursor-pointer bg-input/50 hover:bg-input border-input h-14! w-30! rounded-lg border shadow-xs text-sm">
-          <div className="flex flex-col items-start text-base font-medium min-w-0 flex-1 truncate">
+        <SelectTrigger hideChevron className={langSelectorTriggerClasses}>
+          <div className={langSelectorContentClasses}>
             <SelectValue asChild>
               <span className="truncate w-full">{sourceLangLabel}</span>
             </SelectValue>
@@ -53,15 +57,12 @@ export default function LanguageOptionsSelector() {
                 : i18n.t('popup.sourceLang')}
             </span>
           </div>
-          <Icon
-            icon="tabler:chevron-down"
-            className="flex-shrink-0 h-5 w-5 text-neutral-400 dark:text-neutral-600"
-            strokeWidth={1.5}
-          />
+          <LangCodeSelectorChevronDownIcon />
         </SelectTrigger>
-        <SelectContent className="bg-white dark:bg-neutral-800 rounded-lg shadow-md">
+        <SelectContent className="rounded-lg shadow-md">
           <SelectItem value="auto">
-            {`${langCodeLabel(language.detectedCode)} (auto)`}
+            {langCodeLabel(language.detectedCode)}
+            <AutoLangCell />
           </SelectItem>
           {langCodeISO6393Schema.options.map(key => (
             <SelectItem key={key} value={key}>
@@ -72,8 +73,8 @@ export default function LanguageOptionsSelector() {
       </Select>
       <Icon icon="tabler:arrow-right" className="h-4 w-4 text-neutral-500" />
       <Select value={language.targetCode} onValueChange={handleTargetLangChange}>
-        <SelectTrigger hideChevron className="cursor-pointer bg-input/50 hover:bg-input border-input inline-flex h-14! w-30! items-center justify-between rounded-lg border shadow-xs">
-          <div className="flex flex-col items-start text-base font-medium min-w-0 flex-1 truncate">
+        <SelectTrigger hideChevron className={langSelectorTriggerClasses}>
+          <div className={langSelectorContentClasses}>
             <SelectValue asChild>
               <span className="truncate w-full">{targetLangLabel}</span>
             </SelectValue>
@@ -81,13 +82,9 @@ export default function LanguageOptionsSelector() {
               {i18n.t('popup.targetLang')}
             </span>
           </div>
-          <Icon
-            icon="tabler:chevron-down"
-            className="flex-shrink-0 h-5 w-5 text-neutral-400 dark:text-neutral-600"
-            strokeWidth={1.5}
-          />
+          <LangCodeSelectorChevronDownIcon />
         </SelectTrigger>
-        <SelectContent className="bg-white dark:bg-neutral-800 rounded-lg shadow-md">
+        <SelectContent className="rounded-lg shadow-md">
           {langCodeISO6393Schema.options.map(key => (
             <SelectItem key={key} value={key}>
               {langCodeLabel(key)}
@@ -96,5 +93,23 @@ export default function LanguageOptionsSelector() {
         </SelectContent>
       </Select>
     </div>
+  )
+}
+
+function AutoLangCell() {
+  return (
+    <span className="rounded-full bg-neutral-200 px-1 text-xs dark:bg-neutral-800">
+      auto
+    </span>
+  )
+}
+
+function LangCodeSelectorChevronDownIcon() {
+  return (
+    <Icon
+      icon="tabler:chevron-down"
+      className="flex-shrink-0 h-5 w-5 text-neutral-400 dark:text-neutral-600"
+      strokeWidth={1.5}
+    />
   )
 }
