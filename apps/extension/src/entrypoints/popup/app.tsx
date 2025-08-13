@@ -2,7 +2,7 @@ import { browser, i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { useSetAtom } from 'jotai'
 import { useEffect } from 'react'
-import { Toaster } from 'sonner'
+import FrogToast from '@/components/frog-toast'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { UserAccount } from '@/components/user-account'
 import { version } from '../../../package.json'
@@ -60,7 +60,7 @@ function App() {
         </span>
         <GithubButton />
       </div>
-      <Toaster richColors position="bottom-center" className="-translate-y-8" duration={10000} />
+      <FrogToast />
     </>
   )
 }

@@ -136,3 +136,6 @@ noConfig:
     firstOnThe: する必要があります（
     optionsPage: オプションページ
     page: ）
+translation:
+  sameLanguage: ソース言語とターゲット言語は異なる必要があります
+  autoModeSameLanguage: 検出された言語 '$1' はターゲット言語 '$2' と同じです

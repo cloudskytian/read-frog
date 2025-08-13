@@ -138,3 +138,6 @@ noConfig:
     firstOnThe: first on the
     optionsPage: options
     page: page
+translation:
+  sameLanguage: Source and target languages must be different
+  autoModeSameLanguage: Detected language '$1' is the same as target language '$2'

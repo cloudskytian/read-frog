@@ -5,7 +5,7 @@ import { useHydrateAtoms } from 'jotai/utils'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { HashRouter } from 'react-router'
-import { Toaster } from 'sonner'
+import FrogToast from '@/components/frog-toast'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { configAtom } from '@/utils/atoms/config'
 import { globalConfig, loadGlobalConfig } from '@/utils/config/config'
@@ -50,7 +50,7 @@ async function initApp() {
               <SidebarProvider>
                 <AppSidebar />
                 <App />
-                <Toaster richColors />
+                <FrogToast />
               </SidebarProvider>
             </HashRouter>
           </QueryClientProvider>

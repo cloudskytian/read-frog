@@ -1,11 +1,8 @@
-import type { translateProviderModels } from '@/types/config/provider'
 import { browser, i18n } from '#imports'
 import { useAtom, useAtomValue } from 'jotai'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { pureTranslateProvider } from '@/types/config/provider'
 import { configFields } from '@/utils/atoms/config'
-import { hasSetAPIKey } from '@/utils/config/config'
+import { validateTranslationConfig } from '@/utils/host/translate/translate-text'
 import { sendMessage } from '@/utils/message'
 import { formatHotkey } from '@/utils/os.ts'
 import { cn } from '@/utils/tailwind'
@@ -17,6 +14,7 @@ export default function TranslateButton({ className }: { className?: string }) {
   const isIgnoreTab = useAtomValue(isIgnoreTabAtom)
   const providersConfig = useAtomValue(configFields.providersConfig)
   const translateConfig = useAtomValue(configFields.translate)
+  const languageConfig = useAtomValue(configFields.language)
 
   const toggleTranslation = async () => {
     const [currentTab] = await browser.tabs.query({
@@ -25,16 +23,12 @@ export default function TranslateButton({ className }: { className?: string }) {
     })
 
     if (currentTab.id) {
-      if (!isPageTranslated) {
-        const provider = translateConfig.provider
-        const isPure = pureTranslateProvider.includes(
-          provider as typeof pureTranslateProvider[number],
-        )
-
-        if (!isPure && !hasSetAPIKey(provider as keyof typeof translateProviderModels, providersConfig)) {
-          toast.error(i18n.t('noConfig.warning'))
-          return
-        }
+      if (!isPageTranslated && !validateTranslationConfig({
+        providersConfig,
+        translate: translateConfig,
+        language: languageConfig,
+      })) {
+        return
       }
 
       sendMessage('setEnablePageTranslation', {
