@@ -1,5 +1,11 @@
 # @read-frog/extension
 
+## 1.17.2
+
+### Patch Changes
+
+- [#721](https://github.com/mengxi-ream/read-frog/pull/721) [`265e2c7`](https://github.com/mengxi-ream/read-frog/commit/265e2c73ac195beb47192ac1627ef27c5b0e467d) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - refactor: add ts-reset to fix array.includes type narrowing
+
 ## 1.17.1
 
 ### Patch Changes
