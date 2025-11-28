@@ -1,5 +1,13 @@
 # @read-frog/extension
 
+## 1.18.2
+
+### Patch Changes
+
+- [#747](https://github.com/mengxi-ream/read-frog/pull/747) [`8844a84`](https://github.com/mengxi-ream/read-frog/commit/8844a848445bc21af1ca73571440f5f073410cf7) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - style: update shadcn ghost color
+
+- [#747](https://github.com/mengxi-ream/read-frog/pull/747) [`8844a84`](https://github.com/mengxi-ream/read-frog/commit/8844a848445bc21af1ca73571440f5f073410cf7) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - style: change more menu icons
+
 ## 1.18.1
 
 ### Patch Changes
