@@ -39,6 +39,12 @@ export default defineConfig({
             'https://www.googleapis.com/*', // Google Drive API
             '*://*/*', // Required for scripting.executeScript in any frame
           ],
+    web_accessible_resources: [
+      {
+        resources: ['icon/*.png', '*.output/**/*.png'],
+        matches: ['<all_urls>'],
+      },
+    ],
     // Firefox-specific settings for MV3
     ...(browser === 'firefox' && {
       browser_specific_settings: {
