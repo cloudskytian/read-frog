@@ -31,6 +31,12 @@ export default defineConfig({
             'https://*.readfrog.app/*',
             'https://readfrog.app/*', // Include both www and non-www versions
           ],
+    web_accessible_resources: [
+      {
+        resources: ['icon/*.png', '*.output/**/*.png'],
+        matches: ['<all_urls>'],
+      },
+    ],
     // Firefox-specific settings for MV3
     ...(browser === 'firefox' && {
       browser_specific_settings: {
@@ -45,5 +51,16 @@ export default defineConfig({
     server: {
       port: 3333,
     },
+  },
+  runner: {
+    chromiumArgs: [
+      '--user-data-dir=C:\\Users\\taiiiyang\\AppData\\Local\\Google\\Chrome\\User Data',
+      '--profile-directory=Default',
+      '--disable-blink-features=AutomationControlled',
+      '--disable-dev-shm-usage',
+      '--no-sandbox',
+      '--disable-web-security',
+      '--disable-features=IsolateOrigins,site-per-process',
+    ],
   },
 })
