@@ -3,6 +3,35 @@ import { describe, expect, it } from 'vitest'
 import { applyResolutions, detectConflicts } from '../conflict-merge'
 
 // Test data factory
+const defaultProvidersConfig = [
+  {
+    id: 'test-read',
+    name: 'Test Read Provider',
+    enabled: true,
+    provider: 'openai' as const,
+    apiKey: 'test-key',
+    baseURL: 'https://api.openai.com/v1',
+    models: {
+      read: {
+        model: 'gpt-4o-mini' as const,
+        isCustomModel: false,
+        customModel: '',
+      },
+      translate: {
+        model: 'gpt-4o-mini' as const,
+        isCustomModel: false,
+        customModel: '',
+      },
+    },
+  },
+  {
+    id: 'test-translate',
+    name: 'Test Translate Provider',
+    enabled: true,
+    provider: 'google' as const,
+  },
+]
+
 function createMockConfig(overrides: Partial<Config> = {}): Config {
   return {
     language: {
@@ -11,7 +40,7 @@ function createMockConfig(overrides: Partial<Config> = {}): Config {
       targetCode: 'cmn',
       level: 'intermediate',
     },
-    providersConfig: [],
+    providersConfig: overrides.providersConfig ?? defaultProvidersConfig,
     read: { providerId: 'test-read' },
     translate: {
       providerId: 'test-translate',
@@ -44,7 +73,7 @@ function createMockConfig(overrides: Partial<Config> = {}): Config {
     tts: { providerId: null, model: 'tts-1', voice: 'alloy', speed: 1 },
     floatingButton: { enabled: true, position: 0.66, disabledFloatingButtonPatterns: [] },
     selectionToolbar: { enabled: true, disabledSelectionToolbarPatterns: [] },
-    sideContent: { width: 400 },
+    sideContent: { width: 500 },
     betaExperience: { enabled: false },
     ...overrides,
   }
@@ -128,18 +157,18 @@ describe('conflict-merge', () => {
       const base = createMockConfig()
       const local = createMockConfig({
         language: { ...base.language, targetCode: 'jpn' },
-        translate: { ...base.translate, mode: 'target-only' },
+        translate: { ...base.translate, batchQueueConfig: { ...base.translate.batchQueueConfig, maxCharactersPerBatch: 800 } },
       })
       const remote = createMockConfig({
         language: { ...base.language, targetCode: 'kor' },
-        translate: { ...base.translate, mode: 'original-only' },
+        translate: { ...base.translate, batchQueueConfig: { ...base.translate.batchQueueConfig, maxCharactersPerBatch: 2000 } },
       })
 
       const result = detectConflicts(base, local, remote)
 
       expect(result.conflicts).toHaveLength(2)
       expect(result.conflicts.find(c => c.path.join('.') === 'language.targetCode')).toBeDefined()
-      expect(result.conflicts.find(c => c.path.join('.') === 'translate.mode')).toBeDefined()
+      expect(result.conflicts.find(c => c.path.join('.') === 'translate.batchQueueConfig.maxCharactersPerBatch')).toBeDefined()
     })
 
     it('should handle array conflicts', () => {
@@ -202,14 +231,14 @@ describe('conflict-merge', () => {
         language: { ...base.language, targetCode: 'jpn' },
       })
       const remote = createMockConfig({
-        translate: { ...base.translate, mode: 'target-only' },
+        translate: { ...base.translate, mode: 'translationOnly' },
       })
 
       const result = detectConflicts(base, local, remote)
 
       expect(result.conflicts).toHaveLength(0)
       expect(result.merged.language.targetCode).toBe('jpn')
-      expect(result.merged.translate.mode).toBe('target-only')
+      expect(result.merged.translate.mode).toBe('translationOnly')
     })
 
     it('should auto-merge when both sides change different nested fields', () => {
@@ -221,7 +250,7 @@ describe('conflict-merge', () => {
       const remote = createMockConfig({
         translate: {
           ...base.translate,
-          mode: 'target-only',
+          mode: 'translationOnly',
           requestQueueConfig: {
             capacity: 20,
             rate: 3,
@@ -235,7 +264,7 @@ describe('conflict-merge', () => {
       expect(result.merged.language.targetCode).toBe('jpn')
       expect(result.merged.language.level).toBe('advanced')
       expect(result.merged.floatingButton.position).toBe(0.8)
-      expect(result.merged.translate.mode).toBe('target-only')
+      expect(result.merged.translate.mode).toBe('translationOnly')
       expect(result.merged.translate.requestQueueConfig.capacity).toBe(20)
       expect(result.merged.translate.requestQueueConfig.rate).toBe(3)
     })
@@ -284,23 +313,23 @@ describe('conflict-merge', () => {
       const base = createMockConfig()
       const local = createMockConfig({
         language: { ...base.language, targetCode: 'jpn' },
-        translate: { ...base.translate, mode: 'target-only' },
+        translate: { ...base.translate, batchQueueConfig: { ...base.translate.batchQueueConfig, maxCharactersPerBatch: 800 } },
       })
       const remote = createMockConfig({
         language: { ...base.language, targetCode: 'kor' },
-        translate: { ...base.translate, mode: 'original-only' },
+        translate: { ...base.translate, batchQueueConfig: { ...base.translate.batchQueueConfig, maxCharactersPerBatch: 2000 } },
       })
 
       const diffResult = detectConflicts(base, local, remote)
       const resolutions = {
         'language.targetCode': 'local' as const,
-        'translate.mode': 'remote' as const,
+        'translate.batchQueueConfig.maxCharactersPerBatch': 'remote' as const,
       }
 
       const result = applyResolutions(diffResult, resolutions)
 
       expect(result.language.targetCode).toBe('jpn')
-      expect(result.translate.mode).toBe('original-only')
+      expect(result.translate.batchQueueConfig.maxCharactersPerBatch).toBe(2000)
     })
 
     it('should preserve non-conflicting merged values', () => {
@@ -321,6 +350,24 @@ describe('conflict-merge', () => {
 
       expect(result.language.targetCode).toBe('kor')
       expect(result.language.level).toBe('advanced') // Non-conflicting change preserved
+    })
+
+    it('should preserve local value when conflict is unresolved', () => {
+      const base = createMockConfig()
+      const local = createMockConfig({
+        language: { ...base.language, targetCode: 'jpn' },
+      })
+      const remote = createMockConfig({
+        language: { ...base.language, targetCode: 'kor' },
+      })
+
+      const diffResult = detectConflicts(base, local, remote)
+      const resolutions = {} // No resolution provided
+
+      const result = applyResolutions(diffResult, resolutions)
+
+      // Should preserve local value (default behavior in detectConflicts)
+      expect(result.language.targetCode).toBe('jpn')
     })
   })
 })
