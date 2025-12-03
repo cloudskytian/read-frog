@@ -225,7 +225,7 @@ export async function syncConfig(): Promise<void> {
 
     if (localChangedSinceSync && remoteChangedSinceSync) {
       logger.info('Both local and remote changed since last sync, checking for conflicts')
-      const baseConfig = await getLastSyncedConfig() ?? local.config
+      const baseConfig = await getLastSyncedConfig() ?? local[CONFIG_STORAGE_KEY]
 
       if (!baseConfig) {
         logger.error('Base config not found, cannot perform conflict merge')
