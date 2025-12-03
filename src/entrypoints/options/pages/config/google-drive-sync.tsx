@@ -1,20 +1,67 @@
+import type { Config } from '@/types/config/config'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/shadcn/button'
-import { syncConfig } from '@/utils/google-drive/sync'
+import { ConfigConflictError, getLastSyncTime, syncConfig, syncMergedConfig } from '@/utils/google-drive/sync'
 import { logger } from '@/utils/logger'
 import { ConfigCard } from '../../components/config-card'
+import { ConflictResolutionDialog } from './components/conflict-resolution-dialog'
 
 export function GoogleDriveSyncCard() {
   const [isSyncing, setIsSyncing] = useState(false)
+  const [conflictData, setConflictData] = useState<ConfigConflictError | null>(null)
+  const [lastSyncTime, setLastSyncTime] = useState<number | null>(null)
+
+  useEffect(() => {
+    const loadLastSyncTime = async () => {
+      const time = await getLastSyncTime()
+      setLastSyncTime(time)
+    }
+    void loadLastSyncTime()
+  }, [])
 
   const handleSync = async () => {
     setIsSyncing(true)
 
     try {
       await syncConfig()
+      const time = await getLastSyncTime()
+      setLastSyncTime(time)
+      toast.success(i18n.t('options.config.sync.googleDrive.syncSuccess'))
+    }
+    catch (error) {
+      if (error instanceof ConfigConflictError) {
+        logger.info('Conflict detected, opening resolution dialog')
+        setConflictData(error)
+      }
+      else {
+        logger.error('Google Drive sync error from UI', error)
+        toast.error(i18n.t('options.config.sync.googleDrive.syncError'))
+      }
+    }
+    finally {
+      setIsSyncing(false)
+    }
+  }
+
+  const handleConflictCancel = () => {
+    setConflictData(null)
+    logger.info('Conflict cancelled')
+    toast.error(i18n.t('options.config.sync.googleDrive.syncError'))
+  }
+
+  const formatLastSyncTime = (timestamp: number): string => {
+    return new Date(timestamp).toLocaleString()
+  }
+
+  const handleConflictConfirm = async (mergedConfig: Config): Promise<void> => {
+    setIsSyncing(true)
+
+    try {
+      await syncMergedConfig(mergedConfig)
+      setConflictData(null)
       toast.success(i18n.t('options.config.sync.googleDrive.syncSuccess'))
     }
     catch (error) {
@@ -26,22 +73,40 @@ export function GoogleDriveSyncCard() {
     }
   }
 
+  const description = lastSyncTime
+    ? `${i18n.t('options.config.sync.googleDrive.description')} (${i18n.t('options.config.sync.googleDrive.lastSyncTime')}: ${formatLastSyncTime(lastSyncTime)})`
+    : i18n.t('options.config.sync.googleDrive.description')
+
   return (
-    <ConfigCard
-      title={i18n.t('options.config.sync.googleDrive.title')}
-      description={i18n.t('options.config.sync.googleDrive.description')}
-    >
-      <div className="w-full flex justify-end">
-        <Button
-          onClick={handleSync}
-          disabled={isSyncing}
-        >
-          <Icon icon="logos:google-drive" className="size-4" />
-          {isSyncing
-            ? i18n.t('options.config.sync.googleDrive.syncing')
-            : i18n.t('options.config.sync.googleDrive.sync')}
-        </Button>
-      </div>
-    </ConfigCard>
+    <>
+      <ConfigCard
+        title={i18n.t('options.config.sync.googleDrive.title')}
+        description={description}
+      >
+        <div className="w-full flex justify-end">
+          <Button
+            onClick={handleSync}
+            disabled={isSyncing}
+          >
+            <Icon icon="logos:google-drive" className="size-4" />
+            {isSyncing
+              ? i18n.t('options.config.sync.googleDrive.syncing')
+              : i18n.t('options.config.sync.googleDrive.sync')}
+          </Button>
+        </div>
+      </ConfigCard>
+
+      {conflictData && (
+        <ConflictResolutionDialog
+          open
+          base={conflictData.base}
+          local={conflictData.local}
+          remote={conflictData.remote}
+          isSyncing={isSyncing}
+          onCancel={handleConflictCancel}
+          onConfirm={handleConflictConfirm}
+        />
+      )}
+    </>
   )
 }
