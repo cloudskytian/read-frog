@@ -1,191 +1,285 @@
-import type { YoutubePlayerInfo, YoutubePlayerRequestBody, YoutubePlayerRequestHeader, YoutubeSubtitle, YoutubeSubtitleResponse, YoutubeTimedText } from './types'
+import type { YoutubeSubtitle, YoutubeSubtitleResponse, YoutubeTimedText } from './types'
 
 export function fetchVideoId(): string {
   const url = new URL(window.location.href)
   return url.searchParams.get('v') ?? ''
 }
 
-export async function fetchYoutubeSubtitles(): Promise<YoutubeSubtitle[]> {
-  const playerInfo = await fetchYoutubePlayerInfo()
+/**
+ * 运行在 Main World (页面上下文) 的注入脚本
+ * Hook XHR 的 open 方法来监听 timedtext
+ */
+function mainWorldInterceptor() {
+  const originalOpen = XMLHttpRequest.prototype.open
 
-  if (isBlocked(playerInfo)) {
-    throw new Error('Request blocked')
-  }
+  XMLHttpRequest.prototype.open = function (
+    this: XMLHttpRequest,
+    method: string,
+    url: string | URL,
+    async?: boolean,
+    username?: string | null,
+    password?: string | null,
+  ) {
+    // 筛选目标接口：api/timedtext
+    const urlString = typeof url === 'string' ? url : url.toString()
+    if (urlString.includes('api/timedtext')) {
+      // 在 open 阶段直接挂载 load 监听器到当前 XHR 实例
+      this.addEventListener('load', function (this: XMLHttpRequest) {
+        try {
+          const responseText = this.responseText
 
-  const timedText = await fetchTimedText(playerInfo)
+          if (responseText) {
+            // 尝试构建 URL 对象以提取参数
+            let lang = 'unknown'
+            try {
+              // 处理相对路径的情况
+              const fullUrl = urlString.startsWith('http') ? urlString : window.location.origin + urlString
+              const urlObj = new URL(fullUrl)
+              lang = urlObj.searchParams.get('lang') || 'unknown'
+            }
+            catch {
+              // URL 解析失败，使用默认值
+            }
 
-  return parseSubtitleDataWithLineBreaks(timedText)
-}
-
-async function fetchYoutubeWatchInfo() {
-  const videoId = fetchVideoId()
-  const videoUrl = `https://www.youtube.com/watch?v=${videoId}`
-  const videoPageResponse = await fetch(videoUrl, {
-    credentials: 'include',
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-    },
-  })
-
-  const html = await videoPageResponse.text()
-
-  const apiKeyMatch = html.match(/"INNERTUBE_API_KEY":"([^"]+)"/)
-  const clientVersionMatch = html.match(/"INNERTUBE_CONTEXT_CLIENT_VERSION":"([^"]+)"/)
-  const visitorDataMatch = html.match(/"VISITOR_DATA":"([^"]+)"/)
-  const sessionTokenMatch = html.match(/"XSRF_TOKEN":"([^"]+)"/)
-  const delegatedSessionIdMatch = html.match(/"DELEGATED_SESSION_ID":"([^"]+)"/)
-  const sessionIndexMatch = html.match(/"SESSION_INDEX":"([^"]+)"/)
-
-  if (!apiKeyMatch)
-    throw new Error('No API key')
-
-  const apiKey = apiKeyMatch[1]
-  const clientVersion = clientVersionMatch ? clientVersionMatch[1] : '2.20241128.01.00'
-  const visitorData = visitorDataMatch ? visitorDataMatch[1] : null
-  const sessionToken = sessionTokenMatch ? sessionTokenMatch[1] : null
-  const delegatedSessionId = delegatedSessionIdMatch ? delegatedSessionIdMatch[1] : null
-  const sessionIndex = sessionIndexMatch ? sessionIndexMatch[1] : null
-
-  return {
-    apiKey,
-    clientVersion,
-    visitorData,
-    sessionToken,
-    delegatedSessionId,
-    sessionIndex,
-  }
-}
-
-async function fetchYoutubePlayerInfo(): Promise<YoutubePlayerInfo> {
-  const videoId = fetchVideoId()
-
-  const { apiKey, clientVersion, visitorData, sessionToken, delegatedSessionId, sessionIndex } = await fetchYoutubeWatchInfo()
-
-  const endpoint = `https://www.youtube.com/youtubei/v1/player?key=${apiKey}`
-
-  const requestBody: YoutubePlayerRequestBody = {
-    context: {
-      client: {
-        clientName: 'WEB',
-        clientVersion,
-        hl: 'en',
-        gl: 'US',
-      },
-    },
-    videoId,
-  }
-
-  if (visitorData) {
-    requestBody.context.client.visitorData = visitorData
-  }
-
-  if (delegatedSessionId) {
-    requestBody.context.user = {
-      onBehalfOfUser: delegatedSessionId,
+            // 发送给 Content Script
+            window.postMessage(
+              {
+                type: 'WXT_YT_SUBTITLE_INTERCEPT',
+                payload: responseText,
+                lang,
+                url: urlString,
+              },
+              '*',
+            )
+          }
+        }
+        catch (err) {
+          console.error('[XHR Inject] 解析字幕失败:', err)
+        }
+      })
     }
+
+    // 执行原始 open 方法
+    return originalOpen.call(this, method, url, async ?? true, username, password)
   }
 
-  const headers: YoutubePlayerRequestHeader = {
-    'Content-Type': 'application/json',
-    'X-YouTube-Client-Name': '1',
-    'X-YouTube-Client-Version': clientVersion,
-  }
-
-  if (sessionToken) {
-    headers['X-Goog-AuthUser'] = sessionIndex || '0'
-    headers['X-Goog-PageId'] = sessionToken
-  }
-
-  const playerResponse = await fetch(endpoint, {
-    method: 'POST',
-    credentials: 'include',
-    headers,
-    body: JSON.stringify(requestBody),
-  })
-
-  if (!playerResponse.ok) {
-    throw new Error(`HTTP ${playerResponse.status}`)
-  }
-
-  const playerInfo: YoutubePlayerInfo = await playerResponse.json()
-  return playerInfo
 }
 
-async function fetchTimedText(playerInfo: YoutubePlayerInfo) {
-  const captionTracks = playerInfo?.captions?.playerCaptionsTracklistRenderer?.captionTracks
-
-  if (!captionTracks || captionTracks.length === 0) {
-    throw new Error('No captions')
-  }
-
-  const selectedTrack = captionTracks[0]
-
-  const url = `${selectedTrack.baseUrl}&fmt=json3`
-
-  const subtitleResponse = await fetch(url, {
-    credentials: 'include',
-  })
-
-  const subtitleData: YoutubeSubtitleResponse = await subtitleResponse.json()
-
-  return subtitleData.events
-}
-
-function isBlocked(playerInfo: YoutubePlayerInfo) {
-  if (playerInfo?.error)
-    return true
-
-  // ['LOGIN_REQUIRED', 'UNPLAYABLE', 'ERROR']
-  return playerInfo?.playabilityStatus?.status !== 'OK'
-}
-
-function parseSubtitleDataWithLineBreaks(events: YoutubeTimedText[] = []) {
-  const result = []
-  let lines = []
-  let currentStart = null
+/**
+ * 解析字幕数据，保留换行符逻辑
+ */
+function parseSubtitleData(events: YoutubeTimedText[] = []): YoutubeSubtitle[] {
+  const result: YoutubeSubtitle[] = []
 
   for (const event of events) {
     if (!event.segs)
       continue
 
-    const text = event.segs.map(seg => seg.utf8).join('')
+    const eventStartMs = event.tStartMs
 
-    if (event.aAppend === 1 && text === '\n') {
-      continue
-    }
+    for (const seg of event.segs) {
+      // 跳过换行符
+      if (seg.utf8 === '\n')
+        continue
 
-    if (event.aAppend === 1) {
-      if (lines.length > 0) {
-        lines[lines.length - 1] += text
+      const startTime = eventStartMs + (seg.tOffsetMs || 0)
+      // 计算结束时间(如果有下一个seg,用下一个的开始时间;否则用event的结束时间)
+      const nextSegIndex = event.segs.indexOf(seg) + 1
+      let endTime = eventStartMs + (event.dDurationMs || 0)
+
+      if (nextSegIndex < event.segs.length) {
+        const nextSeg = event.segs[nextSegIndex]
+        endTime = (eventStartMs + (nextSeg.tOffsetMs || 0))
       }
-      continue
-    }
+      else {
+        endTime = (eventStartMs + (event.dDurationMs || 0))
+      }
 
-    if (lines.length > 0 && currentStart !== null) {
-      const endTime = event.tStartMs / 1000
       result.push({
-        text: lines.join('\n').trim(),
-        start: currentStart,
+        text: seg.utf8,
+        start: startTime,
         end: endTime,
       })
-      lines = []
     }
-
-    lines.push(text)
-    currentStart = event.tStartMs / 1000
-  }
-
-  if (lines.length > 0 && currentStart !== null) {
-    const lastEvent = events.filter(event => event.segs).pop()
-    if (!lastEvent)
-      return result
-    const endTime = (lastEvent?.tStartMs + (lastEvent?.dDurationMs || 0)) / 1000
-    result.push({
-      text: lines.join('\n').trim(),
-      start: currentStart,
-      end: endTime,
-    })
   }
 
   return result
+}
+
+/**
+ * 字幕管理器类
+ */
+class YouTubeSubtitleManager {
+  private subtitleResolvers: Array<(data: YoutubeSubtitle[]) => void> = []
+  private checkInterval: NodeJS.Timeout | null = null
+  private isInitialized = false
+
+  /**
+   * 初始化：注入拦截器并开始监听
+   */
+  public init() {
+    if (this.isInitialized) {
+      return
+    }
+
+    this.isInitialized = true
+    this.injectScript()
+    this.startMessageListener()
+
+    // 稍微延迟一点启动点击检查，让页面元素先渲染
+    const timeoutId = setTimeout(() => {
+      this.startAutoClicker()
+      this.setupUrlObserver()
+    }, 1000)
+    // 保持引用以防需要清理
+    void timeoutId
+  }
+
+  /**
+   * 等待字幕数据
+   */
+  public waitForSubtitles(): Promise<YoutubeSubtitle[]> {
+    return new Promise((resolve) => {
+      this.subtitleResolvers.push(resolve)
+    })
+  }
+
+  /**
+   * 1. 将 mainWorldInterceptor 函数序列化并注入到页面头部
+   */
+  private injectScript() {
+    const script = document.createElement('script')
+    const scriptContent = mainWorldInterceptor.toString()
+    script.textContent = `(${scriptContent})();`
+    // 插入到 documentElement (html标签) 确保最早执行
+    const target = document.head || document.documentElement
+    target.appendChild(script)
+    script.remove()
+  }
+
+  /**
+   * 2. 监听来自 Main World 的消息
+   */
+  private startMessageListener() {
+    window.addEventListener('message', (event) => {
+      if (event.source !== window)
+        return
+
+      if (event.data.type === 'WXT_YT_SUBTITLE_INTERCEPT') {
+        this.handleSubtitleData(event.data)
+      }
+    })
+  }
+
+  /**
+   * 处理接收到的字幕数据
+   */
+  private handleSubtitleData(data: { payload: string, lang: string, url: string }) {
+    console.log('🔥 捕获到字幕数据 (XHR):', data.lang)
+
+    try {
+      // 解析 JSON 数据
+      const subtitleResponse: YoutubeSubtitleResponse = JSON.parse(data.payload)
+
+      // 转换为 YoutubeSubtitle 格式
+      const subtitles = parseSubtitleData(subtitleResponse.events)
+
+      console.log('[YouTube Subtitle] 解析字幕成功:', subtitles.length)
+
+      // 解决所有等待的 Promise
+      this.subtitleResolvers.forEach(resolve => resolve(subtitles))
+      this.subtitleResolvers = []
+    }
+    catch (error) {
+      console.error('[YouTube Subtitle] 解析字幕失败:', error)
+    }
+  }
+
+  /**
+   * 3. 智能点击逻辑
+   */
+  private tryClickSubtitleButton() {
+    const ccButton = document.querySelector('.ytp-subtitles-button') as HTMLElement
+
+    if (ccButton) {
+      // 获取按钮状态：true=已开启，false=已关闭
+      const isPressed = ccButton.getAttribute('aria-pressed') === 'true'
+
+      if (!isPressed) {
+        console.log('[WXT] 检测到字幕未开启，模拟点击...')
+        ccButton.click()
+      }
+      else {
+        // 如果已经开启了，拦截器会自动捕获 YouTube 自动发出的请求
+        console.log('[WXT] 字幕已默认开启，等待拦截自动请求...')
+      }
+    }
+  }
+
+  /**
+   * 启动循环检查
+   */
+  private startAutoClicker() {
+    this.tryClickSubtitleButton()
+
+    if (this.checkInterval)
+      clearInterval(this.checkInterval)
+
+    let attempts = 0
+    this.checkInterval = setInterval(() => {
+      this.tryClickSubtitleButton()
+      attempts++
+      // 检查次数稍微多一点，适应慢网速
+      if (attempts > 15) {
+        if (this.checkInterval)
+          clearInterval(this.checkInterval)
+      }
+    }, 1000)
+  }
+
+  /**
+   * 4. 处理 YouTube 单页应用 (SPA) 跳转
+   */
+  private setupUrlObserver() {
+    let lastUrl = location.href
+
+    const observer = new MutationObserver(() => {
+      const url = location.href
+      if (url !== lastUrl) {
+        lastUrl = url
+        console.log('[WXT] 页面跳转检测，重置字幕检查...')
+        this.startAutoClicker()
+      }
+    })
+
+    observer.observe(document, { subtree: true, childList: true })
+  }
+}
+
+// 创建全局单例
+let globalSubtitleManager: YouTubeSubtitleManager | null = null
+
+/**
+ * 初始化字幕拦截器
+ * 应该在 content script 启动时尽早调用
+ */
+export function initSubtitleInterceptor() {
+  if (!globalSubtitleManager) {
+    globalSubtitleManager = new YouTubeSubtitleManager()
+    globalSubtitleManager.init()
+  }
+}
+
+/**
+ * 获取 YouTube 字幕
+ * 使用拦截注入的方式，等待 XHR 请求被拦截
+ */
+export async function fetchYoutubeSubtitles(): Promise<YoutubeSubtitle[]> {
+  // 确保拦截器已初始化
+  if (!globalSubtitleManager) {
+    initSubtitleInterceptor()
+  }
+
+  // 等待字幕数据
+  return globalSubtitleManager!.waitForSubtitles()
 }
