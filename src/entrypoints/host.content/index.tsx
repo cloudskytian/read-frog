@@ -13,6 +13,7 @@ import { protectSelectAllShadowRoot } from '@/utils/select-all'
 import { insertShadowRootUIWrapperInto } from '@/utils/shadow-root'
 import { addStyleToShadow } from '@/utils/styles'
 import { registerSubtitleManager } from '@/utils/subtitle'
+import { initSubtitleInterceptor } from '@/utils/subtitle/youtube/fetch-subtitles'
 import App from './app'
 import { bindTranslationShortcutKey } from './translation-control/bind-translation-shortcut'
 import { registerNodeTranslationTriggers } from './translation-control/node-translation'
@@ -37,6 +38,11 @@ export default defineContentScript({
     window.__READ_FROG_HOST_INJECTED__ = true
 
     // eruda.init()
+
+    // 对于 YouTube，尽早初始化字幕拦截器
+    if (window.location.hostname === 'www.youtube.com') {
+      initSubtitleInterceptor()
+    }
 
     const ui = await createShadowRootUi(ctx, {
       name: `${kebabCase(APP_NAME)}-selection`,
