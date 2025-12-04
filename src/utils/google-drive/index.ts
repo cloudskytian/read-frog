@@ -16,6 +16,6 @@ export {
 } from './auth'
 
 export {
-  type RemoteConfigData,
+  type ModifiedConfigData,
   syncConfig,
 } from './sync'

@@ -45,16 +45,18 @@ function createMockConfig(overrides: Partial<Config> = {}): Config {
     translate: {
       providerId: 'test-translate',
       mode: 'bilingual',
+      enableAIContentAware: false,
+      customPromptsConfig: {
+        promptId: null,
+        patterns: [],
+      },
       node: { enabled: true, hotkey: 'Control' },
       page: {
         range: 'main',
         autoTranslatePatterns: [],
         autoTranslateLanguages: [],
         shortcut: ['ctrl+shift+t'],
-      },
-      promptsConfig: {
-        prompt: '',
-        patterns: [],
+        enableLLMDetection: false,
       },
       requestQueueConfig: {
         capacity: 10,
@@ -75,6 +77,7 @@ function createMockConfig(overrides: Partial<Config> = {}): Config {
     selectionToolbar: { enabled: true, disabledSelectionToolbarPatterns: [] },
     sideContent: { width: 500 },
     betaExperience: { enabled: false },
+    contextMenu: { enabled: true },
     ...overrides,
   }
 }
