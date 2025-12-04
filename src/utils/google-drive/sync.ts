@@ -89,12 +89,18 @@ async function getRemoteConfig(): Promise<ModifiedConfigData | null> {
 
     const content = await downloadFile(file.id)
     const remoteData = JSON.parse(content) as ModifiedConfigData
-    const parsedConfig = configSchema.safeParse(remoteData[CONFIG_STORAGE_KEY])
+    const remoteConfig = remoteData[CONFIG_STORAGE_KEY]
+    const migratedConfig = await migrateConfig(remoteConfig, remoteData[CONFIG_SCHEMA_VERSION_STORAGE_KEY])
+    const parsedConfig = configSchema.safeParse(migratedConfig)
     if (!parsedConfig.success) {
       throw new Error('Remote config is invalid')
     }
 
-    return remoteData
+    return {
+      [CONFIG_STORAGE_KEY]: parsedConfig.data,
+      [CONFIG_SCHEMA_VERSION_STORAGE_KEY]: CONFIG_SCHEMA_VERSION,
+      lastModified: remoteData.lastModified,
+    }
   }
   catch (error) {
     logger.error('Failed to get remote config', error)
