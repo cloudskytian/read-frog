@@ -73,9 +73,7 @@ export function GoogleDriveSyncCard() {
     }
   }
 
-  const description = lastSyncTime
-    ? `${i18n.t('options.config.sync.googleDrive.description')} (${i18n.t('options.config.sync.googleDrive.lastSyncTime')}: ${formatLastSyncTime(lastSyncTime)})`
-    : i18n.t('options.config.sync.googleDrive.description')
+  const description = i18n.t('options.config.sync.googleDrive.description')
 
   return (
     <>
@@ -83,7 +81,7 @@ export function GoogleDriveSyncCard() {
         title={i18n.t('options.config.sync.googleDrive.title')}
         description={description}
       >
-        <div className="w-full flex justify-end">
+        <div className="w-full flex flex-col items-end gap-2">
           <Button
             onClick={handleSync}
             disabled={isSyncing}
@@ -93,6 +91,14 @@ export function GoogleDriveSyncCard() {
               ? i18n.t('options.config.sync.googleDrive.syncing')
               : i18n.t('options.config.sync.googleDrive.sync')}
           </Button>
+          {lastSyncTime && (
+            <span className="text-xs text-muted-foreground">
+              {i18n.t('options.config.sync.googleDrive.lastSyncTime')}
+              :
+              {' '}
+              {formatLastSyncTime(lastSyncTime)}
+            </span>
+          )}
         </div>
       </ConfigCard>
 
