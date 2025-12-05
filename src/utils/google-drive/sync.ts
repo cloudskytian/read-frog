@@ -19,14 +19,16 @@ interface ConfigMeta extends Record<string, unknown> {
   modifiedAt: number
 }
 
+export interface ConflictData {
+  base: Config
+  local: Config
+  remote: Config
+}
+
 export class ConfigConflictError extends Error {
   name = 'ConfigConflictError'
 
-  constructor(
-    public base: Config,
-    public local: Config,
-    public remote: Config,
-  ) {
+  constructor(public data: ConflictData) {
     super('Config sync conflict detected')
   }
 }
@@ -269,11 +271,11 @@ export async function syncConfig(): Promise<void> {
       // Conflicts detected, throw error for UI to handle
       logger.warn(`Conflicts detected: ${conflicts.length} conflicting fields`)
 
-      throw new ConfigConflictError(
-        baseConfig,
-        local[CONFIG_STORAGE_KEY],
-        remote[CONFIG_STORAGE_KEY],
-      )
+      throw new ConfigConflictError({
+        base: baseConfig,
+        local: local[CONFIG_STORAGE_KEY],
+        remote: remote[CONFIG_STORAGE_KEY],
+      })
     }
 
     if (remote.lastModified > local.lastModified) {

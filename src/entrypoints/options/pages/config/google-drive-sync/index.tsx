@@ -1,4 +1,4 @@
-import type { Config } from '@/types/config/config'
+import type { ConflictData } from '@/utils/google-drive/sync'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { useAtomValue } from 'jotai'
@@ -6,14 +6,14 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/shadcn/button'
 import { lastSyncTimeAtom } from '@/utils/atoms/last-sync-time'
-import { ConfigConflictError, syncConfig, syncMergedConfig } from '@/utils/google-drive/sync'
+import { ConfigConflictError, syncConfig } from '@/utils/google-drive/sync'
 import { logger } from '@/utils/logger'
-import { ConfigCard } from '../../components/config-card'
+import { ConfigCard } from '../../../components/config-card'
 import { ConflictResolutionDialog } from './components/conflict-resolution-dialog'
 
 export function GoogleDriveSyncCard() {
   const [isSyncing, setIsSyncing] = useState(false)
-  const [conflictData, setConflictData] = useState<ConfigConflictError | null>(null)
+  const [conflictData, setConflictData] = useState<ConflictData | null>(null)
   const lastSyncTime = useAtomValue(lastSyncTimeAtom)
 
   const handleSync = async () => {
@@ -26,7 +26,7 @@ export function GoogleDriveSyncCard() {
     catch (error) {
       if (error instanceof ConfigConflictError) {
         logger.info('Conflict detected, opening resolution dialog')
-        setConflictData(error)
+        setConflictData(error.data)
       }
       else {
         logger.error('Google Drive sync error from UI', error)
@@ -38,40 +38,15 @@ export function GoogleDriveSyncCard() {
     }
   }
 
-  const handleConflictCancel = () => {
-    setConflictData(null)
-    logger.info('Conflict cancelled')
-    toast.error(i18n.t('options.config.sync.googleDrive.syncError'))
-  }
-
   const formatLastSyncTime = (timestamp: number): string => {
     return new Date(timestamp).toLocaleString()
   }
-
-  const handleConflictConfirm = async (mergedConfig: Config): Promise<void> => {
-    setIsSyncing(true)
-
-    try {
-      await syncMergedConfig(mergedConfig)
-      setConflictData(null)
-      toast.success(i18n.t('options.config.sync.googleDrive.syncSuccess'))
-    }
-    catch (error) {
-      logger.error('Google Drive sync error from UI', error)
-      toast.error(i18n.t('options.config.sync.googleDrive.syncError'))
-    }
-    finally {
-      setIsSyncing(false)
-    }
-  }
-
-  const description = i18n.t('options.config.sync.googleDrive.description')
 
   return (
     <>
       <ConfigCard
         title={i18n.t('options.config.sync.googleDrive.title')}
-        description={description}
+        description={i18n.t('options.config.sync.googleDrive.description')}
       >
         <div className="w-full flex flex-col items-end gap-2">
           <Button
@@ -96,13 +71,15 @@ export function GoogleDriveSyncCard() {
 
       {conflictData && (
         <ConflictResolutionDialog
-          open
-          base={conflictData.base}
-          local={conflictData.local}
-          remote={conflictData.remote}
-          isSyncing={isSyncing}
-          onCancel={handleConflictCancel}
-          onConfirm={handleConflictConfirm}
+          conflictData={conflictData}
+          onResolved={() => {
+            setConflictData(null)
+            toast.success(i18n.t('options.config.sync.googleDrive.syncSuccess'))
+          }}
+          onCancelled={() => {
+            setConflictData(null)
+            toast.error(i18n.t('options.config.sync.googleDrive.syncError'))
+          }}
         />
       )}
     </>

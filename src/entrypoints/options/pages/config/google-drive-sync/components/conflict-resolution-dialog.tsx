@@ -1,5 +1,6 @@
 import type { Config } from '@/types/config/config'
 import type { FieldConflict } from '@/utils/google-drive/conflict-merge'
+import type { ConflictData } from '@/utils/google-drive/sync'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { useMemo, useState } from 'react'
@@ -14,28 +15,24 @@ import {
   AlertDialogTitle,
 } from '@/components/shadcn/alert-dialog'
 import { applyResolutions, detectConflicts } from '@/utils/google-drive/conflict-merge'
+import { syncMergedConfig } from '@/utils/google-drive/sync'
+import { logger } from '@/utils/logger'
 import { JsonTreeView } from './json-tree-view'
 
 interface ConflictResolutionDialogProps {
-  open: boolean
-  base: Config
-  local: Config
-  remote: Config
-  isSyncing: boolean
-  onCancel: () => void
-  onConfirm: (mergedConfig: Config) => Promise<void>
+  conflictData: ConflictData
+  onResolved: () => void
+  onCancelled: () => void
 }
 
 export function ConflictResolutionDialog({
-  open,
-  base,
-  local,
-  remote,
-  isSyncing,
-  onCancel,
-  onConfirm,
+  conflictData,
+  onResolved,
+  onCancelled,
 }: ConflictResolutionDialogProps) {
+  const { base, local, remote } = conflictData
   const [resolutions, setResolutions] = useState<Record<string, 'local' | 'remote'>>({})
+  const [isConfirming, setIsConfirming] = useState(false)
 
   const diffResult = useMemo(() => {
     return detectConflicts(base, local, remote)
@@ -75,13 +72,27 @@ export function ConflictResolutionDialog({
   }
 
   const handleConfirm = async () => {
-    await onConfirm(mergedConfig)
+    setIsConfirming(true)
+    try {
+      await syncMergedConfig(mergedConfig)
+      onResolved()
+    }
+    catch (error) {
+      logger.error('Failed to sync merged config', error)
+      onCancelled()
+    }
+    finally {
+      setIsConfirming(false)
+    }
+  }
+
+  const handleCancel = () => {
+    logger.info('Conflict resolution cancelled')
+    onCancelled()
   }
 
   return (
-    <AlertDialog
-      open={open}
-    >
+    <AlertDialog open>
       <AlertDialogContent className="max-h-[90vh] flex flex-col" style={{ maxWidth: '960px' }}>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
@@ -108,17 +119,17 @@ export function ConflictResolutionDialog({
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isSyncing} onClick={onCancel}>
+          <AlertDialogCancel disabled={isConfirming} onClick={handleCancel}>
             {i18n.t('options.config.sync.googleDrive.conflict.cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
-            disabled={!allResolved || isSyncing}
+            disabled={!allResolved || isConfirming}
             onClick={(e) => {
               e.preventDefault()
               void handleConfirm()
             }}
           >
-            {isSyncing
+            {isConfirming
               ? i18n.t('options.config.sync.googleDrive.syncing')
               : i18n.t('options.config.sync.googleDrive.conflict.confirm')}
           </AlertDialogAction>
