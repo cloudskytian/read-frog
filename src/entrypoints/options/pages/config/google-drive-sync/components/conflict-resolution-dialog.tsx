@@ -93,7 +93,7 @@ export function ConflictResolutionDialog({
 
   return (
     <AlertDialog open>
-      <AlertDialogContent className="max-h-[90vh] flex flex-col" style={{ maxWidth: '960px' }}>
+      <AlertDialogContent className="md:max-w-2xl lg:max-w-4xl xl:max-w-5xl max-h-[90vh] flex flex-col">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <Icon icon="mdi:alert" className="size-5 text-yellow-500" />
@@ -101,11 +101,11 @@ export function ConflictResolutionDialog({
           </AlertDialogTitle>
           <AlertDialogDescription className="flex items-center justify-between">
             <span>{i18n.t('options.config.sync.googleDrive.conflict.description')}</span>
-            <span className="text-xs">
-              {i18n.t('options.config.sync.googleDrive.conflict.progress' as any, [resolvedCount, diffResult.conflicts.length])}
-            </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
+        <span className="text-xs">
+          {i18n.t('options.config.sync.googleDrive.conflict.progress', [resolvedCount, diffResult.conflicts.length])}
+        </span>
 
         <div className="flex-1 overflow-scroll">
           <MergedConfigView
