@@ -1,10 +1,12 @@
 import type { Config } from '@/types/config/config'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
-import { useEffect, useState } from 'react'
+import { useAtomValue } from 'jotai'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/shadcn/button'
-import { ConfigConflictError, getLastSyncTime, syncConfig, syncMergedConfig } from '@/utils/google-drive/sync'
+import { lastSyncTimeAtom } from '@/utils/atoms/last-sync-time'
+import { ConfigConflictError, syncConfig, syncMergedConfig } from '@/utils/google-drive/sync'
 import { logger } from '@/utils/logger'
 import { ConfigCard } from '../../components/config-card'
 import { ConflictResolutionDialog } from './components/conflict-resolution-dialog'
@@ -12,23 +14,13 @@ import { ConflictResolutionDialog } from './components/conflict-resolution-dialo
 export function GoogleDriveSyncCard() {
   const [isSyncing, setIsSyncing] = useState(false)
   const [conflictData, setConflictData] = useState<ConfigConflictError | null>(null)
-  const [lastSyncTime, setLastSyncTime] = useState<number | null>(null)
-
-  useEffect(() => {
-    const loadLastSyncTime = async () => {
-      const time = await getLastSyncTime()
-      setLastSyncTime(time)
-    }
-    void loadLastSyncTime()
-  }, [])
+  const lastSyncTime = useAtomValue(lastSyncTimeAtom)
 
   const handleSync = async () => {
     setIsSyncing(true)
 
     try {
       await syncConfig()
-      const time = await getLastSyncTime()
-      setLastSyncTime(time)
       toast.success(i18n.t('options.config.sync.googleDrive.syncSuccess'))
     }
     catch (error) {
