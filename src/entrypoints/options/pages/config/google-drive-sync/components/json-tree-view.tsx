@@ -112,13 +112,11 @@ export function JsonTreeView({
         <ConflictField
           key={pathKey}
           indent={level * 20 + 28}
-          fieldKey={key}
           conflict={conflict}
           resolution={resolutions[pathKey]}
           onSelectLocal={() => onSelectLocal(pathKey)}
           onSelectRemote={() => onSelectRemote(pathKey)}
           onReset={() => onReset(pathKey)}
-          isArray={isArrayItem}
         />
       )
     }

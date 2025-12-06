@@ -3,19 +3,18 @@ import type { FieldConflict } from '@/utils/google-drive/conflict-merge'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { Button } from '@/components/shadcn/button'
+import { cn } from '@/lib/utils'
 import { formatValue } from './utils'
 
 type Resolution = 'local' | 'remote'
 
 interface ConflictFieldProps {
-  fieldKey: string
   conflict: FieldConflict
   resolution?: Resolution
   onSelectLocal: () => void
   onSelectRemote: () => void
   onReset: () => void
   indent: number
-  isArray: boolean
 }
 
 const STYLE_MAP = {
@@ -48,49 +47,57 @@ interface OptionRowProps {
   value: unknown
   isSelected: boolean
   fieldKey: string
-  isArray: boolean
+  showFieldKey: boolean
   onClick: () => void
 }
 
-function OptionRow({ type, value, isSelected, fieldKey, isArray, onClick }: OptionRowProps) {
-  const style = STYLE_MAP[type]
+function OptionRow({ type, value, isSelected, fieldKey, showFieldKey, onClick }: OptionRowProps) {
+  const { text, hover, selected, badge, label } = STYLE_MAP[type]
+
   return (
     <div
-      className={`flex items-center cursor-pointer ${style.hover} py-1 ps-(--indent) ${isSelected ? style.selected : ''}`}
+      className={cn('flex items-center cursor-pointer py-1 ps-(--indent)', hover, isSelected && selected)}
       onClick={onClick}
     >
-      <span className={`${style.text} text-xs px-2 py-0.5 ${style.badge} rounded mr-2 shrink-0`}>
-        {i18n.t(style.label)}
+      <span className={cn('text-xs px-2 py-0.5 rounded mr-2 shrink-0', text, badge)}>
+        {i18n.t(label)}
       </span>
-      {!isArray && (
-        <span className={style.text}>
-          "
-          {fieldKey}
-          "
-        </span>
+      {showFieldKey && (
+        <>
+          <span className={text}>
+            "
+            {fieldKey}
+            "
+          </span>
+          <span className="text-slate-500 mx-1">:</span>
+        </>
       )}
-      {!isArray && <span className="text-slate-500 dark:text-slate-500 mx-1">:</span>}
       <span className="text-slate-700 dark:text-slate-300">{formatValue(value)}</span>
-      {isSelected && <Icon icon="mdi:check-circle" className={`size-4 ${style.text} ml-2`} />}
+      {isSelected && <Icon icon="mdi:check-circle" className={cn('size-4 ml-2', text)} />}
     </div>
   )
 }
 
 export function ConflictField({
-  fieldKey,
   conflict,
   resolution,
   onSelectLocal,
   onSelectRemote,
   onReset,
-  isArray,
   indent,
 }: ConflictFieldProps) {
+  const fieldKey = conflict.path.at(-1) ?? ''
+  const showFieldKey = Number.isNaN(Number(fieldKey))
   const containerStyle = resolution ? STYLE_MAP[resolution] : STYLE_MAP.unresolved
+
+  const options = [
+    { type: 'local' as const, value: conflict.localValue, onClick: onSelectLocal },
+    { type: 'remote' as const, value: conflict.remoteValue, onClick: onSelectRemote },
+  ]
 
   return (
     <div
-      className={`${containerStyle.bg} border-l-4 ${containerStyle.border} my-1`}
+      className={cn('border-l-4 my-1', containerStyle.bg, containerStyle.border)}
       style={{ '--indent': `${indent}px` } as CSSProperties}
     >
       <div className="flex items-center py-1 ps-(--indent)">
@@ -111,22 +118,17 @@ export function ConflictField({
         )}
       </div>
 
-      <OptionRow
-        type="local"
-        value={conflict.localValue}
-        isSelected={resolution === 'local'}
-        fieldKey={fieldKey}
-        isArray={isArray}
-        onClick={onSelectLocal}
-      />
-      <OptionRow
-        type="remote"
-        value={conflict.remoteValue}
-        isSelected={resolution === 'remote'}
-        fieldKey={fieldKey}
-        isArray={isArray}
-        onClick={onSelectRemote}
-      />
+      {options.map(({ type, value, onClick }) => (
+        <OptionRow
+          key={type}
+          type={type}
+          value={value}
+          isSelected={resolution === type}
+          fieldKey={fieldKey}
+          showFieldKey={showFieldKey}
+          onClick={onClick}
+        />
+      ))}
     </div>
   )
 }
