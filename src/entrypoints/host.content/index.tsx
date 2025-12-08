@@ -12,8 +12,7 @@ import { onMessage, sendMessage } from '@/utils/message'
 import { protectSelectAllShadowRoot } from '@/utils/select-all'
 import { insertShadowRootUIWrapperInto } from '@/utils/shadow-root'
 import { addStyleToShadow } from '@/utils/styles'
-import { registerSubtitleManager } from '@/utils/subtitle'
-import { initSubtitleInterceptor } from '@/utils/subtitle/youtube/fetch-subtitles'
+import { registerSubtitleManager } from '@/utils/subtitles'
 import App from './app'
 import { bindTranslationShortcutKey } from './translation-control/bind-translation-shortcut'
 import { registerNodeTranslationTriggers } from './translation-control/node-translation'
@@ -27,9 +26,9 @@ export default defineContentScript({
   async main(ctx) {
     // eruda.init()
 
-    // 对于 YouTube，尽早初始化字幕拦截器
-    if (window.location.hostname === 'www.youtube.com') {
-      initSubtitleInterceptor()
+    if (window.location.hostname.includes('youtube.com')) {
+      const subtitleManager = registerSubtitleManager('youtube')
+      subtitleManager.initialize()
     }
 
     const ui = await createShadowRootUi(ctx, {
@@ -73,6 +72,7 @@ export default defineContentScript({
     const handleUrlChange = async (from: string, to: string) => {
       if (from !== to) {
         logger.info('URL changed from', from, 'to', to)
+
         if (manager.isActive) {
           manager.stop()
         }
@@ -119,11 +119,6 @@ export default defineContentScript({
 
       // Check if auto-translation should be enabled for initial page load
       void sendMessage('checkAndAskAutoPageTranslation', { url: window.location.href, detectedCodeOrUnd })
-    }
-
-    if (['www.youtube.com'].includes(window.location.hostname)) {
-      const subtitleManager = registerSubtitleManager('youtube')
-      subtitleManager.initialize()
     }
   },
 })

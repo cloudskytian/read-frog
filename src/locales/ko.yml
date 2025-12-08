@@ -431,3 +431,12 @@ speak:
   openaiApiKeyNotConfigured: OpenAI API 키가 구성되지 않았습니다
 shortcutKeySelector:
   placeholder: 단축키를 입력해 주세요
+subtitle:
+  state:
+    idle: 준비 완료
+    fetching: 자막 가져오는 중 (약 2분 소요)
+    fetchSuccess: 자막 로드 완료
+    fetchFailed: 자막 가져오기 실패
+    processing: 자막 번역 중 (약 2분 소요)
+    completed: 번역 완료
+    error: 오류 발생

@@ -54,7 +54,6 @@ export default defineConfig({
   },
   runner: {
     chromiumArgs: [
-      '--user-data-dir=C:\\Users\\taiiiyang\\AppData\\Local\\Google\\Chrome\\User Data',
       '--profile-directory=Default',
       '--disable-blink-features=AutomationControlled',
       '--disable-dev-shm-usage',

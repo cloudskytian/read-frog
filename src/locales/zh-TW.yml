@@ -432,3 +432,12 @@ speak:
   openaiApiKeyNotConfigured: OpenAI API Key 未配置
 shortcutKeySelector:
   placeholder: 請輸入快捷鍵
+subtitle:
+  state:
+    idle: 就緒
+    fetching: 字幕獲取中（預計等待 2 分鐘）
+    fetchSuccess: 字幕載入成功
+    fetchFailed: 字幕獲取失敗
+    processing: 字幕翻譯中（預計等待 2 分鐘）
+    completed: 翻譯完成
+    error: 發生錯誤

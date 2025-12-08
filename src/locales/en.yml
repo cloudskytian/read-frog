@@ -432,3 +432,12 @@ speak:
   openaiApiKeyNotConfigured: OpenAI API key is not configured
 shortcutKeySelector:
   placeholder: Please enter the shortcut
+subtitle:
+  state:
+    idle: Ready
+    fetching: Fetching subtitles (approx. 2 minutes)
+    fetchSuccess: Subtitles loaded
+    fetchFailed: Failed to fetch subtitles
+    processing: Translating subtitles (approx. 2 minutes)
+    completed: Translation completed
+    error: Error occurred
