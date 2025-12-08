@@ -506,3 +506,12 @@ speak:
   openaiApiKeyNotConfigured: OpenAI APIキーが設定されていません
 shortcutKeySelector:
   placeholder: ショートカットを入力してください
+subtitle:
+  state:
+    idle: 準備完了
+    fetching: 字幕取得中（約2分）
+    fetchSuccess: 字幕読み込み完了
+    fetchFailed: 字幕取得失敗
+    processing: 字幕翻訳中（約2分）
+    completed: 翻訳完了
+    error: エラーが発生しました

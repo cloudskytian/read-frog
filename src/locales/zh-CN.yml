@@ -507,3 +507,12 @@ speak:
   openaiApiKeyNotConfigured: OpenAI API Key 未配置
 shortcutKeySelector:
   placeholder: 请输入快捷键
+subtitle:
+  state:
+    idle: 就绪
+    fetching: 字幕获取中（预计等待 2 分钟）
+    fetchSuccess: 字幕加载成功
+    fetchFailed: 字幕获取失败
+    processing: 字幕翻译中（预计等待 2 分钟）
+    completed: 翻译完成
+    error: 发生错误
