@@ -1,6 +1,4 @@
 import { i18n } from '#imports'
-import { Button } from '@/components/shadcn/button'
-import example from '@/utils/subtitles/youtube'
 import { PageLayout } from '../../components/page-layout'
 import { AIContentAware } from './ai-content-aware'
 import { AutoTranslateLanguages } from './auto-translate-languages'

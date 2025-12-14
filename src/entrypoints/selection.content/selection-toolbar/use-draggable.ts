@@ -11,7 +11,6 @@ interface UseDraggableOptions {
   onPositionChange?: (position: Position) => void
   margin?: number
   isVisible: boolean
-  constrainToParent?: boolean
 }
 
 interface UseDraggableReturn {
@@ -28,7 +27,7 @@ interface UseDraggableReturn {
  * @returns Object containing position, drag state, ref and styles
  */
 export function useDraggable(options: UseDraggableOptions): UseDraggableReturn {
-  const { initialPosition = { x: 0, y: 0 }, onPositionChange, margin = 0, isVisible, constrainToParent = false } = options
+  const { initialPosition = { x: 0, y: 0 }, onPositionChange, margin = 0, isVisible } = options
 
   const [isDragging, setIsDragging] = useState(false)
   const dragOffsetRef = useRef<Position>({ x: 0, y: 0 })
@@ -46,41 +45,20 @@ export function useDraggable(options: UseDraggableOptions): UseDraggableReturn {
     const containerWidth = containerRect.width
     const containerHeight = containerRect.height
 
-    let minX: number
-    let maxX: number
-    let minY: number
-    let maxY: number
-
-    if (constrainToParent && containerRef.current.parentElement) {
-      const parentRect = containerRef.current.parentElement.getBoundingClientRect()
-      minX = margin
-      maxX = parentRect.width - containerWidth - margin
-      minY = margin
-      maxY = parentRect.height - containerHeight - margin
-    }
-    else {
-      minX = margin
-      maxX = window.innerWidth - containerWidth - margin
-      minY = margin
-      maxY = window.innerHeight - containerHeight - margin
-    }
+    const minX = margin
+    const maxX = window.innerWidth - containerWidth - margin
+    const minY = margin
+    const maxY = window.innerHeight - containerHeight - margin
 
     const clampedPosition = {
       x: Math.max(minX, Math.min(newPosition.x, maxX)),
       y: Math.max(minY, Math.min(newPosition.y, maxY)),
     }
 
-    if (constrainToParent) {
-      containerRef.current.style.left = `${clampedPosition.x}px`
-      containerRef.current.style.top = `${clampedPosition.y}px`
-    }
-    else {
-      containerRef.current.style.transform = `translate(${clampedPosition.x}px, ${clampedPosition.y}px)`
-    }
-
+    containerRef.current.style.transform = `translate(${clampedPosition.x}px, ${clampedPosition.y}px)`
     positionRef.current = clampedPosition
     onPositionChange?.(clampedPosition)
-  }, [onPositionChange, margin, constrainToParent])
+  }, [onPositionChange, margin])
 
   useLayoutEffect(() => {
     updatePosition(initialPosition)
@@ -88,23 +66,14 @@ export function useDraggable(options: UseDraggableOptions): UseDraggableReturn {
 
   // Handle mouse move during drag
   const handleMouseMove = useCallback((event: MouseEvent) => {
-    if (isDragging && containerRef.current) {
-      let x: number
-      let y: number
-
-      if (constrainToParent && containerRef.current.parentElement) {
-        const parentRect = containerRef.current.parentElement.getBoundingClientRect()
-        x = event.clientX - dragOffsetRef.current.x - parentRect.left
-        y = event.clientY - dragOffsetRef.current.y - parentRect.top
+    if (isDragging) {
+      const newPosition = {
+        x: event.clientX - dragOffsetRef.current.x,
+        y: event.clientY - dragOffsetRef.current.y,
       }
-      else {
-        x = event.clientX - dragOffsetRef.current.x
-        y = event.clientY - dragOffsetRef.current.y
-      }
-
-      updatePosition({ x, y })
+      updatePosition(newPosition)
     }
-  }, [isDragging, updatePosition, constrainToParent])
+  }, [isDragging, updatePosition])
 
   // Handle mouse up to end drag
   const handleMouseUp = useCallback(() => {
@@ -178,14 +147,9 @@ export function useDraggable(options: UseDraggableOptions): UseDraggableReturn {
     isDragging,
     dragRef,
     containerRef,
-    style: constrainToParent
-      ? {
-          position: 'absolute',
-          maxHeight: `calc(100% - ${margin * 2}px)`,
-        }
-      : {
-          position: 'fixed',
-          maxHeight: `calc(100vh - ${margin * 2}px)`,
-        },
+    style: {
+      position: 'fixed',
+      maxHeight: `calc(100vh - ${margin * 2}px)`,
+    },
   }
 }
