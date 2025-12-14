@@ -49,7 +49,6 @@ export const STATE_CONFIG: Record<SubtitlesState, { color: string, getText: () =
 
 export const SubtitlesContainer = memo(() => {
   const { subtitle, stateData, isVisible } = use(SubtitlesContext)!
-
   if (!isVisible) {
     return null
   }

@@ -21,15 +21,15 @@ export class SubtitlesScheduler {
   ) {
     this.videoElement = videoElement
     this.videoContainerElement = videoContainerElement
-  }
-
-  start() {
-    this.isActive = true
 
     this.subtitlesViewManager = new SubtitlesViewManager(this.videoContainerElement)
     this.subtitlesViewManager.mount()
 
     this.attachListeners()
+  }
+
+  start() {
+    this.isActive = true
   }
 
   supplementSubtitles(subtitles: SubtitlesFragment[]) {
@@ -62,7 +62,6 @@ export class SubtitlesScheduler {
       state,
       message: data?.message,
     }
-
     this.clearHideStateTimeout()
 
     if (state !== 'idle') {
@@ -101,41 +100,14 @@ export class SubtitlesScheduler {
     if (!this.isActive)
       return
 
-    const currentTime = this.videoElement.currentTime
-    this.updateSubtitles(currentTime)
+    this.updateSubtitlesView()
   }
 
   private handleSeeking = () => {
     if (!this.isActive)
       return
 
-    const currentTime = this.videoElement.currentTime
-    this.updateSubtitles(currentTime)
-  }
-
-  private updateSubtitles(currentTime: number) {
-    const timeMs = currentTime * 1000
-    const subtitle = this.subtitles.find(sub => sub.start <= timeMs && sub.end >= timeMs)
-
-    let hasChanged = false
-
-    if (subtitle) {
-      const index = this.subtitles.indexOf(subtitle)
-      if (index !== this.currentIndex) {
-        this.currentIndex = index
-        hasChanged = true
-      }
-    }
-    else {
-      if (this.currentIndex !== -1) {
-        this.currentIndex = -1
-        hasChanged = true
-      }
-    }
-
-    if (hasChanged) {
-      this.updateSubtitlesView()
-    }
+    this.updateSubtitlesView()
   }
 
   private updateSubtitlesView() {

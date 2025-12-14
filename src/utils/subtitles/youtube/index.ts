@@ -21,7 +21,6 @@ export class YoutubeAdapter {
   private originalSubtitles: SubtitlesFragment[] = []
   private isNativeSubtitlesHidden = false
   private cachedVideoId: string | null = null
-  private navigationListener: (() => void) | null = null
 
   constructor() {
     this.subtitlesFetcher = new XhrInterceptFetcher()
@@ -36,8 +35,14 @@ export class YoutubeAdapter {
     this.setupNavigationListener()
   }
 
-  reset() {
-    this.stopScheduler()
+  private resetSubtitlesData() {
+    this.subtitlesScheduler?.reset()
+    this.originalSubtitles = []
+    this.subtitlesFetcher.cleanup()
+  }
+
+  private resetForNavigation() {
+    this.destroyScheduler()
     this.originalSubtitles = []
     this.cachedVideoId = null
     this.subtitlesFetcher.cleanup()
@@ -45,12 +50,7 @@ export class YoutubeAdapter {
     this.videoElement = document.querySelector(VIDEO_SELECTOR)
   }
 
-  cleanup() {
-    this.reset()
-    this.removeNavigationListener()
-  }
-
-  private stopScheduler() {
+  private destroyScheduler() {
     this.subtitlesScheduler?.reset()
     this.subtitlesScheduler?.stop()
     this.subtitlesScheduler = null
@@ -77,25 +77,18 @@ export class YoutubeAdapter {
   }
 
   private setupNavigationListener() {
-    this.navigationListener = () => {
+    const navigationListener = () => {
       setTimeout(() => {
         const currentVideoId = new URL(window.location.href).searchParams.get('v')
         if (currentVideoId && this.cachedVideoId && currentVideoId !== this.cachedVideoId) {
-          this.reset()
+          this.resetForNavigation()
           this.initializeScheduler()
           this.renderTranslateButton()
         }
       }, 1000)
     }
 
-    window.addEventListener('yt-navigate-finish', this.navigationListener)
-  }
-
-  private removeNavigationListener() {
-    if (this.navigationListener) {
-      window.removeEventListener('yt-navigate-finish', this.navigationListener)
-      this.navigationListener = null
-    }
+    window.addEventListener('yt-navigate-finish', navigationListener)
   }
 
   private renderTranslateButton() {
@@ -138,6 +131,7 @@ export class YoutubeAdapter {
 
   private handleToggleSubtitles(enabled: boolean) {
     if (enabled) {
+      this.subtitlesScheduler?.start()
       this.subtitlesScheduler?.show()
       this.hideNativeSubtitles()
       void this.startTranslation()
@@ -145,7 +139,7 @@ export class YoutubeAdapter {
     else {
       this.subtitlesScheduler?.hide()
       this.showNativeSubtitles()
-      this.reset()
+      this.resetSubtitlesData()
     }
   }
 
