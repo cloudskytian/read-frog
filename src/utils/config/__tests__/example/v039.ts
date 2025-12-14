@@ -137,6 +137,9 @@ export const testSeries: TestSeriesObject = {
           isCustom: false,
           customCSS: null,
         },
+        videoSubtitles: {
+          enabled: true,
+        },
       },
       tts: {
         providerId: null,
