@@ -32,7 +32,7 @@ function getCachedArticleData(): typeof cachedArticleData {
   return cachedArticleData
 }
 
-async function getOrFetchArticleData(
+export async function getOrFetchArticleData(
   enableAIContentAware: boolean,
 ): Promise<{ title: string, textContent?: string } | null> {
   // Only works in browser context

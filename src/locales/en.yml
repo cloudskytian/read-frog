@@ -508,12 +508,18 @@ speak:
   openaiApiKeyNotConfigured: OpenAI API key is not configured
 shortcutKeySelector:
   placeholder: Please enter the shortcut
-subtitle:
+subtitles:
   state:
     idle: Ready
-    fetching: Fetching subtitles (approx. 2 minutes)
-    fetchSuccess: Subtitles loaded
-    fetchFailed: Failed to fetch subtitles
-    processing: Translating subtitles (approx. 2 minutes)
+    fetching: Fetching captions (approx. 2 minutes)
+    fetchSuccess: Captions loaded
+    fetchFailed: Failed to fetch captions
+    processing: Translating captions (approx. 2 minutes)
     completed: Translation completed
     error: Error occurred
+  errors:
+    http429: Too many requests. Please wait a moment and try again.
+    http404: Captions not found.
+    http403: Access denied.
+    http500: Server error occurred.
+    networkError: Network error occurred while fetching captions

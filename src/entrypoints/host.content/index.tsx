@@ -12,7 +12,7 @@ import { onMessage, sendMessage } from '@/utils/message'
 import { protectSelectAllShadowRoot } from '@/utils/select-all'
 import { insertShadowRootUIWrapperInto } from '@/utils/shadow-root'
 import { addStyleToShadow } from '@/utils/styles'
-import { registerSubtitleManager } from '@/utils/subtitles'
+import { registerSubtitlesManager } from '@/utils/subtitles'
 import App from './app'
 import { bindTranslationShortcutKey } from './translation-control/bind-translation-shortcut'
 import { registerNodeTranslationTriggers } from './translation-control/node-translation'
@@ -37,11 +37,6 @@ export default defineContentScript({
     window.__READ_FROG_HOST_INJECTED__ = true
 
     // eruda.init()
-
-    if (window.location.hostname.includes('youtube.com')) {
-      const subtitleManager = registerSubtitleManager('youtube')
-      subtitleManager.initialize()
-    }
 
     const ui = await createShadowRootUi(ctx, {
       name: `${kebabCase(APP_NAME)}-selection`,
@@ -146,6 +141,10 @@ export default defineContentScript({
       // Check if auto-translation should be enabled for initial page load
       void sendMessage('checkAndAskAutoPageTranslation', { url: window.location.href, detectedCodeOrUnd })
 >>>>>>> 877f5975 (feat: add youtube subtitles)
+    }
+
+    if (config?.betaExperience.enabled) {
+      registerSubtitlesManager()
     }
   },
 })

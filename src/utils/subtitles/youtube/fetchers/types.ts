@@ -1,8 +1,9 @@
-import type { YoutubeSubtitle } from '../types'
+import type { SubtitlesFragment } from '@/utils/subtitles/types'
 
-export interface SubtitleFetcher {
+export interface SubtitlesFetcher {
   initialize: () => void
-  fetch: (videoId: string) => Promise<YoutubeSubtitle[]>
+  fetch: () => Promise<SubtitlesFragment[]>
   cleanup: () => void
   getSourceLanguage: () => string
+  getKind: () => string
 }

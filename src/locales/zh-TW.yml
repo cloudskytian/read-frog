@@ -507,7 +507,7 @@ speak:
   openaiApiKeyNotConfigured: OpenAI API Key 未配置
 shortcutKeySelector:
   placeholder: 請輸入快捷鍵
-subtitle:
+subtitles:
   state:
     idle: 就緒
     fetching: 字幕獲取中（預計等待 2 分鐘）
@@ -516,3 +516,9 @@ subtitle:
     processing: 字幕翻譯中（預計等待 2 分鐘）
     completed: 翻譯完成
     error: 發生錯誤
+  errors:
+    http429: 請求次數過多，請稍後再試
+    http404: 未找到字幕
+    http403: 訪問被拒絕
+    http500: 伺服器錯誤
+    networkError: 獲取字幕時發生網路錯誤

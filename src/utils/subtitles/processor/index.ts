@@ -1,112 +1,85 @@
-import type { ProcessedSentence, ProcessOptions, ProcessorConfig, SubtitleFragment } from './helper'
-import type { SegmentedSubtitle } from './segmenter'
+import type { SubtitlesFragment } from '../types'
 import type { Config } from '@/types/config/config'
 import type { ProviderConfig } from '@/types/config/provider'
 import { isLLMTranslateProviderConfig } from '@/types/config/provider'
 import { getConfigFromStorage } from '@/utils/config/config'
 import { getProviderConfigById } from '@/utils/config/helpers'
 import { Sha256Hex } from '@/utils/hash'
+import { getOrFetchArticleData } from '@/utils/host/translate/translate-text'
 import { sendMessage } from '@/utils/message'
-import { subtitleCache } from './cache'
-import { validateFragmentsContinuity } from './helper'
-import { segmentSubtitles } from './segmenter'
+import { optimizeSubtitles } from './optimizer'
 
-export class SubtitleProcessor {
-  private videoId: string = ''
-  private videoTitle: string = ''
-  private sourceLanguage: string = 'en'
-  private currentSubtitles: SegmentedSubtitle[] = []
+export class SubtitlesProcessor {
+  private sourceLanguage: string = ''
+  private kind: string = ''
+  private currentSubtitles: SubtitlesFragment[] = []
 
-  constructor(_config: ProcessorConfig = {}) {}
-
-  setVideoId(videoId: string) {
-    this.videoId = videoId
-  }
-
-  setVideoTitle(title: string) {
-    this.videoTitle = title
-  }
+  private enableContext: boolean = false
+  private articleTitle: string = ''
+  private articleTextContent: string = ''
 
   setSourceLanguage(language: string) {
     this.sourceLanguage = language
   }
 
-  async process(
-    fragments: SubtitleFragment[],
-    options: ProcessOptions = {},
-  ): Promise<ProcessedSentence[]> {
-    const { onProgress, signal } = options
+  setKind(kind: string) {
+    this.kind = kind
+  }
 
-    const validation = validateFragmentsContinuity(fragments)
-    if (!validation.isValid) {
-      throw new Error(`Fragment validation failed: ${validation.errors.join('; ')}`)
+  private async initializeContextConfig(
+    config: Config,
+    providerConfig: ProviderConfig,
+  ): Promise<void> {
+    this.enableContext = !!config?.translate.enableAIContentAware
+    this.articleTitle = ''
+    this.articleTextContent = ''
+
+    if (isLLMTranslateProviderConfig(providerConfig) && this.enableContext) {
+      const articleData = await getOrFetchArticleData(this.enableContext)
+      if (articleData) {
+        this.articleTitle = articleData.title
+      }
+      if (this.currentSubtitles.length > 0) {
+        this.articleTextContent = this.currentSubtitles.map(s => s.text).join('\n')
+      }
     }
+  }
 
+  async process(fragments: SubtitlesFragment[]): Promise<SubtitlesFragment[]> {
     const config = await getConfigFromStorage()
     if (!config) {
       return this.fallbackToOriginal(fragments)
     }
-
     const { providerConfig, langConfig } = await this.getTranslationConfig(config)
     if (!providerConfig) {
       return this.fallbackToOriginal(fragments)
     }
 
-    const cacheKey = `${langConfig.sourceCode}-${langConfig.targetCode}`
-    if (this.videoId) {
-      const cached = subtitleCache.get(this.videoId, cacheKey)
-      if (cached) {
-        onProgress?.(100, 'Loaded from cache')
-        return cached as ProcessedSentence[]
-      }
+    if (this.kind === 'asr') {
+      this.currentSubtitles = optimizeSubtitles(fragments, this.sourceLanguage)
     }
-
-    onProgress?.(10, 'Segmenting subtitles...')
-    this.currentSubtitles = segmentSubtitles(fragments, this.sourceLanguage)
+    else {
+      this.currentSubtitles = fragments
+    }
 
     if (this.currentSubtitles.length === 0) {
       return this.fallbackToOriginal(fragments)
     }
 
-    onProgress?.(20, 'Translating...')
-    const translationPromises = this.currentSubtitles.map((subtitle) => {
-      if (signal?.aborted) {
-        throw new Error('Translation aborted')
-      }
+    await this.initializeContextConfig(config, providerConfig)
 
-      return this.translateSubtitle(subtitle.text, langConfig, providerConfig)
-    })
+    const translationPromises = this.currentSubtitles.map(subtitle =>
+      this.translateSubtitle(subtitle.text, langConfig, providerConfig),
+    )
 
     const translations = await Promise.all(translationPromises)
 
-    const translatedSubtitles: ProcessedSentence[] = this.currentSubtitles.map((subtitle, index) => ({
-      text: subtitle.text,
+    this.currentSubtitles = this.currentSubtitles.map((subtitle, index) => ({
+      ...subtitle,
       translation: translations[index],
-      start: subtitle.start,
-      end: subtitle.end,
     }))
 
-    if (this.videoId) {
-      subtitleCache.set(this.videoId, cacheKey, translatedSubtitles)
-    }
-
-    this.currentSubtitles = []
-
-    onProgress?.(100, 'Processing complete')
-    return translatedSubtitles
-  }
-
-  async clearCache() {
-    if (this.videoId) {
-      try {
-        const config = await getConfigFromStorage()
-        if (config) {
-          const cacheKey = `${config.language.sourceCode}-${config.language.targetCode}`
-          subtitleCache.clear(this.videoId, cacheKey)
-        }
-      }
-      catch {}
-    }
+    return this.currentSubtitles
   }
 
   private async translateSubtitle(
@@ -114,25 +87,12 @@ export class SubtitleProcessor {
     langConfig: Config['language'],
     providerConfig: ProviderConfig,
   ): Promise<string> {
-    const articleTitle = this.videoTitle || this.videoId || 'Video Subtitles'
-    let articleTextContent: string | undefined
-    let enableContext = false
-
-    try {
-      const config = await getConfigFromStorage()
-      enableContext = !!config?.translate.enableAIContentAware
-      if (enableContext && this.currentSubtitles.length > 0) {
-        articleTextContent = this.currentSubtitles.map(s => s.text).join('\n')
-      }
-    }
-    catch {}
-
     const hash = Sha256Hex(
       text,
       langConfig.sourceCode,
       langConfig.targetCode,
       providerConfig.id,
-      enableContext ? 'ctx-on' : 'ctx-off',
+      this.enableContext ? 'ctx-on' : 'ctx-off',
     )
 
     try {
@@ -142,13 +102,13 @@ export class SubtitleProcessor {
         providerConfig,
         scheduleAt: Date.now(),
         hash,
-        articleTitle,
-        articleTextContent,
+        articleTitle: this.articleTitle,
+        articleTextContent: this.articleTextContent,
       })
       return result || ''
     }
     catch (error) {
-      console.warn('[SubtitleProcessor] Translation failed for subtitle:', text.substring(0, 50), error)
+      console.warn('[SubtitlesProcessor] Translation failed for subtitle:', text.substring(0, 50), error)
       return ''
     }
   }
@@ -167,7 +127,7 @@ export class SubtitleProcessor {
     }
   }
 
-  private fallbackToOriginal(fragments: SubtitleFragment[]): ProcessedSentence[] {
+  private fallbackToOriginal(fragments: SubtitlesFragment[]): SubtitlesFragment[] {
     return fragments.map(fragment => ({
       ...fragment,
       translation: '',

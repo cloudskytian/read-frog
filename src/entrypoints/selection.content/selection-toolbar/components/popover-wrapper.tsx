@@ -1,10 +1,10 @@
 import { Icon } from '@iconify/react'
 import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useImperativeHandle, useRef } from 'react'
+import { useDraggable } from '@/hooks/use-draggable'
 import { NOTRANSLATE_CLASS } from '@/utils/constants/dom-labels'
 import { MARGIN } from '@/utils/constants/selection'
 import { mouseClickPositionAtom, selectionContentAtom } from '../atom'
-import { useDraggable } from '../use-draggable'
 
 interface PopoverWrapperProps {
   title: string

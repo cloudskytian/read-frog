@@ -507,7 +507,7 @@ speak:
   openaiApiKeyNotConfigured: OpenAI API 키가 구성되지 않았습니다
 shortcutKeySelector:
   placeholder: 단축키를 입력해 주세요
-subtitle:
+subtitles:
   state:
     idle: 준비 완료
     fetching: 자막 가져오는 중 (약 2분 소요)
@@ -516,3 +516,9 @@ subtitle:
     processing: 자막 번역 중 (약 2분 소요)
     completed: 번역 완료
     error: 오류 발생
+  errors:
+    http429: 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요
+    http404: 자막을 찾을 수 없습니다
+    http403: 접근이 거부되었습니다
+    http500: 서버 오류가 발생했습니다
+    networkError: 자막을 가져오는 중 네트워크 오류가 발생했습니다

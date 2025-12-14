@@ -506,7 +506,7 @@ speak:
   openaiApiKeyNotConfigured: OpenAI APIキーが設定されていません
 shortcutKeySelector:
   placeholder: ショートカットを入力してください
-subtitle:
+subtitles:
   state:
     idle: 準備完了
     fetching: 字幕取得中（約2分）
@@ -515,3 +515,9 @@ subtitle:
     processing: 字幕翻訳中（約2分）
     completed: 翻訳完了
     error: エラーが発生しました
+  errors:
+    http429: リクエストが多すぎます。しばらく待ってから再試行してください
+    http404: 字幕が見つかりません
+    http403: アクセスが拒否されました
+    http500: サーバーエラーが発生しました
+    networkError: 字幕取得中にネットワークエラーが発生しました

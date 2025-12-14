@@ -1,0 +1,66 @@
+import { memo, use } from 'react'
+import { cn } from '@/lib/utils'
+import { SubtitlesContext } from './subtitles-container'
+
+const SubtitlesContent = memo(() => {
+  const { subtitle } = use(SubtitlesContext)!
+
+  if (!subtitle) {
+    return null
+  }
+
+  const originalLines = subtitle.text.split('\n').filter(line => line.trim())
+  const translationLines = subtitle.translation
+    ? subtitle.translation.split('\n').filter(line => line.trim())
+    : []
+
+  return (
+    <div className="flex w-full flex-col items-center justify-end pb-3 pointer-events-none">
+      {originalLines.map((line, index) => {
+        const translation = translationLines[index] || ''
+        const key = `subtitle-line-${line.substring(0, 20)}-${translation.substring(0, 20)}`
+
+        return (
+          <div
+            key={key}
+            className="w-fit mx-auto my-1 px-2 py-1.5 rounded text-center text-white pointer-events-auto"
+            style={{ background: 'rgba(0,0,0,0.75)' }}
+          >
+            {translation && (
+              <div className="text-2xl leading-tight mb-1">
+                {translation}
+              </div>
+            )}
+            <div
+              className={cn(
+                'leading-snug',
+                translation ? 'text-lg opacity-80' : 'text-2xl',
+              )}
+            >
+              {line}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+})
+
+export const SubtitlesView = memo(() => {
+  const { subtitle } = use(SubtitlesContext)!
+
+  if (!subtitle) {
+    return null
+  }
+
+  return (
+    <div
+      className="flex flex-col items-center pointer-events-none absolute w-full bottom-[80px] left-0 right-0"
+      style={{
+        fontFamily: '"YouTube Noto", Roboto, "Arial Unicode Ms", Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif',
+      }}
+    >
+      <SubtitlesContent />
+    </div>
+  )
+})

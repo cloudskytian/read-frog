@@ -1,202 +1,230 @@
-import type { SubtitleFetcher } from './fetchers'
-import type { YoutubeSubtitle } from './types'
-import { SubtitleProcessor } from '@/utils/subtitles/processor'
-import { renderSubtitleToggleButton } from '../subtitles-toggle-button'
+import type { SubtitlesFragment } from '../types'
+import type { SubtitlesFetcher } from './fetchers'
+import { SubtitlesProcessor } from '../processor'
+import { SubtitlesScheduler } from '../renderer/subtitles-scheduler'
+import { renderSubtitlesTranslateButton, SUBTITLES_TRANSLATE_BUTTON_CONTAINER_ID } from '../renderer/translate-button'
 import { XhrInterceptFetcher } from './fetchers'
-import { SubtitleRenderer } from './subtitle-renderer'
+
+const VIDEO_SELECTOR = 'video.html5-main-video'
+const PLAYER_CONTAINER_SELECTOR = '.html5-video-player'
+const RIGHT_CONTROLS_SELECTOR = '.ytp-right-controls'
+const CAPTION_WINDOW_SELECTOR = '.ytp-caption-window-container'
+const HIDE_NATIVE_STYLE_ID = 'read-frog-hide-yt-native-captions'
+const BUTTON_RENDER_TIMEOUT = 10000
 
 export class YoutubeAdapter {
-  VIDEO_SELECTOR = 'video.html5-main-video'
-  RIGHT_CONTROLS_SELECTOR = '.ytp-right-controls'
-  YOUTUBE_CAPTION_WINDOW_SELECTOR = '.ytp-caption-window-container'
-  HIDE_NATIVE_STYLE_ID = 'read-frog-hide-yt-native-captions'
-
   private videoElement: HTMLVideoElement | null = null
-  private videoId: string = ''
-  private originalSubtitles: YoutubeSubtitle[] = []
-  private optimizedSubtitles: YoutubeSubtitle[] = []
-  private subtitlesRenderer: SubtitleRenderer | null = null
-  private subtitlesFetcher: SubtitleFetcher
-  private isYoutubeSubtitlesEnabled: boolean = false
-  private subtitleProcessor = new SubtitleProcessor()
+  private subtitlesScheduler: SubtitlesScheduler | null = null
+  private subtitlesFetcher: SubtitlesFetcher
+  private subtitlesProcessor: SubtitlesProcessor
+
+  private originalSubtitles: SubtitlesFragment[] = []
+  private isNativeSubtitlesHidden = false
+  private cachedVideoId: string | null = null
+  private navigationListener: (() => void) | null = null
 
   constructor() {
     this.subtitlesFetcher = new XhrInterceptFetcher()
+    this.subtitlesProcessor = new SubtitlesProcessor()
   }
 
   initialize() {
-    this.videoElement = document.querySelector(this.VIDEO_SELECTOR)
-    this.videoId = this.fetchVideoId()
-    this.subtitleProcessor.setVideoId(this.videoId)
+    this.videoElement = document.querySelector(VIDEO_SELECTOR)
     this.subtitlesFetcher.initialize()
-    this.startSubtitleRenderer()
-    this.listenUrlChange()
+    this.initializeScheduler()
     this.renderTranslateButton()
-  }
-
-  private listenUrlChange() {
-    window.addEventListener('extension:URLChange', (e: any) => {
-      const { from, to } = e.detail
-      const fromUrl = new URL(from, window.location.origin)
-      const toUrl = new URL(to, window.location.origin)
-      const fromVideoId = fromUrl.searchParams.get('v')
-      const toVideoId = toUrl.searchParams.get('v')
-
-      if (fromVideoId !== toVideoId && toVideoId) {
-        this.reset()
-      }
-    })
-  }
-
-  private fetchVideoId(): string {
-    const url = new URL(window.location.href)
-    return url.searchParams.get('v') ?? ''
+    this.setupNavigationListener()
   }
 
   reset() {
-    if (this.subtitlesRenderer) {
-      this.subtitlesRenderer.resetState()
-      this.subtitlesRenderer.stop()
-      this.subtitlesRenderer = null
-    }
+    this.stopScheduler()
     this.originalSubtitles = []
-    this.optimizedSubtitles = []
+    this.cachedVideoId = null
     this.subtitlesFetcher.cleanup()
-    this.removeHideStyle()
-    this.videoElement = document.querySelector(this.VIDEO_SELECTOR)
-    this.videoId = this.fetchVideoId()
-    this.subtitleProcessor.setVideoId(this.videoId)
+    this.showNativeSubtitles()
+    this.removeTranslateButton()
+    this.videoElement = document.querySelector(VIDEO_SELECTOR)
   }
 
   cleanup() {
-    this.subtitlesFetcher.cleanup()
-    if (this.subtitlesRenderer) {
-      this.subtitlesRenderer.stop()
+    this.reset()
+    this.removeNavigationListener()
+  }
+
+  private stopScheduler() {
+    this.subtitlesScheduler?.reset()
+    this.subtitlesScheduler?.stop()
+    this.subtitlesScheduler = null
+  }
+
+  private initializeScheduler() {
+    if (!this.videoElement) {
+      return
     }
-    this.removeHideStyle()
+
+    const playerContainer = this.videoElement.closest(PLAYER_CONTAINER_SELECTOR)
+    if (!playerContainer) {
+      console.warn('[YoutubeAdapter] Failed to find player container element')
+      return
+    }
+
+    this.subtitlesScheduler = new SubtitlesScheduler({
+      videoElement: this.videoElement,
+      videoContainerElement: playerContainer,
+    })
+
+    this.subtitlesScheduler.start()
+    this.subtitlesScheduler.hide()
+  }
+
+  private setupNavigationListener() {
+    this.navigationListener = () => {
+      setTimeout(() => {
+        const currentVideoId = new URL(window.location.href).searchParams.get('v')
+        if (currentVideoId && this.cachedVideoId && currentVideoId !== this.cachedVideoId) {
+          this.reset()
+          this.initializeScheduler()
+          this.renderTranslateButton()
+        }
+      }, 1000)
+    }
+
+    window.addEventListener('yt-navigate-finish', this.navigationListener)
+  }
+
+  private removeNavigationListener() {
+    if (this.navigationListener) {
+      window.removeEventListener('yt-navigate-finish', this.navigationListener)
+      this.navigationListener = null
+    }
+  }
+
+  private removeTranslateButton() {
+    const button = document.querySelector(`#${SUBTITLES_TRANSLATE_BUTTON_CONTAINER_ID}`)
+    if (button) {
+      button.remove()
+    }
   }
 
   private renderTranslateButton() {
-    const rightControls = document.querySelector(this.RIGHT_CONTROLS_SELECTOR)
-    if (!rightControls)
-      return
+    const tryRenderButton = () => {
+      const rightControls = document.querySelector(RIGHT_CONTROLS_SELECTOR)
+      if (!rightControls) {
+        return false
+      }
 
-    const toggleButton = renderSubtitleToggleButton(
-      enabled => this.toggleSubtitles(enabled),
-      () => this.startTranslate(),
-    )
-    rightControls.insertBefore(toggleButton, rightControls.firstChild)
+      const existingButton = rightControls.querySelector(`#${SUBTITLES_TRANSLATE_BUTTON_CONTAINER_ID}`)
+      existingButton?.remove()
+
+      const toggleButton = renderSubtitlesTranslateButton(
+        enabled => this.handleToggleSubtitles(enabled),
+        () => this.startTranslation(),
+      )
+
+      rightControls.insertBefore(toggleButton, rightControls.firstChild)
+      return true
+    }
+
+    if (tryRenderButton()) {
+      return
+    }
+
+    const observer = new MutationObserver(() => {
+      if (tryRenderButton()) {
+        observer.disconnect()
+      }
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    })
+
+    setTimeout(() => {
+      observer.disconnect()
+    }, BUTTON_RENDER_TIMEOUT)
   }
 
-  private toggleSubtitles(enabled: boolean) {
+  private handleToggleSubtitles(enabled: boolean) {
     if (enabled) {
-      this.subtitlesRenderer?.show()
-      this.hideYoutubeSubtitles()
+      this.subtitlesScheduler?.show()
+      this.hideNativeSubtitles()
     }
     else {
-      this.subtitlesRenderer?.hide()
-      this.showYoutubeSubtitles()
+      this.subtitlesScheduler?.hide()
+      this.showNativeSubtitles()
     }
   }
 
-  private hideYoutubeSubtitles() {
-    this.isYoutubeSubtitlesEnabled = true
-    this.injectHideStyle()
-  }
-
-  private showYoutubeSubtitles() {
-    if (this.isYoutubeSubtitlesEnabled) {
-      this.removeHideStyle()
-      this.isYoutubeSubtitlesEnabled = false
-    }
-  }
-
-  private injectHideStyle() {
-    if (document.getElementById(this.HIDE_NATIVE_STYLE_ID)) {
+  private showNativeSubtitles() {
+    if (!this.isNativeSubtitlesHidden) {
       return
     }
+
+    const style = document.getElementById(HIDE_NATIVE_STYLE_ID)
+    if (style) {
+      style.remove()
+    }
+    this.isNativeSubtitlesHidden = false
+  }
+
+  private hideNativeSubtitles() {
+    if (this.isNativeSubtitlesHidden) {
+      return
+    }
+
+    if (document.getElementById(HIDE_NATIVE_STYLE_ID)) {
+      this.isNativeSubtitlesHidden = true
+      return
+    }
+
     const style = document.createElement('style')
-    style.id = this.HIDE_NATIVE_STYLE_ID
+    style.id = HIDE_NATIVE_STYLE_ID
     style.textContent = `
-      ${this.YOUTUBE_CAPTION_WINDOW_SELECTOR},
-      ${this.YOUTUBE_CAPTION_WINDOW_SELECTOR} * {
+      ${CAPTION_WINDOW_SELECTOR},
+      ${CAPTION_WINDOW_SELECTOR} * {
         display: none !important;
         opacity: 0 !important;
         visibility: hidden !important;
       }
     `
     document.head.appendChild(style)
+    this.isNativeSubtitlesHidden = true
   }
 
-  private removeHideStyle() {
-    const style = document.getElementById(this.HIDE_NATIVE_STYLE_ID)
-    if (style) {
-      style.remove()
-    }
-  }
-
-  private async startTranslate() {
+  private async startTranslation() {
     try {
-      if (this.originalSubtitles.length > 0) {
-        await this.processSubtitles()
-        return
-      }
-      this.subtitlesRenderer?.setState('fetching')
-      this.originalSubtitles = await this.subtitlesFetcher.fetch(this.videoId)
+      const currentVideoId = new URL(window.location.href).searchParams.get('v')
+      this.cachedVideoId = currentVideoId
+
+      this.originalSubtitles = await this.subtitlesFetcher.fetch()
 
       if (this.originalSubtitles.length === 0) {
-        this.subtitlesRenderer?.setState('fetch_failed')
+        this.subtitlesScheduler?.setState('error', { message: 'No subtitles found' })
         return
       }
 
       const sourceLanguage = this.subtitlesFetcher.getSourceLanguage()
-      this.subtitleProcessor.setSourceLanguage(sourceLanguage)
+      const kind = this.subtitlesFetcher.getKind()
+      this.subtitlesProcessor.setSourceLanguage(sourceLanguage)
+      this.subtitlesProcessor.setKind(kind)
 
-      this.subtitlesRenderer?.setState('fetch_success')
       await this.processSubtitles()
     }
     catch (error) {
-      if (error instanceof Error) {
-        this.subtitlesRenderer?.setState('error', { message: error.message, error })
-      }
-      else {
-        const err = new Error(String(error))
-        this.subtitlesRenderer?.setState('error', { message: String(error), error: err })
-      }
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      this.subtitlesScheduler?.setState('error', { message: errorMessage })
     }
   }
 
   private async processSubtitles() {
-    this.subtitlesRenderer?.setState('processing')
+    this.subtitlesScheduler?.setState('processing')
 
-    this.optimizedSubtitles = await this.subtitleProcessor.process(
-      this.originalSubtitles,
-      {
-        onProgress: (_progress, _message) => {
-          // 可以在这里更新进度显示
-          // console.warn(`[SubtitleProcessor] Progress: ${progress}% - ${message}`)
-        },
-      },
-    )
-
-    if (this.subtitlesRenderer) {
-      this.subtitlesRenderer.addSubtitles(this.optimizedSubtitles)
+    const optimizedSubtitles = await this.subtitlesProcessor.process(this.originalSubtitles)
+    if (this.subtitlesScheduler) {
+      this.subtitlesScheduler.supplementSubtitles(optimizedSubtitles)
     }
 
-    this.subtitlesRenderer?.setState('completed')
-  }
-
-  private startSubtitleRenderer() {
-    if (!this.videoElement) {
-      return
-    }
-
-    if (this.subtitlesRenderer) {
-      this.subtitlesRenderer.stop()
-    }
-    this.subtitlesRenderer = new SubtitleRenderer(this.videoElement)
-    this.subtitlesRenderer.start([])
-    // 初始时隐藏自定义字幕
-    this.subtitlesRenderer.hide()
+    this.subtitlesScheduler?.setState('completed')
   }
 }

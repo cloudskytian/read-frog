@@ -1,2 +1,2 @@
 export * from './types'
-export * from './xhr-intercept-fetcher'
+export * from './xhr-interceptor-fetcher'

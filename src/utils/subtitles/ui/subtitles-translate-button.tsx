@@ -1,0 +1,55 @@
+import { useState } from 'react'
+import logo from '@/assets/icons/original/read-frog.png'
+import { cn } from '@/lib/utils'
+
+export function SubtitleToggleButton(
+  { onToggle, onTranslate }:
+  {
+    onToggle: (enabled: boolean) => void
+    onTranslate: () => void
+  },
+) {
+  const [isEnabled, setIsEnabled] = useState(false)
+  const [hasStartedTranslation, setHasStartedTranslation] = useState(false)
+
+  const handleClick = () => {
+    if (!hasStartedTranslation) {
+      setHasStartedTranslation(true)
+      setIsEnabled(true)
+      onTranslate()
+      onToggle(true)
+    }
+    else {
+      const newState = !isEnabled
+      setIsEnabled(newState)
+      onToggle(newState)
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      title={hasStartedTranslation ? (isEnabled ? 'Hide Subtitles' : 'Show Subtitles') : 'Start Subtitle Translation'}
+      aria-label="Subtitle Translation Toggle"
+      onClick={handleClick}
+      className="w-12 h-full flex items-center justify-center relative bg-transparent border-none p-0 m-0 cursor-pointer"
+    >
+      <img
+        src={logo}
+        alt="Subtitle Toggle"
+        className={cn(
+          'w-8 h-8 transition-opacity duration-200 object-contain block',
+          isEnabled ? 'opacity-100' : 'opacity-50',
+        )}
+      />
+      {hasStartedTranslation && (
+        <div
+          className={cn(
+            'absolute bottom-2 right-2 w-1.5 h-1.5 rounded-full transition-colors duration-200',
+            isEnabled ? 'bg-[#3ea6ff]' : 'bg-[#4b5563]',
+          )}
+        />
+      )}
+    </button>
+  )
+}
