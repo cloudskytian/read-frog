@@ -317,6 +317,11 @@ options:
       threshold:
         title: Görünürlük Eşiği
         description: Çeviriyi tetiklemek için gereken öğe görünürlük yüzdesi (0-1). Daha yüksek değerler, öğenin daha fazlası görünür olana kadar çeviriyi geciktirir.
+    videoSubtitles:
+      title: Video Altyazıları
+      description: Şu anda yalnızca YouTube video altyazılarını desteklemektedir
+      enable: Video Altyazılarını Etkinleştir
+      enableDescription: Etkinleştirildiğinde, YouTube oynatıcı kontrollerinde bir çeviri düğmesi görünecektir. Altyazıları çevirmeye başlamak için tıklayın.
     nodeTranslationHotkey:
       title: Üzerine Gelme Çeviri Kısayolu
       description: Paragrafları çevirmek için metnin üzerine gelirken değiştirici tuşu özelleştirin
@@ -508,3 +513,18 @@ speak:
   openaiApiKeyNotConfigured: OpenAI API anahtarı yapılandırılmadı
 shortcutKeySelector:
   placeholder: Lütfen kısayolu girin
+subtitles:
+  state:
+    idle: Hazır
+    fetching: Altyazılar alınıyor
+    fetchSuccess: Altyazılar yüklendi
+    fetchFailed: Altyazılar alınamadı
+    processing: Altyazılar çevriliyor (yaklaşık 2 dakika)
+    completed: Çeviri tamamlandı
+    error: Bir hata oluştu
+  errors:
+    http429: Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.
+    http404: Altyazı bulunamadı.
+    http403: Erişim reddedildi.
+    http500: Sunucu hatası oluştu.
+    networkError: Altyazılar alınırken ağ hatası oluştu.

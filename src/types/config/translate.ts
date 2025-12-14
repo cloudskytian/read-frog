@@ -70,6 +70,12 @@ export const customPromptsConfigSchema = z.object({
   }
 })
 
+export const videoSubtitlesConfigSchema = z.object({
+  enabled: z.boolean(),
+})
+
+export type VideoSubtitlesConfig = z.infer<typeof videoSubtitlesConfigSchema>
+
 export const translateConfigSchema = z.object({
   providerId: z.string().nonempty(),
   mode: translationModeSchema,
@@ -90,6 +96,7 @@ export const translateConfigSchema = z.object({
   requestQueueConfig: requestQueueConfigSchema,
   batchQueueConfig: batchQueueConfigSchema,
   translationNodeStyle: translationNodeStyleConfigSchema,
+  videoSubtitles: videoSubtitlesConfigSchema.optional(),
 })
 
 export type RequestQueueConfig = z.infer<typeof requestQueueConfigSchema>

@@ -17,7 +17,7 @@ export const LEGACY_CONFIG_SCHEMA_VERSION_STORAGE_KEY = '__configSchemaVersion'
 
 export const DETECTED_CODE_STORAGE_KEY = 'detectedCode'
 export const DEFAULT_DETECTED_CODE = 'eng' as const
-export const CONFIG_SCHEMA_VERSION = 38
+export const CONFIG_SCHEMA_VERSION = 39
 
 export const DEFAULT_FLOATING_BUTTON_POSITION = 0.66
 
@@ -64,6 +64,9 @@ export const DEFAULT_CONFIG: Config = {
       preset: TRANSLATION_NODE_STYLE_ON_INSTALLED,
       isCustom: false,
       customCSS: null,
+    },
+    videoSubtitles: {
+      enabled: true,
     },
   },
   tts: DEFAULT_TTS_CONFIG,

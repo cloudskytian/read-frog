@@ -3,33 +3,22 @@ import logo from '@/assets/icons/original/read-frog.png'
 import { cn } from '@/lib/utils'
 
 export function SubtitleToggleButton(
-  { onToggle, onTranslate }:
+  { onToggle }:
   {
     onToggle: (enabled: boolean) => void
-    onTranslate: () => void
   },
 ) {
   const [isEnabled, setIsEnabled] = useState(false)
-  const [hasStartedTranslation, setHasStartedTranslation] = useState(false)
 
   const handleClick = () => {
-    if (!hasStartedTranslation) {
-      setHasStartedTranslation(true)
-      setIsEnabled(true)
-      onTranslate()
-      onToggle(true)
-    }
-    else {
-      const newState = !isEnabled
-      setIsEnabled(newState)
-      onToggle(newState)
-    }
+    const newState = !isEnabled
+    setIsEnabled(newState)
+    onToggle(newState)
   }
 
   return (
     <button
       type="button"
-      title={hasStartedTranslation ? (isEnabled ? 'Hide Subtitles' : 'Show Subtitles') : 'Start Subtitle Translation'}
       aria-label="Subtitle Translation Toggle"
       onClick={handleClick}
       className="w-12 h-full flex items-center justify-center relative bg-transparent border-none p-0 m-0 cursor-pointer"
@@ -42,7 +31,7 @@ export function SubtitleToggleButton(
           isEnabled ? 'opacity-100' : 'opacity-50',
         )}
       />
-      {hasStartedTranslation && (
+      {isEnabled && (
         <div
           className={cn(
             'absolute bottom-2 right-2 w-1.5 h-1.5 rounded-full transition-colors duration-200',

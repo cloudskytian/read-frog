@@ -316,6 +316,11 @@ options:
       threshold:
         title: 가시성 임계값
         description: 번역을 트리거하는 데 필요한 요소 가시성 비율 (0-1). 높은 값은 요소가 더 많이 보일 때까지 번역을 지연시킵니다.
+    videoSubtitles:
+      title: 비디오 자막
+      description: 현재 YouTube 비디오 자막만 지원
+      enable: 비디오 자막 활성화
+      enableDescription: 활성화하면 YouTube 플레이어 컨트롤 바에 번역 버튼이 나타납니다. 클릭하여 자막 번역을 시작하세요.
     nodeTranslationHotkey:
       title: 호버 번역 단축키
       description: 텍스트 위에 호버하여 단락을 번역할 때 사용할 수정 키를 사용자 지정합니다
@@ -510,7 +515,7 @@ shortcutKeySelector:
 subtitles:
   state:
     idle: 준비 완료
-    fetching: 자막 가져오는 중 (약 2분 소요)
+    fetching: 자막 가져오는 중
     fetchSuccess: 자막 로드 완료
     fetchFailed: 자막 가져오기 실패
     processing: 자막 번역 중 (약 2분 소요)

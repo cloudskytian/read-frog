@@ -130,20 +130,10 @@ export default defineContentScript({
     const initialDetectedCode: LangCodeISO6393 = detectedCodeOrUnd === 'und' ? 'eng' : detectedCodeOrUnd
     await storage.setItem<LangCodeISO6393>(`local:${DETECTED_CODE_STORAGE_KEY}`, initialDetectedCode)
 
-<<<<<<< HEAD
     // Check if auto-translation should be enabled for initial page load
     void sendMessage('checkAndAskAutoPageTranslation', { url: window.location.href, detectedCodeOrUnd })
 
-    if (['www.youtube.com'].includes(window.location.hostname)) {
-      const subtitleManager = registerSubtitleManager('youtube')
-      subtitleManager.initialize()
-=======
-      // Check if auto-translation should be enabled for initial page load
-      void sendMessage('checkAndAskAutoPageTranslation', { url: window.location.href, detectedCodeOrUnd })
->>>>>>> 877f5975 (feat: add youtube subtitles)
-    }
-
-    if (config?.betaExperience.enabled) {
+    if (initialConfig?.betaExperience.enabled && initialConfig?.translate.videoSubtitles?.enabled) {
       registerSubtitlesManager()
     }
   },

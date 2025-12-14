@@ -42,7 +42,6 @@ export class YoutubeAdapter {
     this.cachedVideoId = null
     this.subtitlesFetcher.cleanup()
     this.showNativeSubtitles()
-    this.removeTranslateButton()
     this.videoElement = document.querySelector(VIDEO_SELECTOR)
   }
 
@@ -99,13 +98,6 @@ export class YoutubeAdapter {
     }
   }
 
-  private removeTranslateButton() {
-    const button = document.querySelector(`#${SUBTITLES_TRANSLATE_BUTTON_CONTAINER_ID}`)
-    if (button) {
-      button.remove()
-    }
-  }
-
   private renderTranslateButton() {
     const tryRenderButton = () => {
       const rightControls = document.querySelector(RIGHT_CONTROLS_SELECTOR)
@@ -118,7 +110,6 @@ export class YoutubeAdapter {
 
       const toggleButton = renderSubtitlesTranslateButton(
         enabled => this.handleToggleSubtitles(enabled),
-        () => this.startTranslation(),
       )
 
       rightControls.insertBefore(toggleButton, rightControls.firstChild)
@@ -149,10 +140,12 @@ export class YoutubeAdapter {
     if (enabled) {
       this.subtitlesScheduler?.show()
       this.hideNativeSubtitles()
+      void this.startTranslation()
     }
     else {
       this.subtitlesScheduler?.hide()
       this.showNativeSubtitles()
+      this.reset()
     }
   }
 
@@ -196,8 +189,11 @@ export class YoutubeAdapter {
     try {
       const currentVideoId = new URL(window.location.href).searchParams.get('v')
       this.cachedVideoId = currentVideoId
+      this.subtitlesScheduler?.setState('fetching')
 
       this.originalSubtitles = await this.subtitlesFetcher.fetch()
+
+      this.subtitlesScheduler?.setState('fetchSuccess')
 
       if (this.originalSubtitles.length === 0) {
         this.subtitlesScheduler?.setState('error', { message: 'No subtitles found' })

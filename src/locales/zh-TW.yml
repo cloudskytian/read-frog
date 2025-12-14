@@ -316,6 +316,11 @@ options:
       threshold:
         title: 可見度閾值
         description: 觸發翻譯所需的元素可見度百分比（0-1）。較高的值會延遲翻譯，直到更多元素可見。
+    videoSubtitles:
+      title: 影片字幕
+      description: 目前僅支援 YouTube 影片字幕
+      enable: 開啟影片字幕
+      enableDescription: 啟用後，YouTube 播放器控制列會出現翻譯按鈕。點擊即可開始翻譯字幕。
     nodeTranslationHotkey:
       title: 懸停翻譯快捷鍵
       description: 自訂懸停在文字上翻譯段落的修飾鍵
@@ -510,7 +515,7 @@ shortcutKeySelector:
 subtitles:
   state:
     idle: 就緒
-    fetching: 字幕獲取中（預計等待 2 分鐘）
+    fetching: 字幕獲取中
     fetchSuccess: 字幕載入成功
     fetchFailed: 字幕獲取失敗
     processing: 字幕翻譯中（預計等待 2 分鐘）

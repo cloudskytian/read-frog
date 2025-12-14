@@ -26,7 +26,6 @@ const wrapperCSS = `
 
 export function renderSubtitlesTranslateButton(
   onToggle: (enabled: boolean) => void,
-  onTranslate: () => void,
 ): HTMLDivElement {
   const existingContainer = document.querySelector<HTMLDivElement>(`#${SUBTITLES_TRANSLATE_BUTTON_CONTAINER_ID}`)
 
@@ -36,7 +35,6 @@ export function renderSubtitlesTranslateButton(
 
   const component = React.createElement(SubtitleToggleButton, {
     onToggle,
-    onTranslate,
   })
 
   const shadowHost = createReactShadowHost(component, {

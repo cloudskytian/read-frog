@@ -1,5 +1,8 @@
 export type SubtitlesState
   = | 'idle'
+    | 'fetching'
+    | 'fetchSuccess'
+    | 'fetchFailed'
     | 'processing'
     | 'completed'
     | 'error'

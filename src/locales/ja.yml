@@ -315,6 +315,11 @@ options:
       threshold:
         title: 可視性しきい値
         description: 翻訳をトリガーするために必要な要素の可視性の割合（0-1）。高い値は、要素がより多く表示されるまで翻訳を遅らせます。
+    videoSubtitles:
+      title: 動画字幕
+      description: 現在 YouTube 動画字幕のみ対応
+      enable: 動画字幕を有効にする
+      enableDescription: 有効にすると、YouTube プレーヤーのコントロールバーに翻訳ボタンが表示されます。クリックして字幕の翻訳を開始します。
     nodeTranslationHotkey:
       title: ホバー翻訳ショートカットキー
       description: テキストにホバーして段落を翻訳する際の修飾キーをカスタマイズします
@@ -509,7 +514,7 @@ shortcutKeySelector:
 subtitles:
   state:
     idle: 準備完了
-    fetching: 字幕取得中（約2分）
+    fetching: 字幕取得中
     fetchSuccess: 字幕読み込み完了
     fetchFailed: 字幕取得失敗
     processing: 字幕翻訳中（約2分）

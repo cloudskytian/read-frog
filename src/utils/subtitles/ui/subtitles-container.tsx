@@ -21,6 +21,18 @@ export const STATE_CONFIG: Record<SubtitlesState, { color: string, getText: () =
     color: 'oklch(100% 0 0)',
     getText: () => i18n.t('subtitles.state.idle'),
   },
+  fetching: {
+    color: 'oklch(70% 0.19 250)',
+    getText: () => i18n.t('subtitles.state.fetching'),
+  },
+  fetchSuccess: {
+    color: 'oklch(70% 0.17 165)',
+    getText: () => i18n.t('subtitles.state.fetchSuccess'),
+  },
+  fetchFailed: {
+    color: 'oklch(63% 0.24 25)',
+    getText: () => i18n.t('subtitles.state.fetchFailed'),
+  },
   processing: {
     color: 'oklch(70% 0.19 250)',
     getText: () => i18n.t('subtitles.state.processing'),

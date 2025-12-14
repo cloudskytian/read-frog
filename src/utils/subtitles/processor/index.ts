@@ -2,8 +2,8 @@ import type { SubtitlesFragment } from '../types'
 import type { Config } from '@/types/config/config'
 import type { ProviderConfig } from '@/types/config/provider'
 import { isLLMTranslateProviderConfig } from '@/types/config/provider'
-import { getConfigFromStorage } from '@/utils/config/config'
 import { getProviderConfigById } from '@/utils/config/helpers'
+import { getLocalConfig } from '@/utils/config/storage'
 import { Sha256Hex } from '@/utils/hash'
 import { getOrFetchArticleData } from '@/utils/host/translate/translate-text'
 import { sendMessage } from '@/utils/message'
@@ -46,7 +46,7 @@ export class SubtitlesProcessor {
   }
 
   async process(fragments: SubtitlesFragment[]): Promise<SubtitlesFragment[]> {
-    const config = await getConfigFromStorage()
+    const config = await getLocalConfig()
     if (!config) {
       return this.fallbackToOriginal(fragments)
     }

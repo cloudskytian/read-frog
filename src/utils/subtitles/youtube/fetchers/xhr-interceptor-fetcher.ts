@@ -55,7 +55,7 @@ export class XhrInterceptFetcher implements SubtitlesFetcher {
         if (!this.subtitles.length && !this.fetchError) {
           reject(new Error('Fetch subtitles timeout'))
         }
-      }, 15000)
+      }, 5000)
     })
   }
 
