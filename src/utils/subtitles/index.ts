@@ -7,7 +7,7 @@ const SUBTITLE_MANAGER_MAP = {
 }
 
 export function setupVideoSubtitles() {
-  if (!window.location.hostname.includes('youtube.com')) {
+  if (!window.location.href.includes('youtube.com/watch')) {
     return
   }
 

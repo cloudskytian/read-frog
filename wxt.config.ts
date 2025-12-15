@@ -98,4 +98,9 @@ export default defineConfig({
         ]
       : [],
   }),
+  runner: {
+    chromiumArgs: [
+      '--disable-blink-features=AutomationControlled',
+    ],
+  },
 })

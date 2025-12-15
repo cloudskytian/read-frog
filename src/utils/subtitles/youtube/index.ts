@@ -27,7 +27,6 @@ export class YoutubeAdapter {
   }
 
   initialize() {
-    this.videoElement = document.querySelector(VIDEO_SELECTOR)
     this.subtitlesFetcher.initialize()
     this.initializeScheduler()
     this.renderTranslateButton()
@@ -46,7 +45,6 @@ export class YoutubeAdapter {
     this.cachedVideoId = null
     this.subtitlesFetcher.cleanup()
     this.showNativeSubtitles()
-    this.videoElement = document.querySelector(VIDEO_SELECTOR)
   }
 
   private destroyScheduler() {
@@ -56,23 +54,41 @@ export class YoutubeAdapter {
   }
 
   private initializeScheduler() {
-    if (!this.videoElement) {
+    const tryInitialize = () => {
+      this.videoElement = document.querySelector(VIDEO_SELECTOR)
+      if (!this.videoElement) {
+        return false
+      }
+
+      const playerContainer = this.videoElement.closest(PLAYER_CONTAINER_SELECTOR)
+      if (!playerContainer) {
+        return false
+      }
+
+      this.subtitlesScheduler = new SubtitlesScheduler({
+        videoElement: this.videoElement,
+        videoContainerElement: playerContainer,
+      })
+
+      this.subtitlesScheduler.start()
+      this.subtitlesScheduler.hide()
+      return true
+    }
+
+    if (tryInitialize()) {
       return
     }
 
-    const playerContainer = this.videoElement.closest(PLAYER_CONTAINER_SELECTOR)
-    if (!playerContainer) {
-      console.warn('[YoutubeAdapter] Failed to find player container element')
-      return
-    }
-
-    this.subtitlesScheduler = new SubtitlesScheduler({
-      videoElement: this.videoElement,
-      videoContainerElement: playerContainer,
+    const observer = new MutationObserver(() => {
+      if (tryInitialize()) {
+        observer.disconnect()
+      }
     })
 
-    this.subtitlesScheduler.start()
-    this.subtitlesScheduler.hide()
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    })
   }
 
   private setupNavigationListener() {
@@ -208,7 +224,6 @@ export class YoutubeAdapter {
 
   private async processSubtitles() {
     this.subtitlesScheduler?.setState('processing')
-
     const optimizedSubtitles = await this.subtitlesProcessor.process(this.originalSubtitles)
     if (this.subtitlesScheduler) {
       this.subtitlesScheduler.supplementSubtitles(optimizedSubtitles)

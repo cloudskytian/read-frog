@@ -100,13 +100,22 @@ export class SubtitlesScheduler {
     if (!this.isActive)
       return
 
-    this.updateSubtitlesView()
+    const currentTime = this.videoElement.currentTime
+    this.updateSubtitles(currentTime)
   }
 
   private handleSeeking = () => {
     if (!this.isActive)
       return
 
+    const currentTime = this.videoElement.currentTime
+    this.updateSubtitles(currentTime)
+  }
+
+  private updateSubtitles(currentTime: number) {
+    const timeMs = currentTime * 1000
+    const subtitle = this.subtitles.find(sub => sub.start <= timeMs && sub.end >= timeMs)
+    this.currentIndex = subtitle ? this.subtitles.indexOf(subtitle) : -1
     this.updateSubtitlesView()
   }
 

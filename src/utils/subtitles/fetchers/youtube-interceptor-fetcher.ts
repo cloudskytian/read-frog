@@ -63,18 +63,11 @@ export class XhrInterceptFetcher implements SubtitlesFetcher {
         if (this.subtitles.length === 0 && !this.fetchError) {
           reject(new Error('Fetch subtitles timeout'))
         }
-      }, 5000)
+      }, 10_000)
     })
   }
 
   cleanup(): void {
-    this.resetFetchState()
-    if (this.messageListener) {
-      window.removeEventListener('message', this.messageListener)
-    }
-  }
-
-  private resetFetchState() {
     this.subtitles = []
     this.fetchError = null
   }
@@ -85,7 +78,7 @@ export class XhrInterceptFetcher implements SubtitlesFetcher {
         return
 
       if (event.data.type === 'WXT_YT_SUBTITLE_INTERCEPT') {
-        this.resetFetchState()
+        this.cleanup()
         this.handleInterceptedSubtitle(event.data)
       }
     }

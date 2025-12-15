@@ -55,7 +55,7 @@ export const SubtitlesView = memo(() => {
 
   return (
     <div
-      className="flex flex-col items-center pointer-events-none absolute w-full bottom-[80px] left-0 right-0"
+      className="flex flex-col items-center pointer-events-none absolute w-full bottom-12 left-0 right-0"
       style={{
         fontFamily: '"YouTube Noto", Roboto, "Arial Unicode Ms", Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif',
       }}

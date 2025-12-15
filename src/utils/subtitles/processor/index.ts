@@ -28,13 +28,13 @@ export class SubtitlesProcessor {
 
   private async initializeContextConfig(
     config: Config,
-    providerConfig: ProviderConfig,
+    providerConfig?: ProviderConfig,
   ): Promise<void> {
     this.enableContext = !!config?.translate.enableAIContentAware
     this.articleTitle = ''
     this.articleTextContent = ''
 
-    if (isLLMTranslateProviderConfig(providerConfig) && this.enableContext) {
+    if (providerConfig && isLLMTranslateProviderConfig(providerConfig) && this.enableContext) {
       const articleData = await getOrFetchArticleData(this.enableContext)
       if (articleData) {
         this.articleTitle = articleData.title
@@ -50,10 +50,8 @@ export class SubtitlesProcessor {
     if (!config) {
       return this.fallbackToOriginal(fragments)
     }
+
     const { providerConfig, langConfig } = await this.getTranslationConfig(config)
-    if (!providerConfig) {
-      return this.fallbackToOriginal(fragments)
-    }
 
     if (this.kind === 'asr') {
       this.currentSubtitles = optimizeSubtitles(fragments, this.sourceLanguage)
@@ -85,8 +83,12 @@ export class SubtitlesProcessor {
   private async translateSubtitle(
     text: string,
     langConfig: Config['language'],
-    providerConfig: ProviderConfig,
+    providerConfig?: ProviderConfig,
   ): Promise<string> {
+    if (!providerConfig) {
+      return ''
+    }
+
     const hashComponents = await buildHashComponents(
       text,
       providerConfig,
@@ -95,33 +97,20 @@ export class SubtitlesProcessor {
       { title: this.articleTitle, textContent: this.articleTextContent },
     )
 
-    const hash = Sha256Hex(...hashComponents)
-
-    try {
-      const result = await sendMessage('enqueueTranslateRequest', {
-        text,
-        langConfig,
-        providerConfig,
-        scheduleAt: Date.now(),
-        hash,
-        articleTitle: this.articleTitle,
-        articleTextContent: this.articleTextContent,
-      })
-      return result || ''
-    }
-    catch (error) {
-      console.warn('[SubtitlesProcessor] Translation failed for subtitle:', text.substring(0, 50), error)
-      return ''
-    }
+    return await sendMessage('enqueueTranslateRequest', {
+      text,
+      langConfig,
+      providerConfig,
+      scheduleAt: Date.now(),
+      hash: Sha256Hex(...hashComponents),
+      articleTitle: this.articleTitle,
+      articleTextContent: this.articleTextContent,
+    })
   }
 
   private async getTranslationConfig(config: Config) {
     const providerId = config.translate.providerId
     const providerConfig = getProviderConfigById(config.providersConfig, providerId)
-
-    if (!providerConfig || !isLLMTranslateProviderConfig(providerConfig)) {
-      return { providerConfig: null, langConfig: config.language }
-    }
 
     return {
       providerConfig,
