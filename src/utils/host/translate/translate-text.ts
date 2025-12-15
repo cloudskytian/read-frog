@@ -91,7 +91,7 @@ export async function getOrFetchArticleData(
   }
 }
 
-async function buildHashComponents(
+export async function buildHashComponents(
   text: string,
   providerConfig: ProviderConfig,
   partialLangConfig: { sourceCode: LangCodeISO6393 | 'auto', targetCode: LangCodeISO6393 },

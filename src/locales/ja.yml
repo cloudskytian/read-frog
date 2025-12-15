@@ -521,8 +521,9 @@ subtitles:
     completed: 翻訳完了
     error: エラーが発生しました
   errors:
-    http429: リクエストが多すぎます。しばらく待ってから再試行してください
-    http404: 字幕が見つかりません
-    http403: アクセスが拒否されました
-    http500: サーバーエラーが発生しました
-    networkError: 字幕取得中にネットワークエラーが発生しました
+    http429: 429 YouTube字幕APIへのリクエストが多すぎます。しばらくしてから再試行してください
+    http404: 404 YouTubeの字幕が見つかりません
+    http403: 403 YouTube字幕へのアクセスが拒否されました
+    http500: 500 YouTubeサーバーエラー
+    networkError: 字幕取得時にネットワークエラーが発生しました
+    fetchSubTimeout: YouTube字幕の取得がタイムアウトしました

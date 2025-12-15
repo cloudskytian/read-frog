@@ -5,7 +5,7 @@ import { isLLMTranslateProviderConfig } from '@/types/config/provider'
 import { getProviderConfigById } from '@/utils/config/helpers'
 import { getLocalConfig } from '@/utils/config/storage'
 import { Sha256Hex } from '@/utils/hash'
-import { getOrFetchArticleData } from '@/utils/host/translate/translate-text'
+import { buildHashComponents, getOrFetchArticleData } from '@/utils/host/translate/translate-text'
 import { sendMessage } from '@/utils/message'
 import { optimizeSubtitles } from './optimizer'
 
@@ -87,13 +87,15 @@ export class SubtitlesProcessor {
     langConfig: Config['language'],
     providerConfig: ProviderConfig,
   ): Promise<string> {
-    const hash = Sha256Hex(
+    const hashComponents = await buildHashComponents(
       text,
-      langConfig.sourceCode,
-      langConfig.targetCode,
-      providerConfig.id,
-      this.enableContext ? 'ctx-on' : 'ctx-off',
+      providerConfig,
+      { sourceCode: langConfig.sourceCode, targetCode: langConfig.targetCode },
+      this.enableContext,
+      { title: this.articleTitle, textContent: this.articleTextContent },
     )
+
+    const hash = Sha256Hex(...hashComponents)
 
     try {
       const result = await sendMessage('enqueueTranslateRequest', {

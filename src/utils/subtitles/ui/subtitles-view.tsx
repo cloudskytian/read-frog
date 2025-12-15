@@ -1,6 +1,6 @@
 import { memo, use } from 'react'
 import { cn } from '@/lib/utils'
-import { SubtitlesContext } from './subtitles-container'
+import { SubtitlesContext } from './subtitles-context'
 
 const SubtitlesContent = memo(() => {
   const { subtitle } = use(SubtitlesContext)!

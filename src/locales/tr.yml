@@ -523,8 +523,9 @@ subtitles:
     completed: Çeviri tamamlandı
     error: Bir hata oluştu
   errors:
-    http429: Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.
-    http404: Altyazı bulunamadı.
-    http403: Erişim reddedildi.
-    http500: Sunucu hatası oluştu.
-    networkError: Altyazılar alınırken ağ hatası oluştu.
+    http429: 429 YouTube altyazı API'sine çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.
+    http404: 404 YouTube altyazı bulunamadı.
+    http403: 403 YouTube altyazı erişimi reddedildi.
+    http500: 500 YouTube sunucu hatası oluştu.
+    networkError: YouTube altyazılar alınırken ağ hatası oluştu.
+    fetchSubTimeout: YouTube altyazılar alınırken zaman aşımı oluştu.

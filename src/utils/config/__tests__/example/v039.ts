@@ -138,7 +138,7 @@ export const testSeries: TestSeriesObject = {
           customCSS: null,
         },
         videoSubtitles: {
-          enabled: true,
+          enabled: false,
         },
       },
       tts: {
@@ -274,7 +274,7 @@ export const testSeries: TestSeriesObject = {
           customCSS: null,
         },
         videoSubtitles: {
-          enabled: true,
+          enabled: false,
         },
       },
       tts: {

@@ -1,13 +1,21 @@
-import type { YoutubeSubtitleResponse, YoutubeTimedText } from '../types'
 import type { SubtitlesFetcher } from './types'
 import type { SubtitlesFragment } from '@/utils/subtitles/types'
 import { i18n } from '#imports'
 
-const errorMessageMap: Record<number, string> = {
-  429: i18n.t('subtitles.errors.http429'),
-  404: i18n.t('subtitles.errors.http404'),
-  403: i18n.t('subtitles.errors.http403'),
-  500: i18n.t('subtitles.errors.http500'),
+type XhrInterceptFetcherErrorStatus = 429 | 404 | 403 | 500
+
+interface YoutubeTimedText {
+  tStartMs: number
+  dDurationMs: number
+  aAppend: number
+  segs: {
+    utf8: string
+    tOffsetMs: number
+  }[]
+}
+
+interface YoutubeSubtitleResponse {
+  events: YoutubeTimedText[]
 }
 
 export class XhrInterceptFetcher implements SubtitlesFetcher {
@@ -52,7 +60,7 @@ export class XhrInterceptFetcher implements SubtitlesFetcher {
 
       setTimeout(() => {
         clearInterval(checkInterval)
-        if (!this.subtitles.length && !this.fetchError) {
+        if (this.subtitles.length === 0 && !this.fetchError) {
           reject(new Error('Fetch subtitles timeout'))
         }
       }, 5000)
@@ -60,6 +68,13 @@ export class XhrInterceptFetcher implements SubtitlesFetcher {
   }
 
   cleanup(): void {
+    this.resetFetchState()
+    if (this.messageListener) {
+      window.removeEventListener('message', this.messageListener)
+    }
+  }
+
+  private resetFetchState() {
     this.subtitles = []
     this.fetchError = null
   }
@@ -70,7 +85,7 @@ export class XhrInterceptFetcher implements SubtitlesFetcher {
         return
 
       if (event.data.type === 'WXT_YT_SUBTITLE_INTERCEPT') {
-        this.cleanup()
+        this.resetFetchState()
         this.handleInterceptedSubtitle(event.data)
       }
     }
@@ -78,17 +93,20 @@ export class XhrInterceptFetcher implements SubtitlesFetcher {
     window.addEventListener('message', this.messageListener)
   }
 
+  private showError(status: XhrInterceptFetcherErrorStatus) {
+    const errorMessage = i18n.t(`subtitles.errors.http${status}`)
+    this.fetchError = new Error(errorMessage)
+  }
+
   private handleInterceptedSubtitle(data: {
     payload?: string
     lang?: string
     kind?: string
     url?: string
-    error?: boolean
-    status?: number
+    errorStatus?: XhrInterceptFetcherErrorStatus
   }) {
-    if (data.error) {
-      const errorMsg = errorMessageMap[data.status || 0] || `HTTP Error: ${data.status || 'Unknown'}`
-      this.fetchError = new Error(errorMsg)
+    if (data.errorStatus) {
+      this.showError(data.errorStatus)
       return
     }
 
@@ -105,7 +123,7 @@ export class XhrInterceptFetcher implements SubtitlesFetcher {
 
   private cleanOriginalSubtitles(events: YoutubeTimedText[] = []): SubtitlesFragment[] {
     const segments: SubtitlesFragment[] = []
-    let buffer: SubtitlesFragment | null = { text: '', start: 0, end: 0 }
+    let buffer: SubtitlesFragment | null = null
 
     events.forEach(({ segs = [], tStartMs = 0, dDurationMs = 0 }) => {
       segs.forEach(({ utf8 = '', tOffsetMs = 0 }, j) => {
@@ -132,7 +150,9 @@ export class XhrInterceptFetcher implements SubtitlesFetcher {
       })
     })
 
-    segments.push(buffer)
+    if (buffer) {
+      segments.push(buffer)
+    }
     return segments
   }
 

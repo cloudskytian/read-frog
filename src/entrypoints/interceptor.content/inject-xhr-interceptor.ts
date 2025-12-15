@@ -3,31 +3,6 @@ function getCurrentVideoId(): string | null {
   return urlParams.get('v')
 }
 
-async function handleSubtitleLoad(
-  xhr: XMLHttpRequest,
-  interceptedUrl: URL,
-  originalUrlString: string,
-) {
-  const responseText = xhr.responseText
-  if (!responseText) {
-    return
-  }
-
-  const lang = interceptedUrl.searchParams.get('lang') || 'unknown'
-  const kind = interceptedUrl.searchParams.get('kind') || ''
-
-  window.postMessage(
-    {
-      type: 'WXT_YT_SUBTITLE_INTERCEPT',
-      payload: responseText,
-      lang,
-      kind,
-      url: originalUrlString,
-    },
-    '*',
-  )
-}
-
 export function injectXhrInterceptor() {
   const originalOpen = XMLHttpRequest.prototype.open
   XMLHttpRequest.prototype.open = function (
@@ -44,7 +19,11 @@ export function injectXhrInterceptor() {
       return originalOpen.call(this, method, url, async ?? true, username, password)
     }
 
-    const fullUrl = urlString.startsWith('http') ? urlString : window.location.origin + urlString
+    const fullUrl = urlString.startsWith('http')
+      ? urlString
+      : urlString.startsWith('/')
+        ? window.location.origin + urlString
+        : `${window.location.origin}/${urlString}`
     const interceptedUrl = new URL(fullUrl)
     const requestVideoId = interceptedUrl.searchParams.get('v')
     const currentVideoId = getCurrentVideoId()
@@ -53,30 +32,34 @@ export function injectXhrInterceptor() {
       return originalOpen.call(this, method, url, async ?? true, username, password)
     }
 
-    this.addEventListener('load', function (this: XMLHttpRequest) {
-      void handleSubtitleLoad(this, interceptedUrl, urlString)
-    }, { once: true })
-
-    this.addEventListener('error', function (this: XMLHttpRequest) {
-      window.postMessage(
-        {
-          type: 'WXT_YT_SUBTITLE_INTERCEPT',
-          error: true,
-          status: this.status || 0,
-        },
-        '*',
-      )
-    }, { once: true })
-
     this.addEventListener('loadend', function (this: XMLHttpRequest) {
-      if (this.status !== 200) {
+      if (this.status === 200) {
+        const responseText = this.responseText
+        if (!responseText) {
+          return
+        }
+
+        const lang = interceptedUrl.searchParams.get('lang') || 'unknown'
+        const kind = interceptedUrl.searchParams.get('kind') || ''
+
         window.postMessage(
           {
             type: 'WXT_YT_SUBTITLE_INTERCEPT',
-            error: true,
-            status: this.status || 0,
+            payload: responseText,
+            lang,
+            kind,
+            url: urlString,
           },
-          '*',
+          window.location.origin,
+        )
+      }
+      else {
+        window.postMessage(
+          {
+            type: 'WXT_YT_SUBTITLE_INTERCEPT',
+            errorStatus: this.status || 0,
+          },
+          window.location.origin,
         )
       }
     }, { once: true })

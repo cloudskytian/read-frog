@@ -1,12 +1,12 @@
 /**
  * Migration script from v038 to v039
- * Renames 'youtubeSubtitles' field to 'subtitles' in translate config
+ * Add 'videoSubtitles' field  in translate config
  *
  * Before (v038):
  *   { translate: { ... }, ... }
  *
  * After (v039):
- *   { translate: { ..., subtitles: { enabled } }, ... }
+ *   { translate: { ..., videoSubtitles: { enabled } }, ... }
  */
 
 export function migrate(oldConfig: any): any {
@@ -17,7 +17,7 @@ export function migrate(oldConfig: any): any {
     translate: {
       ...oldTranslateConfig,
       videoSubtitles: {
-        enabled: true,
+        enabled: false,
       },
     },
   }

@@ -523,8 +523,9 @@ subtitles:
     completed: Dịch hoàn tất
     error: Đã xảy ra lỗi
   errors:
-    http429: Quá nhiều yêu cầu. Vui lòng chờ một chút và thử lại.
-    http404: Không tìm thấy phụ đề.
-    http403: Truy cập bị từ chối.
-    http500: Đã xảy ra lỗi máy chủ.
-    networkError: Đã xảy ra lỗi mạng khi lấy phụ đề
+    http429: 429 Đã gửi quá nhiều yêu cầu đến API phụ đề Youtube, vui lòng thử lại sau
+    http404: 404 Không tìm thấy phụ đề Youtube
+    http403: 403 Không được phép truy cập phụ đề Youtube
+    http500: 500 Lỗi máy chủ Youtube
+    networkError: Xảy ra lỗi mạng khi lấy phụ đề
+    fetchSubTimeout: Quá thời gian lấy phụ đề Youtube

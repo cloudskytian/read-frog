@@ -1,9 +1,8 @@
+import type { SubtitlesFetcher } from '../fetchers'
+import type { SubtitlesProcessor } from '../processor'
 import type { SubtitlesFragment } from '../types'
-import type { SubtitlesFetcher } from './fetchers'
-import { SubtitlesProcessor } from '../processor'
 import { SubtitlesScheduler } from '../renderer/subtitles-scheduler'
 import { renderSubtitlesTranslateButton, SUBTITLES_TRANSLATE_BUTTON_CONTAINER_ID } from '../renderer/translate-button'
-import { XhrInterceptFetcher } from './fetchers'
 
 const VIDEO_SELECTOR = 'video.html5-main-video'
 const PLAYER_CONTAINER_SELECTOR = '.html5-video-player'
@@ -22,9 +21,9 @@ export class YoutubeAdapter {
   private isNativeSubtitlesHidden = false
   private cachedVideoId: string | null = null
 
-  constructor() {
-    this.subtitlesFetcher = new XhrInterceptFetcher()
-    this.subtitlesProcessor = new SubtitlesProcessor()
+  constructor({ subtitlesFetcher, subtitlesProcessor }: { subtitlesFetcher: SubtitlesFetcher, subtitlesProcessor: SubtitlesProcessor }) {
+    this.subtitlesFetcher = subtitlesFetcher
+    this.subtitlesProcessor = subtitlesProcessor
   }
 
   initialize() {
