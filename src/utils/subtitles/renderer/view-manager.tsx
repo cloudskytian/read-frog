@@ -6,7 +6,8 @@ import { ThemeProvider } from '@/components/providers/theme-provider'
 import { REACT_SHADOW_HOST_CLASS } from '@/utils/constants/dom-labels'
 import { ShadowWrapperContext } from '@/utils/react-shadow-host/create-shadow-host'
 import { ShadowHostBuilder } from '@/utils/react-shadow-host/shadow-host-builder'
-import { SubtitlesContainer, SubtitlesContext } from '../ui/subtitles-container'
+import { SubtitlesContainer } from '../ui/subtitles-container'
+import { SubtitlesContext } from '../ui/subtitles-context'
 
 export class SubtitlesViewManager {
   private shadowHost: HTMLElement | null = null
