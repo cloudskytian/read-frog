@@ -24,6 +24,7 @@ export function injectXhrInterceptor() {
       : urlString.startsWith('/')
         ? window.location.origin + urlString
         : `${window.location.origin}/${urlString}`
+
     const interceptedUrl = new URL(fullUrl)
     const requestVideoId = interceptedUrl.searchParams.get('v')
     const currentVideoId = getCurrentVideoId()
@@ -41,7 +42,6 @@ export function injectXhrInterceptor() {
 
         const lang = interceptedUrl.searchParams.get('lang') || 'unknown'
         const kind = interceptedUrl.searchParams.get('kind') || ''
-
         window.postMessage(
           {
             type: 'WXT_YT_SUBTITLE_INTERCEPT',
