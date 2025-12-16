@@ -21,7 +21,7 @@ export function SubtitleToggleButton(
       type="button"
       aria-label="Subtitle Translation Toggle"
       onClick={handleClick}
-      className="w-12 h-full flex items-center justify-center relative bg-transparent border-none p-0 m-0 cursor-pointer"
+      className="read-frog-subtitles-translate-button w-12 h-full flex items-center justify-center relative bg-transparent border-none p-0 m-0 cursor-pointer"
     >
       <img
         src={logo}

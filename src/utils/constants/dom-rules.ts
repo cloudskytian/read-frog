@@ -127,6 +127,10 @@ export const CUSTOM_DONT_WALK_INTO_ELEMENT_SELECTOR_MAP: Record<string, string[]
     '#more-replies',
     '#info',
     '#badges *',
+    '.ytp-caption-window-container',
+    '.read-frog-subtitles-view',
+    '.read-frog-subtitles-state-message',
+    '.read-frog-subtitles-translate-button',
   ],
 }
 

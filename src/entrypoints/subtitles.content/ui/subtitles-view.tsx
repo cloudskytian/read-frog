@@ -16,7 +16,7 @@ const SubtitlesContent = memo(() => {
     : []
 
   return (
-    <div className="flex w-full flex-col items-center justify-end pb-3 pointer-events-none">
+    <div className="read-frog-subtitles-view flex w-full flex-col items-center justify-end pb-3 pointer-events-none">
       {originalLines.map((line, index) => {
         const translation = translationLines[index] || ''
         const key = `subtitle-line-${line.substring(0, 20)}-${translation.substring(0, 20)}`
