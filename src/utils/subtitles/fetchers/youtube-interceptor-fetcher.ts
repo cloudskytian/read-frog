@@ -18,7 +18,7 @@ interface YoutubeSubtitleResponse {
   events: YoutubeTimedText[]
 }
 
-export class XhrInterceptFetcher implements SubtitlesFetcher {
+export class YoutubeInterceptFetcher implements SubtitlesFetcher {
   private subtitles: SubtitlesFragment[] = []
   private sourceLanguage: string = ''
   private kind: string = ''

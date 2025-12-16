@@ -1,17 +1,14 @@
-import type { SubtitlesFetcher } from '../fetchers'
-import type { SubtitlesProcessor } from '../processor'
-import type { SubtitlesFragment } from '../types'
-import { SubtitlesScheduler } from '../renderer/subtitles-scheduler'
-import { renderSubtitlesTranslateButton, SUBTITLES_TRANSLATE_BUTTON_CONTAINER_ID } from '../renderer/translate-button'
+import type { PlatformConfig } from './types'
+import type { SubtitlesFetcher } from '@/utils/subtitles/fetchers/types'
+import type { SubtitlesProcessor } from '@/utils/subtitles/processor'
+import type { SubtitlesFragment } from '@/utils/subtitles/types'
+import { renderSubtitlesTranslateButton } from './renderer/render-translate-button'
+import { SubtitlesScheduler } from './subtitles-scheduler'
 
-const VIDEO_SELECTOR = 'video.html5-main-video'
-const PLAYER_CONTAINER_SELECTOR = '.html5-video-player'
-const RIGHT_CONTROLS_SELECTOR = '.ytp-right-controls'
-const CAPTION_WINDOW_SELECTOR = '.ytp-caption-window-container'
-const HIDE_NATIVE_STYLE_ID = 'read-frog-hide-yt-native-captions'
 const BUTTON_RENDER_TIMEOUT = 10000
 
-export class YoutubeAdapter {
+export class UniversalVideoAdapter {
+  private config: PlatformConfig
   private videoElement: HTMLVideoElement | null = null
   private subtitlesScheduler: SubtitlesScheduler | null = null
   private subtitlesFetcher: SubtitlesFetcher
@@ -21,7 +18,16 @@ export class YoutubeAdapter {
   private isNativeSubtitlesHidden = false
   private cachedVideoId: string | null = null
 
-  constructor({ subtitlesFetcher, subtitlesProcessor }: { subtitlesFetcher: SubtitlesFetcher, subtitlesProcessor: SubtitlesProcessor }) {
+  constructor({
+    config,
+    subtitlesFetcher,
+    subtitlesProcessor,
+  }: {
+    config: PlatformConfig
+    subtitlesFetcher: SubtitlesFetcher
+    subtitlesProcessor: SubtitlesProcessor
+  }) {
+    this.config = config
     this.subtitlesFetcher = subtitlesFetcher
     this.subtitlesProcessor = subtitlesProcessor
   }
@@ -55,23 +61,23 @@ export class YoutubeAdapter {
 
   private initializeScheduler() {
     const tryInitialize = () => {
-      this.videoElement = document.querySelector(VIDEO_SELECTOR)
+      this.videoElement = document.querySelector(this.config.selectors.video)
       if (!this.videoElement) {
         return false
       }
 
-      const playerContainer = this.videoElement.closest(PLAYER_CONTAINER_SELECTOR)
+      const playerContainer = this.videoElement.closest(this.config.selectors.playerContainer)
       if (!playerContainer) {
         return false
       }
 
       this.subtitlesScheduler = new SubtitlesScheduler({
         videoElement: this.videoElement,
-        videoContainerElement: playerContainer,
       })
 
       this.subtitlesScheduler.start()
       this.subtitlesScheduler.hide()
+
       return true
     }
 
@@ -92,35 +98,43 @@ export class YoutubeAdapter {
   }
 
   private setupNavigationListener() {
-    const navigationListener = () => {
-      setTimeout(() => {
-        const currentVideoId = new URL(window.location.href).searchParams.get('v')
-        if (currentVideoId && this.cachedVideoId && currentVideoId !== this.cachedVideoId) {
-          this.resetForNavigation()
-          this.initializeScheduler()
-          this.renderTranslateButton()
-        }
-      }, 1000)
-    }
+    const { navigation } = this.config
 
-    window.addEventListener('yt-navigate-finish', navigationListener)
+    if (navigation.event) {
+      const navigationListener = () => {
+        setTimeout(() => {
+          this.handleNavigation()
+        }, 1000)
+      }
+
+      window.addEventListener(navigation.event, navigationListener)
+    }
+  }
+
+  private handleNavigation() {
+    const currentVideoId = this.config.navigation.getVideoId?.()
+    if (currentVideoId && this.cachedVideoId && currentVideoId !== this.cachedVideoId) {
+      this.resetForNavigation()
+      this.initializeScheduler()
+      this.renderTranslateButton()
+    }
   }
 
   private renderTranslateButton() {
     const tryRenderButton = () => {
-      const rightControls = document.querySelector(RIGHT_CONTROLS_SELECTOR)
-      if (!rightControls) {
+      const controlsBar = document.querySelector(this.config.selectors.controlsBar)
+      if (!controlsBar) {
         return false
       }
 
-      const existingButton = rightControls.querySelector(`#${SUBTITLES_TRANSLATE_BUTTON_CONTAINER_ID}`)
+      const existingButton = controlsBar.querySelector('#read-frog-subtitles-translate-button-container')
       existingButton?.remove()
 
       const toggleButton = renderSubtitlesTranslateButton(
         enabled => this.handleToggleSubtitles(enabled),
       )
 
-      rightControls.insertBefore(toggleButton, rightControls.firstChild)
+      controlsBar.insertBefore(toggleButton, controlsBar.firstChild)
       return true
     }
 
@@ -163,7 +177,7 @@ export class YoutubeAdapter {
       return
     }
 
-    const style = document.getElementById(HIDE_NATIVE_STYLE_ID)
+    const style = document.getElementById('read-frog-hide-native-captions')
     if (style) {
       style.remove()
     }
@@ -175,16 +189,16 @@ export class YoutubeAdapter {
       return
     }
 
-    if (document.getElementById(HIDE_NATIVE_STYLE_ID)) {
+    if (document.getElementById('read-frog-hide-native-captions')) {
       this.isNativeSubtitlesHidden = true
       return
     }
 
     const style = document.createElement('style')
-    style.id = HIDE_NATIVE_STYLE_ID
+    style.id = 'read-frog-hide-native-captions'
     style.textContent = `
-      ${CAPTION_WINDOW_SELECTOR},
-      ${CAPTION_WINDOW_SELECTOR} * {
+      ${this.config.selectors.nativeSubtitles},
+      ${this.config.selectors.nativeSubtitles} * {
         display: none !important;
         opacity: 0 !important;
         visibility: hidden !important;
@@ -196,7 +210,7 @@ export class YoutubeAdapter {
 
   private async startTranslation() {
     try {
-      const currentVideoId = new URL(window.location.href).searchParams.get('v')
+      const currentVideoId = this.config.navigation.getVideoId?.() ?? ''
       this.cachedVideoId = currentVideoId
       this.subtitlesScheduler?.setState('fetching')
 

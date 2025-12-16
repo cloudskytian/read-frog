@@ -1,13 +1,11 @@
-import type { StateData, SubtitlesFragment, SubtitlesState } from '../types'
-import { SubtitlesViewManager } from './view-manager'
+import type { StateData, SubtitlesFragment, SubtitlesStateType } from './types'
+import { currentSubtitleAtom, subtitlesStateAtom, subtitlesStore, subtitlesVisibleAtom } from './atoms'
 
 const COMPLETED_STATE_HIDE_DELAY = 500
 
 export class SubtitlesScheduler {
   private videoElement: HTMLVideoElement
-  private videoContainerElement: Element
   private subtitles: SubtitlesFragment[] = []
-  private subtitlesViewManager: SubtitlesViewManager | null = null
   private currentIndex = -1
   private isActive = false
   private currentState: StateData = {
@@ -16,20 +14,14 @@ export class SubtitlesScheduler {
 
   private hideStateTimeout: NodeJS.Timeout | null = null
 
-  constructor(
-    { videoElement, videoContainerElement }: { videoElement: HTMLVideoElement, videoContainerElement: Element },
-  ) {
+  constructor({ videoElement }: { videoElement: HTMLVideoElement }) {
     this.videoElement = videoElement
-    this.videoContainerElement = videoContainerElement
-
-    this.subtitlesViewManager = new SubtitlesViewManager(this.videoContainerElement)
-    this.subtitlesViewManager.mount()
-
     this.attachListeners()
   }
 
   start() {
     this.isActive = true
+    this.updateVisibility()
   }
 
   supplementSubtitles(subtitles: SubtitlesFragment[]) {
@@ -39,36 +31,34 @@ export class SubtitlesScheduler {
 
     this.subtitles.push(...subtitles)
     this.currentIndex = -1
+    this.updateCurrentSubtitle()
   }
 
   stop() {
     this.isActive = false
-    this.subtitlesViewManager?.unmount()
-    this.subtitlesViewManager = null
     this.detachListeners()
     this.clearHideStateTimeout()
+    this.updateVisibility()
   }
 
   show() {
-    this.subtitlesViewManager?.show()
+    this.isActive = true
+    this.updateVisibility()
   }
 
   hide() {
-    this.subtitlesViewManager?.hide()
+    this.isActive = false
+    this.updateVisibility()
   }
 
-  setState(state: SubtitlesState, data?: Partial<Omit<StateData, 'state'>>) {
+  setState(state: SubtitlesStateType, data?: Partial<Omit<StateData, 'state'>>) {
     this.currentState = {
       state,
       message: data?.message,
     }
     this.clearHideStateTimeout()
 
-    if (state !== 'idle') {
-      this.subtitlesViewManager?.show()
-    }
-
-    this.updateSubtitlesView()
+    this.updateState()
 
     if (state === 'completed') {
       this.hideStateTimeout = setTimeout(
@@ -84,6 +74,7 @@ export class SubtitlesScheduler {
     this.setState('idle')
     this.subtitles = []
     this.currentIndex = -1
+    this.updateCurrentSubtitle()
   }
 
   private attachListeners() {
@@ -115,19 +106,26 @@ export class SubtitlesScheduler {
   private updateSubtitles(currentTime: number) {
     const timeMs = currentTime * 1000
     const subtitle = this.subtitles.find(sub => sub.start <= timeMs && sub.end >= timeMs)
-    this.currentIndex = subtitle ? this.subtitles.indexOf(subtitle) : -1
-    this.updateSubtitlesView()
+    const newIndex = subtitle ? this.subtitles.indexOf(subtitle) : -1
+
+    if (newIndex !== this.currentIndex) {
+      this.currentIndex = newIndex
+      this.updateCurrentSubtitle()
+    }
   }
 
-  private updateSubtitlesView() {
-    if (!this.subtitlesViewManager) {
-      return
-    }
+  private updateCurrentSubtitle() {
+    const currentSubtitle = this.currentIndex >= 0 ? this.subtitles[this.currentIndex] : null
+    subtitlesStore.set(currentSubtitleAtom, currentSubtitle)
+  }
 
-    const currentSubtitles = this.currentIndex >= 0 ? this.subtitles[this.currentIndex] : null
+  private updateState() {
     const stateData = this.currentState.state !== 'idle' ? this.currentState : null
+    subtitlesStore.set(subtitlesStateAtom, stateData)
+  }
 
-    this.subtitlesViewManager.render(currentSubtitles, stateData)
+  private updateVisibility() {
+    subtitlesStore.set(subtitlesVisibleAtom, this.isActive)
   }
 
   private clearHideStateTimeout() {

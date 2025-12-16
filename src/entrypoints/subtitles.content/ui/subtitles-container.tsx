@@ -1,10 +1,12 @@
-import { memo, use } from 'react'
+import { useAtomValue } from 'jotai'
+import { memo } from 'react'
+import { subtitlesDisplayAtom } from '../atoms'
 import { StateMessage } from './state-message'
-import { SubtitlesContext } from './subtitles-context'
 import { SubtitlesView } from './subtitles-view'
 
 export const SubtitlesContainer = memo(() => {
-  const { subtitle, stateData, isVisible } = use(SubtitlesContext)!
+  const { subtitle, stateData, isVisible } = useAtomValue(subtitlesDisplayAtom)
+
   if (!isVisible) {
     return null
   }

@@ -1,9 +1,10 @@
-import type { SubtitlesState } from '@/utils/subtitles/types'
+import type { SubtitlesStateType } from '../types'
 import { i18n } from '#imports'
-import { memo, use } from 'react'
-import { SubtitlesContext } from './subtitles-context'
+import { useAtomValue } from 'jotai'
+import { memo } from 'react'
+import { subtitlesStateAtom } from '../atoms'
 
-const STATE_CONFIG: Record<SubtitlesState, { color: string, getText: () => string }> = {
+const STATE_CONFIG: Record<SubtitlesStateType, { color: string, getText: () => string }> = {
   idle: {
     color: 'oklch(100% 0 0)',
     getText: () => i18n.t('subtitles.state.idle'),
@@ -35,7 +36,7 @@ const STATE_CONFIG: Record<SubtitlesState, { color: string, getText: () => strin
 }
 
 export const StateMessage = memo(() => {
-  const { stateData } = use(SubtitlesContext)!
+  const stateData = useAtomValue(subtitlesStateAtom)
 
   if (!stateData || stateData.state === 'idle') {
     return null

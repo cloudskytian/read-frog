@@ -1,9 +1,10 @@
-import { memo, use } from 'react'
+import { useAtomValue } from 'jotai'
+import { memo } from 'react'
 import { cn } from '@/lib/utils'
-import { SubtitlesContext } from './subtitles-context'
+import { currentSubtitleAtom } from '../atoms'
 
 const SubtitlesContent = memo(() => {
-  const { subtitle } = use(SubtitlesContext)!
+  const subtitle = useAtomValue(currentSubtitleAtom)
 
   if (!subtitle) {
     return null
@@ -47,7 +48,7 @@ const SubtitlesContent = memo(() => {
 })
 
 export const SubtitlesView = memo(() => {
-  const { subtitle } = use(SubtitlesContext)!
+  const subtitle = useAtomValue(currentSubtitleAtom)
 
   if (!subtitle) {
     return null

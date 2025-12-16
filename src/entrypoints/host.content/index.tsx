@@ -12,7 +12,6 @@ import { onMessage, sendMessage } from '@/utils/message'
 import { protectSelectAllShadowRoot } from '@/utils/select-all'
 import { insertShadowRootUIWrapperInto } from '@/utils/shadow-root'
 import { addStyleToShadow } from '@/utils/styles'
-import { setupVideoSubtitles } from '@/utils/subtitles'
 import App from './app'
 import { bindTranslationShortcutKey } from './translation-control/bind-translation-shortcut'
 import { registerNodeTranslationTriggers } from './translation-control/node-translation'
@@ -132,9 +131,5 @@ export default defineContentScript({
 
     // Check if auto-translation should be enabled for initial page load
     void sendMessage('checkAndAskAutoPageTranslation', { url: window.location.href, detectedCodeOrUnd })
-
-    if (initialConfig?.betaExperience.enabled && initialConfig?.translate.videoSubtitles?.enabled) {
-      setupVideoSubtitles()
-    }
   },
 })

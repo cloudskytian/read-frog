@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Activity, useState } from 'react'
 import logo from '@/assets/icons/original/read-frog.png'
 import { cn } from '@/lib/utils'
 
@@ -31,14 +31,13 @@ export function SubtitleToggleButton(
           isEnabled ? 'opacity-100' : 'opacity-50',
         )}
       />
-      {isEnabled && (
+      <Activity mode={isEnabled ? 'visible' : 'hidden'}>
         <div
           className={cn(
-            'absolute bottom-2 right-2 w-1.5 h-1.5 rounded-full transition-colors duration-200',
-            isEnabled ? 'bg-[#3ea6ff]' : 'bg-[#4b5563]',
+            'absolute bottom-2 right-2 w-1.5 h-1.5 rounded-full transition-colors duration-200 bg-[#3ea6ff]',
           )}
         />
-      )}
+      </Activity>
     </button>
   )
 }

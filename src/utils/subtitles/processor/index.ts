@@ -16,7 +16,7 @@ export class SubtitlesProcessor {
 
   private enableContext: boolean = false
   private articleTitle: string = ''
-  private articleTextContent: string = ''
+  private subtitlesTextContent: string = ''
 
   setSourceLanguage(language: string) {
     this.sourceLanguage = language
@@ -32,7 +32,7 @@ export class SubtitlesProcessor {
   ): Promise<void> {
     this.enableContext = !!config?.translate.enableAIContentAware
     this.articleTitle = ''
-    this.articleTextContent = ''
+    this.subtitlesTextContent = ''
 
     if (providerConfig && isLLMTranslateProviderConfig(providerConfig) && this.enableContext) {
       const articleData = await getOrFetchArticleData(this.enableContext)
@@ -40,7 +40,7 @@ export class SubtitlesProcessor {
         this.articleTitle = articleData.title
       }
       if (this.currentSubtitles.length > 0) {
-        this.articleTextContent = this.currentSubtitles.map(s => s.text).join('\n')
+        this.subtitlesTextContent = this.currentSubtitles.map(s => s.text).join('\n')
       }
     }
   }
@@ -94,7 +94,7 @@ export class SubtitlesProcessor {
       providerConfig,
       { sourceCode: langConfig.sourceCode, targetCode: langConfig.targetCode },
       this.enableContext,
-      { title: this.articleTitle, textContent: this.articleTextContent },
+      { title: this.articleTitle, textContent: this.subtitlesTextContent },
     )
 
     return await sendMessage('enqueueTranslateRequest', {
@@ -104,7 +104,7 @@ export class SubtitlesProcessor {
       scheduleAt: Date.now(),
       hash: Sha256Hex(...hashComponents),
       articleTitle: this.articleTitle,
-      articleTextContent: this.articleTextContent,
+      articleTextContent: this.subtitlesTextContent,
     })
   }
 
