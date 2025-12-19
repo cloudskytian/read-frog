@@ -50,7 +50,7 @@ export const StateMessage = memo(() => {
     <div
       className={`${STATE_MESSAGE_CLASS} absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto`}
       style={{
-        fontFamily: '"YouTube Noto", Roboto, "Arial Unicode Ms", Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif',
+        fontFamily: 'Roboto, "Arial Unicode Ms", Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif',
       }}
     >
       <div

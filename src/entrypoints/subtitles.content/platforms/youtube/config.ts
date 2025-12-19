@@ -1,12 +1,12 @@
 import type { PlatformConfig } from '../../types'
-import { YOUTUBE_NAVIGATE_EVENT } from '@/utils/constants/subtitles'
+import { YOUTUBE_NATIVE_SUBTITLES_CLASS, YOUTUBE_NAVIGATE_EVENT } from '@/utils/constants/subtitles'
 
 export const youtubeConfig: PlatformConfig = {
   selectors: {
     video: 'video.html5-main-video',
     playerContainer: '.html5-video-player',
     controlsBar: '.ytp-right-controls',
-    nativeSubtitles: '.ytp-caption-window-container',
+    nativeSubtitles: YOUTUBE_NATIVE_SUBTITLES_CLASS,
   },
 
   navigation: {

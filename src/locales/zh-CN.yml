@@ -318,11 +318,6 @@ options:
       threshold:
         title: 可见度阈值
         description: 触发翻译所需的元素可见度百分比（0-1）。较高的值会延迟翻译，直到更多元素可见。
-    videoSubtitles:
-      title: 视频字幕
-      description: 当前仅支持 YouTube 视频字幕
-      enable: 开启视频字幕
-      enableDescription: 启用后，YouTube 播放器控制栏会出现翻译按钮。点击即可开始翻译字幕。
     nodeTranslationHotkey:
       title: 悬停翻译快捷键
       description: 自定义悬停在文本上翻译段落的修饰键
@@ -468,6 +463,11 @@ options:
         confirm: 确认
         cancel: 取消
         description: 该操作将清空您的所有自定义配置，并将其重置为默认值，请确认是否清除。
+  videoSubtitles:
+    title: 视频字幕
+    description: 当前仅支持 YouTube 视频字幕
+    enable: 开启视频字幕
+    enableDescription: 启用后，YouTube 播放器控制栏会出现翻译按钮。点击即可开始翻译字幕。
   whatsNew:
     title: 最近更新
   survey:

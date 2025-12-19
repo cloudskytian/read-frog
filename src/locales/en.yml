@@ -319,11 +319,6 @@ options:
       threshold:
         title: Visibility Threshold
         description: Percentage of element visibility required to trigger translation (0-1). Higher values delay translation until more of the element is visible.
-    videoSubtitles:
-      title: Video Subtitles
-      description: Currently only supports YouTube video subtitles
-      enable: Enable Video Subtitles
-      enableDescription: When enabled, a translation button will appear in the YouTube player controls. Click it to start translating subtitles.
     nodeTranslationHotkey:
       title: Hover Translation Shortcut
       description: Customize the modifier key for hovering over text to translate paragraphs
@@ -469,6 +464,11 @@ options:
         confirm: Confirm
         cancel: Cancel
         description: This operation will clear all your custom configurations and reset them to default values. Please confirm.
+  videoSubtitles:
+    title: Video Subtitles
+    description: Currently only supports YouTube video subtitles
+    enable: Enable Video Subtitles
+    enableDescription: When enabled, a translation button will appear in the YouTube player controls. Click it to start translating subtitles.
   whatsNew:
     title: What's New
   survey:

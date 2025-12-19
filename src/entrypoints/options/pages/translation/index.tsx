@@ -12,7 +12,6 @@ import { PreloadConfig } from './preload-config'
 import { RequestBatch } from './request-batch'
 import { RequestRate } from './request-rate'
 import { TranslationMode } from './translation-mode'
-import { VideoSubtitles } from './video-subtitles'
 
 export function TranslationPage() {
   return (
@@ -25,7 +24,6 @@ export function TranslationPage() {
       <PersonalizedPrompts />
       <AutoTranslateWebsitePatterns />
       <AutoTranslateLanguages />
-      <VideoSubtitles />
       <RequestRate />
       <RequestBatch />
       <PreloadConfig />

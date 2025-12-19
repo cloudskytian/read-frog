@@ -17,7 +17,7 @@ export default defineContentScript({
     window.__READ_FROG_SUBTITLES_INJECTED__ = true
 
     const config = await getLocalConfig()
-    if (!config?.betaExperience.enabled || !config?.translate.videoSubtitles?.enabled) {
+    if (!config?.betaExperience.enabled || !config?.videoSubtitles?.enabled) {
       return
     }
 

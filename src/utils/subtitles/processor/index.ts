@@ -76,7 +76,6 @@ export class SubtitlesProcessor {
       ...subtitle,
       translation: translations[index],
     }))
-
     return this.currentSubtitles
   }
 

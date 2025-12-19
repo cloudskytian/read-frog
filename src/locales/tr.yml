@@ -317,11 +317,6 @@ options:
       threshold:
         title: Görünürlük Eşiği
         description: Çeviriyi tetiklemek için gereken öğe görünürlük yüzdesi (0-1). Daha yüksek değerler, öğenin daha fazlası görünür olana kadar çeviriyi geciktirir.
-    videoSubtitles:
-      title: Video Altyazıları
-      description: Şu anda yalnızca YouTube video altyazılarını desteklemektedir
-      enable: Video Altyazılarını Etkinleştir
-      enableDescription: Etkinleştirildiğinde, YouTube oynatıcı kontrollerinde bir çeviri düğmesi görünecektir. Altyazıları çevirmeye başlamak için tıklayın.
     nodeTranslationHotkey:
       title: Üzerine Gelme Çeviri Kısayolu
       description: Paragrafları çevirmek için metnin üzerine gelirken değiştirici tuşu özelleştirin
@@ -467,6 +462,11 @@ options:
         confirm: Onayla
         cancel: İptal
         description: Bu işlem tüm özel yapılandırmalarınızı temizleyecek ve varsayılan değerlere sıfırlayacaktır. Lütfen onaylayın.
+  videoSubtitles:
+    title: Video Altyazıları
+    description: Şu anda yalnızca YouTube video altyazılarını desteklemektedir
+    enable: Video Altyazılarını Etkinleştir
+    enableDescription: Etkinleştirildiğinde, YouTube oynatıcı kontrollerinde bir çeviri düğmesi görünecektir. Altyazıları çevirmeye başlamak için tıklayın.
   whatsNew:
     title: Yenilikler
   survey:

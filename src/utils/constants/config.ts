@@ -65,9 +65,6 @@ export const DEFAULT_CONFIG: Config = {
       isCustom: false,
       customCSS: null,
     },
-    videoSubtitles: {
-      enabled: false,
-    },
   },
   tts: DEFAULT_TTS_CONFIG,
   floatingButton: {
@@ -88,6 +85,9 @@ export const DEFAULT_CONFIG: Config = {
   },
   contextMenu: {
     enabled: true,
+  },
+  videoSubtitles: {
+    enabled: false,
   },
 }
 
