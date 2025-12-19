@@ -1,7 +1,6 @@
 import type { StateData, SubtitlesFragment, SubtitlesStateType } from './types'
+import { COMPLETED_STATE_HIDE_DELAY } from '@/utils/constants/subtitles'
 import { currentSubtitleAtom, subtitlesStateAtom, subtitlesStore, subtitlesVisibleAtom } from './atoms'
-
-const COMPLETED_STATE_HIDE_DELAY = 500
 
 export class SubtitlesScheduler {
   private videoElement: HTMLVideoElement

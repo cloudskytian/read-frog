@@ -2,10 +2,9 @@ import type { PlatformConfig } from './types'
 import type { SubtitlesFetcher } from '@/utils/subtitles/fetchers/types'
 import type { SubtitlesProcessor } from '@/utils/subtitles/processor'
 import type { SubtitlesFragment } from '@/utils/subtitles/types'
+import { BUTTON_RENDER_TIMEOUT, HIDE_NATIVE_CAPTIONS_STYLE_ID, NAVIGATION_HANDLER_DELAY, TRANSLATE_BUTTON_CONTAINER_ID } from '@/utils/constants/subtitles'
 import { renderSubtitlesTranslateButton } from './renderer/render-translate-button'
 import { SubtitlesScheduler } from './subtitles-scheduler'
-
-const BUTTON_RENDER_TIMEOUT = 10000
 
 export class UniversalVideoAdapter {
   private config: PlatformConfig
@@ -104,7 +103,7 @@ export class UniversalVideoAdapter {
       const navigationListener = () => {
         setTimeout(() => {
           this.handleNavigation()
-        }, 1000)
+        }, NAVIGATION_HANDLER_DELAY)
       }
 
       window.addEventListener(navigation.event, navigationListener)
@@ -127,7 +126,7 @@ export class UniversalVideoAdapter {
         return false
       }
 
-      const existingButton = controlsBar.querySelector('#read-frog-subtitles-translate-button-container')
+      const existingButton = controlsBar.querySelector(`#${TRANSLATE_BUTTON_CONTAINER_ID}`)
       existingButton?.remove()
 
       const toggleButton = renderSubtitlesTranslateButton(
@@ -177,7 +176,7 @@ export class UniversalVideoAdapter {
       return
     }
 
-    const style = document.getElementById('read-frog-hide-native-captions')
+    const style = document.getElementById(HIDE_NATIVE_CAPTIONS_STYLE_ID)
     if (style) {
       style.remove()
     }
@@ -189,13 +188,13 @@ export class UniversalVideoAdapter {
       return
     }
 
-    if (document.getElementById('read-frog-hide-native-captions')) {
+    if (document.getElementById(HIDE_NATIVE_CAPTIONS_STYLE_ID)) {
       this.isNativeSubtitlesHidden = true
       return
     }
 
     const style = document.createElement('style')
-    style.id = 'read-frog-hide-native-captions'
+    style.id = HIDE_NATIVE_CAPTIONS_STYLE_ID
     style.textContent = `
       ${this.config.selectors.nativeSubtitles},
       ${this.config.selectors.nativeSubtitles} * {

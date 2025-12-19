@@ -1,4 +1,5 @@
 import type { PlatformConfig } from '../../types'
+import { YOUTUBE_NAVIGATE_EVENT } from '@/utils/constants/subtitles'
 
 export const youtubeConfig: PlatformConfig = {
   selectors: {
@@ -9,7 +10,7 @@ export const youtubeConfig: PlatformConfig = {
   },
 
   navigation: {
-    event: 'yt-navigate-finish',
+    event: YOUTUBE_NAVIGATE_EVENT,
     getVideoId: () => {
       const params = new URLSearchParams(window.location.search)
       return params.get('v')

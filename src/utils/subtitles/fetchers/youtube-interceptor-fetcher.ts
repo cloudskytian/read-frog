@@ -1,6 +1,7 @@
 import type { SubtitlesFetcher } from './types'
 import type { SubtitlesFragment } from '@/utils/subtitles/types'
 import { i18n } from '#imports'
+import { FETCH_CHECK_INTERVAL, FETCH_SUBTITLES_TIMEOUT, SUBTITLE_INTERCEPT_MESSAGE_TYPE } from '@/utils/constants/subtitles'
 
 type XhrInterceptFetcherErrorStatus = 429 | 404 | 403 | 500
 
@@ -56,14 +57,14 @@ export class YoutubeInterceptFetcher implements SubtitlesFetcher {
           clearInterval(checkInterval)
           resolve(this.subtitles)
         }
-      }, 100)
+      }, FETCH_CHECK_INTERVAL)
 
       setTimeout(() => {
         clearInterval(checkInterval)
         if (this.subtitles.length === 0 && !this.fetchError) {
           reject(new Error('Fetch subtitles timeout'))
         }
-      }, 10_000)
+      }, FETCH_SUBTITLES_TIMEOUT)
     })
   }
 
@@ -77,7 +78,7 @@ export class YoutubeInterceptFetcher implements SubtitlesFetcher {
       if (event.source !== window)
         return
 
-      if (event.data.type === 'WXT_YT_SUBTITLE_INTERCEPT') {
+      if (event.data.type === SUBTITLE_INTERCEPT_MESSAGE_TYPE) {
         this.cleanup()
         this.handleInterceptedSubtitle(event.data)
       }

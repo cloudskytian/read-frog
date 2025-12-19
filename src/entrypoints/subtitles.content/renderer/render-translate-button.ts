@@ -1,9 +1,8 @@
 import React from 'react'
 import themeCSS from '@/assets/styles/theme.css?inline'
+import { TRANSLATE_BUTTON_CONTAINER_ID } from '@/utils/constants/subtitles'
 import { createReactShadowHost } from '@/utils/react-shadow-host/create-shadow-host'
 import { SubtitleToggleButton } from '../ui/subtitles-translate-button'
-
-export const SUBTITLES_TRANSLATE_BUTTON_CONTAINER_ID = 'read-frog-subtitles-translate-button-container'
 
 const wrapperCSS = `
   :host {
@@ -27,7 +26,7 @@ const wrapperCSS = `
 export function renderSubtitlesTranslateButton(
   onToggle: (enabled: boolean) => void,
 ): HTMLDivElement {
-  const existingContainer = document.querySelector<HTMLDivElement>(`#${SUBTITLES_TRANSLATE_BUTTON_CONTAINER_ID}`)
+  const existingContainer = document.querySelector<HTMLDivElement>(`#${TRANSLATE_BUTTON_CONTAINER_ID}`)
 
   if (existingContainer) {
     return existingContainer
@@ -43,7 +42,7 @@ export function renderSubtitlesTranslateButton(
     cssContent: [themeCSS, wrapperCSS],
   }) as HTMLDivElement
 
-  shadowHost.id = SUBTITLES_TRANSLATE_BUTTON_CONTAINER_ID
+  shadowHost.id = TRANSLATE_BUTTON_CONTAINER_ID
 
   return shadowHost
 }

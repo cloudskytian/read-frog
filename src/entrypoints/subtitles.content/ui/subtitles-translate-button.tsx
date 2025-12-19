@@ -1,6 +1,7 @@
 import { Activity, useState } from 'react'
 import logo from '@/assets/icons/original/read-frog.png'
 import { cn } from '@/lib/utils'
+import { TRANSLATE_BUTTON_CLASS } from '@/utils/constants/subtitles'
 
 export function SubtitleToggleButton(
   { onToggle }:
@@ -21,7 +22,7 @@ export function SubtitleToggleButton(
       type="button"
       aria-label="Subtitle Translation Toggle"
       onClick={handleClick}
-      className="read-frog-subtitles-translate-button w-12 h-full flex items-center justify-center relative bg-transparent border-none p-0 m-0 cursor-pointer"
+      className={`${TRANSLATE_BUTTON_CLASS} w-12 h-full flex items-center justify-center relative bg-transparent border-none p-0 m-0 cursor-pointer`}
     >
       <img
         src={logo}

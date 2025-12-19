@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai'
 import { memo } from 'react'
 import { cn } from '@/lib/utils'
+import { SUBTITLES_VIEW_CLASS } from '@/utils/constants/subtitles'
 import { currentSubtitleAtom } from '../atoms'
 
 const SubtitlesContent = memo(() => {
@@ -16,7 +17,7 @@ const SubtitlesContent = memo(() => {
     : []
 
   return (
-    <div className="read-frog-subtitles-view flex w-full flex-col items-center justify-end pb-3 pointer-events-none">
+    <div className={`${SUBTITLES_VIEW_CLASS} flex w-full flex-col items-center justify-end pb-3 pointer-events-none`}>
       {originalLines.map((line, index) => {
         const translation = translationLines[index] || ''
         const key = `subtitle-line-${line.substring(0, 20)}-${translation.substring(0, 20)}`

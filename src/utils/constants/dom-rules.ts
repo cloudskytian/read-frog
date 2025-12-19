@@ -1,3 +1,5 @@
+import { STATE_MESSAGE_CLASS, SUBTITLES_VIEW_CLASS, TRANSLATE_BUTTON_CLASS } from './subtitles'
+
 export const FORCE_BLOCK_TAGS = new Set([
   'BODY',
   'H1',
@@ -128,9 +130,9 @@ export const CUSTOM_DONT_WALK_INTO_ELEMENT_SELECTOR_MAP: Record<string, string[]
     '#info',
     '#badges *',
     '.ytp-caption-window-container',
-    '.read-frog-subtitles-view',
-    '.read-frog-subtitles-state-message',
-    '.read-frog-subtitles-translate-button',
+    `.${SUBTITLES_VIEW_CLASS}`,
+    `.${STATE_MESSAGE_CLASS}`,
+    `.${TRANSLATE_BUTTON_CLASS}`,
   ],
 }
 

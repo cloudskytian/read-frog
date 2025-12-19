@@ -1,3 +1,5 @@
+import { SUBTITLE_INTERCEPT_MESSAGE_TYPE } from '@/utils/constants/subtitles'
+
 function getCurrentVideoId(): string | null {
   const urlParams = new URLSearchParams(window.location.search)
   return urlParams.get('v')
@@ -44,7 +46,7 @@ export function injectXhrInterceptor() {
         const kind = interceptedUrl.searchParams.get('kind') || ''
         window.postMessage(
           {
-            type: 'WXT_YT_SUBTITLE_INTERCEPT',
+            type: SUBTITLE_INTERCEPT_MESSAGE_TYPE,
             payload: responseText,
             lang,
             kind,
@@ -56,7 +58,7 @@ export function injectXhrInterceptor() {
       else {
         window.postMessage(
           {
-            type: 'WXT_YT_SUBTITLE_INTERCEPT',
+            type: SUBTITLE_INTERCEPT_MESSAGE_TYPE,
             errorStatus: this.status || 0,
           },
           window.location.origin,

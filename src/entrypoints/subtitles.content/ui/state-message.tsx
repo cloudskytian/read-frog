@@ -2,6 +2,7 @@ import type { SubtitlesStateType } from '../types'
 import { i18n } from '#imports'
 import { useAtomValue } from 'jotai'
 import { memo } from 'react'
+import { STATE_MESSAGE_CLASS } from '@/utils/constants/subtitles'
 import { subtitlesStateAtom } from '../atoms'
 
 const STATE_CONFIG: Record<SubtitlesStateType, { color: string, getText: () => string }> = {
@@ -47,7 +48,7 @@ export const StateMessage = memo(() => {
 
   return (
     <div
-      className="read-frog-subtitles-state-message absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
+      className={`${STATE_MESSAGE_CLASS} absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto`}
       style={{
         fontFamily: '"YouTube Noto", Roboto, "Arial Unicode Ms", Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif',
       }}

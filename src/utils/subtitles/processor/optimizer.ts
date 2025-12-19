@@ -1,6 +1,5 @@
 import type { SubtitlesFragment } from '../types'
-
-const MAX_GAP_MS = 2000
+import { MAX_GAP_MS } from '@/utils/constants/subtitles'
 
 interface FragmentPosition {
   index: number
