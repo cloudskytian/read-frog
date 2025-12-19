@@ -137,9 +137,6 @@ export const testSeries: TestSeriesObject = {
           isCustom: false,
           customCSS: null,
         },
-        videoSubtitles: {
-          enabled: false,
-        },
       },
       tts: {
         providerId: null,
@@ -165,6 +162,9 @@ export const testSeries: TestSeriesObject = {
       },
       contextMenu: {
         enabled: true,
+      },
+      videoSubtitles: {
+        enabled: false,
       },
     },
   },
@@ -273,9 +273,6 @@ export const testSeries: TestSeriesObject = {
           isCustom: false,
           customCSS: null,
         },
-        videoSubtitles: {
-          enabled: false,
-        },
       },
       tts: {
         providerId: null,
@@ -288,6 +285,9 @@ export const testSeries: TestSeriesObject = {
       },
       contextMenu: {
         enabled: true,
+      },
+      videoSubtitles: {
+        enabled: false,
       },
     },
   },
