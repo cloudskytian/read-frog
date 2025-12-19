@@ -2,7 +2,6 @@ import type { SubtitlesFragment } from '../../types'
 import type { SubtitlesFetcher } from '../types'
 import type { YoutubeSubtitleResponse, YoutubeTimedText } from './types'
 import { i18n } from '#imports'
-import { logger } from 'better-auth'
 import { FETCH_CHECK_INTERVAL, FETCH_SUBTITLES_TIMEOUT, SUBTITLE_INTERCEPT_MESSAGE_TYPE } from '@/utils/constants/subtitles'
 import { optimizeSubtitles } from '@/utils/subtitles/processor/optimizer'
 import { detectFormat } from './format-detector'
@@ -99,7 +98,6 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     this.sourceLanguage = data.lang
 
     this.subtitles = this.processRawEvents(this.rawEvents)
-    logger.info('this.subtitles', this.subtitles)
   }
 
   private processRawEvents(events: YoutubeTimedText[]): SubtitlesFragment[] {
