@@ -4,6 +4,4 @@ export interface SubtitlesFetcher {
   initialize: () => void
   fetch: () => Promise<SubtitlesFragment[]>
   cleanup: () => void
-  getSourceLanguage: () => string
-  getKind: () => string
 }

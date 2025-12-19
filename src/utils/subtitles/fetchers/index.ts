@@ -1,2 +1,2 @@
 export * from './types'
-export * from './youtube-interceptor-fetcher'
+export { YoutubeSubtitlesFetcher } from './youtube'

@@ -1,8 +1,8 @@
 import type { PlatformConfig } from './types'
 import type { SubtitlesFetcher } from '@/utils/subtitles/fetchers/types'
-import type { SubtitlesProcessor } from '@/utils/subtitles/processor'
 import type { SubtitlesFragment } from '@/utils/subtitles/types'
 import { BUTTON_RENDER_TIMEOUT, HIDE_NATIVE_CAPTIONS_STYLE_ID, NAVIGATION_HANDLER_DELAY, TRANSLATE_BUTTON_CONTAINER_ID } from '@/utils/constants/subtitles'
+import { translateSubtitles } from '@/utils/subtitles/processor/translator'
 import { renderSubtitlesTranslateButton } from './renderer/render-translate-button'
 import { SubtitlesScheduler } from './subtitles-scheduler'
 
@@ -11,7 +11,6 @@ export class UniversalVideoAdapter {
   private videoElement: HTMLVideoElement | null = null
   private subtitlesScheduler: SubtitlesScheduler | null = null
   private subtitlesFetcher: SubtitlesFetcher
-  private subtitlesProcessor: SubtitlesProcessor
 
   private originalSubtitles: SubtitlesFragment[] = []
   private isNativeSubtitlesHidden = false
@@ -20,15 +19,12 @@ export class UniversalVideoAdapter {
   constructor({
     config,
     subtitlesFetcher,
-    subtitlesProcessor,
   }: {
     config: PlatformConfig
     subtitlesFetcher: SubtitlesFetcher
-    subtitlesProcessor: SubtitlesProcessor
   }) {
     this.config = config
     this.subtitlesFetcher = subtitlesFetcher
-    this.subtitlesProcessor = subtitlesProcessor
   }
 
   initialize() {
@@ -222,11 +218,6 @@ export class UniversalVideoAdapter {
         return
       }
 
-      const sourceLanguage = this.subtitlesFetcher.getSourceLanguage()
-      const kind = this.subtitlesFetcher.getKind()
-      this.subtitlesProcessor.setSourceLanguage(sourceLanguage)
-      this.subtitlesProcessor.setKind(kind)
-
       await this.processSubtitles()
     }
     catch (error) {
@@ -237,9 +228,11 @@ export class UniversalVideoAdapter {
 
   private async processSubtitles() {
     this.subtitlesScheduler?.setState('processing')
-    const optimizedSubtitles = await this.subtitlesProcessor.process(this.originalSubtitles)
+
+    const translated = await translateSubtitles(this.originalSubtitles)
+
     if (this.subtitlesScheduler) {
-      this.subtitlesScheduler.supplementSubtitles(optimizedSubtitles)
+      this.subtitlesScheduler.supplementSubtitles(translated)
     }
 
     this.subtitlesScheduler?.setState('completed')

@@ -1,7 +1,6 @@
 import type { SubtitlesStateType } from '../types'
 import { i18n } from '#imports'
 import { useAtomValue } from 'jotai'
-import { memo } from 'react'
 import { STATE_MESSAGE_CLASS } from '@/utils/constants/subtitles'
 import { subtitlesStateAtom } from '../atoms'
 
@@ -36,7 +35,7 @@ const STATE_CONFIG: Record<SubtitlesStateType, { color: string, getText: () => s
   },
 }
 
-export const StateMessage = memo(() => {
+export function StateMessage() {
   const stateData = useAtomValue(subtitlesStateAtom)
 
   if (!stateData || stateData.state === 'idle') {
@@ -61,4 +60,4 @@ export const StateMessage = memo(() => {
       </div>
     </div>
   )
-})
+}

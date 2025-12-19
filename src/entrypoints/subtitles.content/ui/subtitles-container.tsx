@@ -1,10 +1,9 @@
 import { useAtomValue } from 'jotai'
-import { memo } from 'react'
 import { subtitlesDisplayAtom } from '../atoms'
 import { StateMessage } from './state-message'
 import { SubtitlesView } from './subtitles-view'
 
-export const SubtitlesContainer = memo(() => {
+export function SubtitlesContainer() {
   const { subtitle, stateData, isVisible } = useAtomValue(subtitlesDisplayAtom)
 
   if (!isVisible) {
@@ -20,4 +19,4 @@ export const SubtitlesContainer = memo(() => {
   }
 
   return null
-})
+}

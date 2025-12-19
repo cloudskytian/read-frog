@@ -1,10 +1,9 @@
 import { useAtomValue } from 'jotai'
-import { memo } from 'react'
 import { cn } from '@/lib/utils'
 import { SUBTITLES_VIEW_CLASS } from '@/utils/constants/subtitles'
 import { currentSubtitleAtom } from '../atoms'
 
-const SubtitlesContent = memo(() => {
+function SubtitlesContent() {
   const subtitle = useAtomValue(currentSubtitleAtom)
 
   if (!subtitle) {
@@ -46,9 +45,9 @@ const SubtitlesContent = memo(() => {
       })}
     </div>
   )
-})
+}
 
-export const SubtitlesView = memo(() => {
+export function SubtitlesView() {
   const subtitle = useAtomValue(currentSubtitleAtom)
 
   if (!subtitle) {
@@ -65,4 +64,4 @@ export const SubtitlesView = memo(() => {
       <SubtitlesContent />
     </div>
   )
-})
+}

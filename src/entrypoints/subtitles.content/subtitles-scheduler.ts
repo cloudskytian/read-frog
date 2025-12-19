@@ -104,7 +104,7 @@ export class SubtitlesScheduler {
 
   private updateSubtitles(currentTime: number) {
     const timeMs = currentTime * 1000
-    const subtitle = this.subtitles.find(sub => sub.start <= timeMs && sub.end >= timeMs)
+    const subtitle = this.subtitles.find(sub => sub.start <= timeMs && sub.end > timeMs)
     const newIndex = subtitle ? this.subtitles.indexOf(subtitle) : -1
 
     if (newIndex !== this.currentIndex) {
