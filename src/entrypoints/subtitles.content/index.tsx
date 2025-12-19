@@ -1,8 +1,6 @@
 import { defineContentScript } from '#imports'
 import { getLocalConfig } from '@/utils/config/storage'
-import { setupYoutubeSubtitles } from './platforms/youtube'
-import { youtubeConfig } from './platforms/youtube/config'
-import { mountSubtitlesUI } from './renderer/mount-subtitles-ui'
+import { initYoutubeSubtitles } from './init-youtube-subtitles'
 
 declare global {
   interface Window {
@@ -18,17 +16,11 @@ export default defineContentScript({
       return
     window.__READ_FROG_SUBTITLES_INJECTED__ = true
 
-    if (!window.location.href.includes('youtube.com/watch')) {
-      return
-    }
-
     const config = await getLocalConfig()
     if (!config?.betaExperience.enabled || !config?.translate.videoSubtitles?.enabled) {
       return
     }
 
-    setupYoutubeSubtitles()
-
-    void mountSubtitlesUI(youtubeConfig.selectors.playerContainer)
+    initYoutubeSubtitles()
   },
 })
