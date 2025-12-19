@@ -1,6 +1,9 @@
 import type { SubtitlesFragment } from '../../types'
 import type { YoutubeTimedText } from './types'
 
+// YouTube uses wpWinPosId: 3 for the main kanji track in karaoke subtitles
+const KANJI_TRACK_ID = 3
+
 /**
  * Clean karaoke text: remove zero-width spaces and extra whitespace
  */
@@ -26,8 +29,8 @@ export function parseKaraokeSubtitles(events: YoutubeTimedText[]): SubtitlesFrag
     }
   }
 
-  // Prefer wpWinPosId: 3 (kanji), otherwise use the largest id
-  const mainTrackId = posIds.has(3) ? 3 : Math.max(...posIds)
+  // Prefer kanji track, otherwise use the largest id
+  const mainTrackId = posIds.has(KANJI_TRACK_ID) ? KANJI_TRACK_ID : Math.max(...posIds)
 
   // Filter and merge
   const merged: SubtitlesFragment[] = []
