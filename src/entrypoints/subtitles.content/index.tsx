@@ -2,7 +2,7 @@ import { defineContentScript } from '#imports'
 import { getLocalConfig } from '@/utils/config/storage'
 import { setupYoutubeSubtitles } from './platforms/youtube'
 import { youtubeConfig } from './platforms/youtube/config'
-import { mountSubtitlesUI } from './renderer/ui-renderer'
+import { mountSubtitlesUI } from './renderer/mount-subtitles-ui'
 
 declare global {
   interface Window {
@@ -29,6 +29,6 @@ export default defineContentScript({
 
     setupYoutubeSubtitles()
 
-    await mountSubtitlesUI(youtubeConfig.selectors.playerContainer)
+    void mountSubtitlesUI(youtubeConfig.selectors.playerContainer)
   },
 })

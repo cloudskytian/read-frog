@@ -5,7 +5,7 @@ export default defineContentScript({
   matches: ['*://*.youtube.com/*'],
   world: 'MAIN',
   runAt: 'document_start',
-  async main() {
-    void injectXhrInterceptor()
+  main() {
+    injectXhrInterceptor()
   },
 })

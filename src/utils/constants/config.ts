@@ -66,7 +66,7 @@ export const DEFAULT_CONFIG: Config = {
       customCSS: null,
     },
     videoSubtitles: {
-      enabled: true,
+      enabled: false,
     },
   },
   tts: DEFAULT_TTS_CONFIG,

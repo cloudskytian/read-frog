@@ -93,7 +93,6 @@ export default defineContentScript({
     const handleUrlChange = async (from: string, to: string) => {
       if (from !== to) {
         logger.info('URL changed from', from, 'to', to)
-
         if (manager.isActive) {
           manager.stop()
         }

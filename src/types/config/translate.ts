@@ -96,7 +96,7 @@ export const translateConfigSchema = z.object({
   requestQueueConfig: requestQueueConfigSchema,
   batchQueueConfig: batchQueueConfigSchema,
   translationNodeStyle: translationNodeStyleConfigSchema,
-  videoSubtitles: videoSubtitlesConfigSchema.optional(),
+  videoSubtitles: videoSubtitlesConfigSchema,
 })
 
 export type RequestQueueConfig = z.infer<typeof requestQueueConfigSchema>
