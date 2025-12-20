@@ -7,6 +7,7 @@ import { optimizeSubtitles } from '@/utils/subtitles/processor/optimizer'
 import { detectFormat } from './format-detector'
 import { parseKaraokeSubtitles } from './karaoke-parser'
 import { parseScrollingAsrSubtitles } from './scrolling-asr-parser'
+import { parseStandardSubtitles } from './standard-parser'
 
 type XhrInterceptFetcherErrorStatus = 429 | 404 | 403 | 500
 
@@ -19,10 +20,6 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
 
   initialize(): void {
     this.setupMessageListener()
-  }
-
-  getSourceLanguage(): string {
-    return this.sourceLanguage
   }
 
   async fetch(): Promise<SubtitlesFragment[]> {
@@ -113,46 +110,10 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
       }
       default:
       {
-        // Standard format: convert first, then optimize segmentation
-        const fragments = this.convertToStandardFragments(events)
+        const fragments = parseStandardSubtitles(events)
         return optimizeSubtitles(fragments, this.sourceLanguage)
       }
     }
-  }
-
-  private convertToStandardFragments(events: YoutubeTimedText[] = []): SubtitlesFragment[] {
-    const segments: SubtitlesFragment[] = []
-    let buffer: SubtitlesFragment | null = null
-
-    events.forEach(({ segs = [], tStartMs = 0, dDurationMs = 0 }) => {
-      segs.forEach(({ utf8 = '', tOffsetMs = 0 }, segIndex) => {
-        const text = utf8.trim().replace(/\s+/g, ' ').replace(/>>/g, ' ')
-        const start = tStartMs + tOffsetMs
-
-        if (buffer) {
-          if (!buffer.end || buffer.end > start) {
-            buffer.end = start
-          }
-          segments.push(buffer)
-          buffer = null
-        }
-
-        buffer = {
-          text,
-          start,
-          end: 0,
-        }
-
-        if (segIndex === segs.length - 1) {
-          buffer.end = tStartMs + dDurationMs
-        }
-      })
-    })
-
-    if (buffer) {
-      segments.push(buffer)
-    }
-    return segments
   }
 
   private tryClickSubtitleButton() {
