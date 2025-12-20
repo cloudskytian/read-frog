@@ -107,8 +107,12 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
       case 'karaoke':
         return parseKaraokeSubtitles(events)
       case 'scrolling-asr':
-        return parseScrollingAsrSubtitles(events)
-      default: {
+      {
+        const fragments = parseScrollingAsrSubtitles(events)
+        return optimizeSubtitles(fragments, this.sourceLanguage)
+      }
+      default:
+      {
         // Standard format: convert first, then optimize segmentation
         const fragments = this.convertToStandardFragments(events)
         return optimizeSubtitles(fragments, this.sourceLanguage)
@@ -121,7 +125,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     let buffer: SubtitlesFragment | null = null
 
     events.forEach(({ segs = [], tStartMs = 0, dDurationMs = 0 }) => {
-      segs.forEach(({ utf8 = '', tOffsetMs = 0 }, j) => {
+      segs.forEach(({ utf8 = '', tOffsetMs = 0 }, segIndex: number) => {
         const text = utf8.trim().replace(/\s+/g, ' ').replace(/>>/g, ' ')
         const start = tStartMs + tOffsetMs
 
@@ -139,7 +143,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
           end: 0,
         }
 
-        if (j === segs.length - 1) {
+        if (segIndex === segs.length - 1) {
           buffer.end = tStartMs + dDurationMs
         }
       })

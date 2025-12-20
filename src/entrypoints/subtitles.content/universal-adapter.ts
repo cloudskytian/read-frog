@@ -1,14 +1,14 @@
-import type { PlatformConfig } from './types'
+import type { PlatformConfig } from '@/entrypoints/subtitles.content/platforms'
 import type { SubtitlesFetcher } from '@/utils/subtitles/fetchers/types'
 import type { SubtitlesFragment } from '@/utils/subtitles/types'
-import { BUTTON_RENDER_TIMEOUT, HIDE_NATIVE_CAPTIONS_STYLE_ID, NAVIGATION_HANDLER_DELAY, TRANSLATE_BUTTON_CONTAINER_ID } from '@/utils/constants/subtitles'
+import { HIDE_NATIVE_CAPTIONS_STYLE_ID, NAVIGATION_HANDLER_DELAY, TRANSLATE_BUTTON_CONTAINER_ID } from '@/utils/constants/subtitles'
+import { waitForElement } from '@/utils/dom/wait-for-element'
 import { translateSubtitles } from '@/utils/subtitles/processor/translator'
 import { renderSubtitlesTranslateButton } from './renderer/render-translate-button'
 import { SubtitlesScheduler } from './subtitles-scheduler'
 
 export class UniversalVideoAdapter {
   private config: PlatformConfig
-  private videoElement: HTMLVideoElement | null = null
   private subtitlesScheduler: SubtitlesScheduler | null = null
   private subtitlesFetcher: SubtitlesFetcher
 
@@ -29,8 +29,8 @@ export class UniversalVideoAdapter {
 
   initialize() {
     this.subtitlesFetcher.initialize()
-    this.initializeScheduler()
-    this.renderTranslateButton()
+    void this.initializeScheduler()
+    void this.renderTranslateButton()
     this.setupNavigationListener()
   }
 
@@ -54,42 +54,17 @@ export class UniversalVideoAdapter {
     this.subtitlesScheduler = null
   }
 
-  private initializeScheduler() {
-    const tryInitialize = () => {
-      this.videoElement = document.querySelector(this.config.selectors.video)
-      if (!this.videoElement) {
-        return false
-      }
-
-      const playerContainer = this.videoElement.closest(this.config.selectors.playerContainer)
-      if (!playerContainer) {
-        return false
-      }
-
-      this.subtitlesScheduler = new SubtitlesScheduler({
-        videoElement: this.videoElement,
-      })
-
-      this.subtitlesScheduler.start()
-      this.subtitlesScheduler.hide()
-
-      return true
-    }
-
-    if (tryInitialize()) {
+  private async initializeScheduler() {
+    const video = await waitForElement(
+      this.config.selectors.video,
+      el => !!el.closest(this.config.selectors.playerContainer),
+    ) as HTMLVideoElement | null
+    if (!video)
       return
-    }
 
-    const observer = new MutationObserver(() => {
-      if (tryInitialize()) {
-        observer.disconnect()
-      }
-    })
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    })
+    this.subtitlesScheduler = new SubtitlesScheduler({ videoElement: video })
+    this.subtitlesScheduler.start()
+    this.subtitlesScheduler.hide()
   }
 
   private setupNavigationListener() {
@@ -110,47 +85,24 @@ export class UniversalVideoAdapter {
     const currentVideoId = this.config.navigation.getVideoId?.()
     if (currentVideoId && this.cachedVideoId && currentVideoId !== this.cachedVideoId) {
       this.resetForNavigation()
-      this.initializeScheduler()
-      this.renderTranslateButton()
+      void this.initializeScheduler()
+      void this.renderTranslateButton()
     }
   }
 
-  private renderTranslateButton() {
-    const tryRenderButton = () => {
-      const controlsBar = document.querySelector(this.config.selectors.controlsBar)
-      if (!controlsBar) {
-        return false
-      }
-
-      const existingButton = controlsBar.querySelector(`#${TRANSLATE_BUTTON_CONTAINER_ID}`)
-      existingButton?.remove()
-
-      const toggleButton = renderSubtitlesTranslateButton(
-        enabled => this.handleToggleSubtitles(enabled),
-      )
-
-      controlsBar.insertBefore(toggleButton, controlsBar.firstChild)
-      return true
-    }
-
-    if (tryRenderButton()) {
+  private async renderTranslateButton() {
+    const controlsBar = await waitForElement(this.config.selectors.controlsBar)
+    if (!controlsBar)
       return
-    }
 
-    const observer = new MutationObserver(() => {
-      if (tryRenderButton()) {
-        observer.disconnect()
-      }
-    })
+    const existingButton = controlsBar.querySelector(`#${TRANSLATE_BUTTON_CONTAINER_ID}`)
+    existingButton?.remove()
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    })
+    const toggleButton = renderSubtitlesTranslateButton(
+      enabled => this.handleToggleSubtitles(enabled),
+    )
 
-    setTimeout(() => {
-      observer.disconnect()
-    }, BUTTON_RENDER_TIMEOUT)
+    controlsBar.insertBefore(toggleButton, controlsBar.firstChild)
   }
 
   private handleToggleSubtitles(enabled: boolean) {

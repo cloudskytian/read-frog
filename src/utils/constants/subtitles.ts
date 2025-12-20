@@ -1,5 +1,4 @@
 // Timing constants
-export const BUTTON_RENDER_TIMEOUT = 10000
 export const NAVIGATION_HANDLER_DELAY = 1000
 export const COMPLETED_STATE_HIDE_DELAY = 500
 export const FETCH_CHECK_INTERVAL = 100

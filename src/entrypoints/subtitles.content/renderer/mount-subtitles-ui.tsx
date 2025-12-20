@@ -3,40 +3,16 @@ import ReactDOM from 'react-dom/client'
 import themeCSS from '@/assets/styles/theme.css?inline'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { REACT_SHADOW_HOST_CLASS } from '@/utils/constants/dom-labels'
+import { waitForElement } from '@/utils/dom/wait-for-element'
 import { ShadowWrapperContext } from '@/utils/react-shadow-host/create-shadow-host'
 import { ShadowHostBuilder } from '@/utils/react-shadow-host/shadow-host-builder'
 import { subtitlesStore } from '../atoms'
 import { SubtitlesContainer } from '../ui/subtitles-container'
 
-async function waitForVideoContainer(containerSelector: string): Promise<Element> {
-  return new Promise<Element>((resolve) => {
-    const tryFind = () => {
-      const container = document.querySelector(containerSelector)
-      if (container) {
-        resolve(container)
-        return true
-      }
-      return false
-    }
-
-    if (tryFind())
-      return
-
-    const observer = new MutationObserver(() => {
-      if (tryFind()) {
-        observer.disconnect()
-      }
-    })
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    })
-  })
-}
-
 export async function mountSubtitlesUI(containerSelector: string): Promise<void> {
-  const videoContainer = await waitForVideoContainer(containerSelector)
+  const videoContainer = await waitForElement(containerSelector)
+  if (!videoContainer)
+    return
 
   const parentEl = videoContainer as HTMLElement
   const computedStyle = window.getComputedStyle(parentEl)

@@ -1,4 +1,4 @@
-import type { StateData, SubtitlesFragment, SubtitlesStateType } from './types'
+import type { StateData, SubtitlesFragment, SubtitlesState } from '@/utils/subtitles/types'
 import { COMPLETED_STATE_HIDE_DELAY } from '@/utils/constants/subtitles'
 import { currentSubtitleAtom, subtitlesStateAtom, subtitlesStore, subtitlesVisibleAtom } from './atoms'
 
@@ -50,7 +50,7 @@ export class SubtitlesScheduler {
     this.updateVisibility()
   }
 
-  setState(state: SubtitlesStateType, data?: Partial<Omit<StateData, 'state'>>) {
+  setState(state: SubtitlesState, data?: Partial<Omit<StateData, 'state'>>) {
     this.currentState = {
       state,
       message: data?.message,

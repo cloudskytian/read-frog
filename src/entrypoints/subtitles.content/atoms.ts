@@ -1,4 +1,4 @@
-import type { StateData, SubtitlesFragment } from './types'
+import type { StateData, SubtitlesFragment } from '@/utils/subtitles/types'
 import { atom, createStore } from 'jotai'
 
 export const subtitlesStore = createStore()

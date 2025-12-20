@@ -1,10 +1,10 @@
-import type { SubtitlesStateType } from '../types'
+import type { SubtitlesState } from '@/utils/subtitles/types'
 import { i18n } from '#imports'
 import { useAtomValue } from 'jotai'
 import { STATE_MESSAGE_CLASS } from '@/utils/constants/subtitles'
 import { subtitlesStateAtom } from '../atoms'
 
-const STATE_CONFIG: Record<SubtitlesStateType, { color: string, getText: () => string }> = {
+const STATE_CONFIG: Record<SubtitlesState, { color: string, getText: () => string }> = {
   idle: {
     color: 'oklch(100% 0 0)',
     getText: () => i18n.t('subtitles.state.idle'),
