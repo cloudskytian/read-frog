@@ -125,7 +125,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     let buffer: SubtitlesFragment | null = null
 
     events.forEach(({ segs = [], tStartMs = 0, dDurationMs = 0 }) => {
-      segs.forEach(({ utf8 = '', tOffsetMs = 0 }, segIndex: number) => {
+      segs.forEach(({ utf8 = '', tOffsetMs = 0 }, segIndex) => {
         const text = utf8.trim().replace(/\s+/g, ' ').replace(/>>/g, ' ')
         const start = tStartMs + tOffsetMs
 
