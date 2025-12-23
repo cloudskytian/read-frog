@@ -1,8 +1,8 @@
 import type { SubtitlesFragment } from '../../types'
 import type { SubtitlesFetcher } from '../types'
-import type { SubtitlesInterceptMessage, XhrInterceptFetcherErrorStatus, YoutubeTimedText } from './types'
+import type { SubtitlesInterceptMessage, YoutubeTimedText } from './types'
 import { i18n } from '#imports'
-import { FETCH_CHECK_INTERVAL, FETCH_SUBTITLES_TIMEOUT } from '@/utils/constants/subtitles'
+import { FETCH_SUBTITLES_TIMEOUT } from '@/utils/constants/subtitles'
 import { optimizeSubtitles } from '@/utils/subtitles/processor/optimizer'
 import { detectFormat } from './format-detector'
 import { parseKaraokeSubtitles, parseScrollingAsrSubtitles, parseStandardSubtitles } from './parser'
@@ -13,7 +13,10 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
   private rawEvents: YoutubeTimedText[] = []
   private sourceLanguage: string = ''
   private messageListener: ((event: MessageEvent) => void) | null = null
-  private fetchError: Error | null = null
+
+  private pendingResolve: ((subtitles: SubtitlesFragment[]) => void) | null = null
+  private pendingReject: ((error: Error) => void) | null = null
+  private timeoutId: ReturnType<typeof setTimeout> | null = null
 
   initialize(): void {
     this.setupMessageListener()
@@ -27,23 +30,13 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     this.clickYoutubeSubtitleButton()
 
     return new Promise<SubtitlesFragment[]>((resolve, reject) => {
-      const checkInterval = setInterval(() => {
-        if (this.fetchError) {
-          clearInterval(checkInterval)
-          reject(this.fetchError)
-          return
-        }
+      this.pendingResolve = resolve
+      this.pendingReject = reject
 
-        if (this.subtitles.length > 0) {
-          clearInterval(checkInterval)
-          resolve(this.subtitles)
-        }
-      }, FETCH_CHECK_INTERVAL)
-
-      setTimeout(() => {
-        clearInterval(checkInterval)
-        if (this.subtitles.length === 0 && !this.fetchError) {
-          reject(new Error('Fetch subtitles timeout'))
+      this.timeoutId = setTimeout(() => {
+        if (this.pendingResolve) {
+          this.clearPending()
+          reject(new Error(i18n.t('subtitles.errors.fetchSubTimeout')))
         }
       }, FETCH_SUBTITLES_TIMEOUT)
     })
@@ -52,7 +45,16 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
   cleanup(): void {
     this.subtitles = []
     this.rawEvents = []
-    this.fetchError = null
+    this.clearPending()
+  }
+
+  private clearPending() {
+    this.pendingResolve = null
+    this.pendingReject = null
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId)
+      this.timeoutId = null
+    }
   }
 
   private setupMessageListener() {
@@ -69,24 +71,18 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     window.addEventListener('message', this.messageListener)
   }
 
-  private setFetchError(status: XhrInterceptFetcherErrorStatus) {
-    const errorMessage = i18n.t(`subtitles.errors.http${status}`)
-    this.fetchError = new Error(errorMessage)
-  }
-
   private handleInterceptedSubtitle(data: SubtitlesInterceptMessage) {
     if (data.errorStatus) {
-      this.setFetchError(data.errorStatus)
-      return
-    }
-
-    if (!data.payload || !data.lang) {
+      const errorMessage = i18n.t(`subtitles.errors.http${data.errorStatus}`)
+      this.pendingReject?.(new Error(errorMessage))
+      this.clearPending()
       return
     }
 
     const parsed = youtubeSubtitlesResponseSchema.safeParse(JSON.parse(data.payload))
     if (!parsed.success) {
-      this.fetchError = new Error(i18n.t('subtitles.errors.invalidResponse'))
+      this.pendingReject?.(new Error(i18n.t('subtitles.errors.invalidResponse')))
+      this.clearPending()
       return
     }
 
@@ -94,6 +90,8 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     this.sourceLanguage = data.lang
 
     this.subtitles = this.processRawEvents(this.rawEvents)
+    this.pendingResolve?.(this.subtitles)
+    this.clearPending()
   }
 
   private processRawEvents(events: YoutubeTimedText[]): SubtitlesFragment[] {
