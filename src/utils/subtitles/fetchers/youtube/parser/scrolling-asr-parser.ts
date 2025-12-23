@@ -1,5 +1,5 @@
-import type { SubtitlesFragment } from '../../types'
-import type { YoutubeTimedText } from './types'
+import type { SubtitlesFragment } from '../../../types'
+import type { YoutubeTimedText } from '../types'
 
 /**
  * Parse ASR scrolling subtitle format

@@ -59,6 +59,7 @@ export class UniversalVideoAdapter {
       this.config.selectors.video,
       el => !!el.closest(this.config.selectors.playerContainer),
     ) as HTMLVideoElement | null
+
     if (!video)
       return
 

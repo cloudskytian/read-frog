@@ -21,13 +21,7 @@ export function injectXhrInterceptor() {
       return originalOpen.call(this, method, url, async ?? true, username, password)
     }
 
-    const fullUrl = urlString.startsWith('http')
-      ? urlString
-      : urlString.startsWith('/')
-        ? window.location.origin + urlString
-        : `${window.location.origin}/${urlString}`
-
-    const interceptedUrl = new URL(fullUrl)
+    const interceptedUrl = new URL(urlString)
     const requestVideoId = interceptedUrl.searchParams.get('v')
     const currentVideoId = getCurrentVideoId()
 
@@ -36,34 +30,24 @@ export function injectXhrInterceptor() {
     }
 
     this.addEventListener('loadend', function (this: XMLHttpRequest) {
-      if (this.status === 200) {
-        const responseText = this.responseText
-        if (!responseText) {
-          return
-        }
+      const responseText = this.responseText
+      if (!responseText) {
+        return
+      }
 
-        const lang = interceptedUrl.searchParams.get('lang') || 'unknown'
-        const kind = interceptedUrl.searchParams.get('kind') || ''
-        window.postMessage(
-          {
-            type: SUBTITLE_INTERCEPT_MESSAGE_TYPE,
-            payload: responseText,
-            lang,
-            kind,
-            url: urlString,
-          },
-          window.location.origin,
-        )
-      }
-      else {
-        window.postMessage(
-          {
-            type: SUBTITLE_INTERCEPT_MESSAGE_TYPE,
-            errorStatus: this.status || 0,
-          },
-          window.location.origin,
-        )
-      }
+      const lang = interceptedUrl.searchParams.get('lang') || 'unknown'
+      const kind = interceptedUrl.searchParams.get('kind') || ''
+      window.postMessage(
+        {
+          type: SUBTITLE_INTERCEPT_MESSAGE_TYPE,
+          payload: responseText,
+          lang,
+          kind,
+          url: urlString,
+          errorStatus: this.status === 200 ? null : this.status,
+        },
+        window.location.origin,
+      )
     }, { once: true })
 
     return originalOpen.call(this, method, url, async ?? true, username, password)

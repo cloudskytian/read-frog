@@ -1,5 +1,5 @@
-import type { SubtitlesFragment } from '../../types'
-import type { YoutubeTimedText } from './types'
+import type { SubtitlesFragment } from '../../../types'
+import type { YoutubeTimedText } from '../types'
 
 // YouTube uses wpWinPosId: 3 for the main kanji track in karaoke subtitles
 const KANJI_TRACK_ID = 3

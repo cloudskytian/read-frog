@@ -1,8 +1,8 @@
 import type { YoutubeTimedText } from '../fetchers/youtube/types'
 import { describe, expect, it } from 'vitest'
 import { detectFormat } from '../fetchers/youtube/format-detector'
-import { parseKaraokeSubtitles } from '../fetchers/youtube/karaoke-parser'
-import { parseScrollingAsrSubtitles } from '../fetchers/youtube/scrolling-asr-parser'
+import { parseKaraokeSubtitles } from '../fetchers/youtube/parser/karaoke-parser'
+import { parseScrollingAsrSubtitles } from '../fetchers/youtube/parser/scrolling-asr-parser'
 import { optimizeSubtitles } from '../processor/optimizer'
 
 describe('youTube Subtitle Parsers', () => {
