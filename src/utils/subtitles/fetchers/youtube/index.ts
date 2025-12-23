@@ -2,6 +2,7 @@ import type { SubtitlesFragment } from '../../types'
 import type { SubtitlesFetcher } from '../types'
 import type { SubtitlesInterceptMessage, YoutubeTimedText } from './types'
 import { i18n } from '#imports'
+import { toast } from 'sonner'
 import { FETCH_SUBTITLES_TIMEOUT } from '@/utils/constants/subtitles'
 import { optimizeSubtitles } from '@/utils/subtitles/processor/optimizer'
 import { detectFormat } from './format-detector'
@@ -61,6 +62,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     this.messageListener = (event: MessageEvent) => {
       const parsed = subtitlesInterceptMessageSchema.safeParse(event.data)
       if (!parsed.success) {
+        this.pendingReject?.(new Error(i18n.t('subtitles.errors.invalidResponse')))
         return
       }
 
@@ -115,8 +117,10 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
 
   private clickYoutubeSubtitleButton() {
     const ccButton = document.querySelector('.ytp-subtitles-button')
-    if (!(ccButton instanceof HTMLElement))
+    if (!(ccButton instanceof HTMLElement)) {
+      toast.error(i18n.t('subtitles.errors.buttonNotFound'))
       return
+    }
 
     const isPressed = ccButton.getAttribute('aria-pressed') === 'true'
     if (isPressed) {

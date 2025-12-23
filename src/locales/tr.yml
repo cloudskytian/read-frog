@@ -530,3 +530,7 @@ subtitles:
     invalidResponse: YouTube altyazı yanıt biçimi geçersiz
     networkError: YouTube altyazılar alınırken ağ hatası oluştu.
     fetchSubTimeout: YouTube altyazılar alınırken zaman aşımı oluştu.
+    buttonNotFound: Altyazı butonu bulunamadı
+    noSubtitlesFound: Altyazı bulunamadı
+    videoNotFound: Video öğesi bulunamadı
+    controlsBarNotFound: Kontrol çubuğu bulunamadı

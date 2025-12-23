@@ -21,7 +21,7 @@ export function injectXhrInterceptor() {
       return originalOpen.call(this, method, url, async ?? true, username, password)
     }
 
-    const interceptedUrl = new URL(urlString)
+    const interceptedUrl = new URL(urlString, window.location.origin)
     const requestVideoId = interceptedUrl.searchParams.get('v')
     const currentVideoId = getCurrentVideoId()
 

@@ -531,3 +531,7 @@ subtitles:
     invalidResponse: youtube 字幕响应格式无效
     networkError: 获取字幕时发生网络错误
     fetchSubTimeout: 获取 youtube 字幕超时
+    buttonNotFound: 字幕按钮未找到
+    noSubtitlesFound: 未找到字幕
+    videoNotFound: 视频元素未找到
+    controlsBarNotFound: 控制栏未找到

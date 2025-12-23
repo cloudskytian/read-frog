@@ -530,3 +530,7 @@ subtitles:
     invalidResponse: Неверный формат ответа субтитров YouTube
     networkError: Произошла сетевая ошибка при получении субтитров
     fetchSubTimeout: Получение субтитров YouTube завершилось с ошибкой
+    buttonNotFound: Кнопка субтитров не найдена
+    noSubtitlesFound: Субтитры не найдены
+    videoNotFound: Видео элемент не найден
+    controlsBarNotFound: Панель управления не найдена

@@ -532,3 +532,7 @@ subtitles:
     invalidResponse: Invalid Youtube subtitle response format
     networkError: Network error occurred when fetching captions
     fetchSubTimeout: Fetching youtube captions timed out
+    buttonNotFound: Subtitle button not found
+    noSubtitlesFound: No subtitles found
+    videoNotFound: Video element not found
+    controlsBarNotFound: Controls bar not found

@@ -6,7 +6,7 @@ import { mountSubtitlesUI } from './renderer/mount-subtitles-ui'
 export function initYoutubeSubtitles() {
   let initialized = false
 
-  const tryInit = () => {
+  const tryInit = async () => {
     if (!window.location.href.includes(YOUTUBE_WATCH_URL_PATTERN)) {
       return
     }
@@ -14,11 +14,11 @@ export function initYoutubeSubtitles() {
       return
     }
     initialized = true
+    await mountSubtitlesUI(youtubeConfig.selectors.playerContainer)
     setupYoutubeSubtitles()
-    void mountSubtitlesUI(youtubeConfig.selectors.playerContainer)
   }
 
-  tryInit()
+  void tryInit()
 
-  window.addEventListener(YOUTUBE_NAVIGATE_EVENT, tryInit)
+  window.addEventListener(YOUTUBE_NAVIGATE_EVENT, () => void tryInit())
 }

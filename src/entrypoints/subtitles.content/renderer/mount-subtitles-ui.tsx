@@ -1,5 +1,6 @@
 import { Provider as JotaiProvider } from 'jotai'
 import ReactDOM from 'react-dom/client'
+import { Toaster } from 'sonner'
 import themeCSS from '@/assets/styles/theme.css?inline'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { REACT_SHADOW_HOST_CLASS } from '@/utils/constants/dom-labels'
@@ -62,6 +63,7 @@ export async function mountSubtitlesUI(containerSelector: string): Promise<void>
       <ShadowWrapperContext value={reactContainer}>
         <ThemeProvider container={reactContainer}>
           <SubtitlesContainer />
+          <Toaster richColors className="z-2147483647 notranslate" />
         </ThemeProvider>
       </ShadowWrapperContext>
     </JotaiProvider>

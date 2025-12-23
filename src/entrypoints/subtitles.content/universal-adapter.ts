@@ -1,6 +1,8 @@
 import type { PlatformConfig } from '@/entrypoints/subtitles.content/platforms'
 import type { SubtitlesFetcher } from '@/utils/subtitles/fetchers/types'
 import type { SubtitlesFragment } from '@/utils/subtitles/types'
+import { i18n } from '#imports'
+import { toast } from 'sonner'
 import { HIDE_NATIVE_CAPTIONS_STYLE_ID, NAVIGATION_HANDLER_DELAY, TRANSLATE_BUTTON_CONTAINER_ID } from '@/utils/constants/subtitles'
 import { waitForElement } from '@/utils/dom/wait-for-element'
 import { translateSubtitles } from '@/utils/subtitles/processor/translator'
@@ -60,8 +62,10 @@ export class UniversalVideoAdapter {
       el => !!el.closest(this.config.selectors.playerContainer),
     ) as HTMLVideoElement | null
 
-    if (!video)
+    if (!video) {
+      toast.error(i18n.t('subtitles.errors.videoNotFound'))
       return
+    }
 
     this.subtitlesScheduler = new SubtitlesScheduler({ videoElement: video })
     this.subtitlesScheduler.start()
@@ -93,8 +97,10 @@ export class UniversalVideoAdapter {
 
   private async renderTranslateButton() {
     const controlsBar = await waitForElement(this.config.selectors.controlsBar)
-    if (!controlsBar)
+    if (!controlsBar) {
+      toast.error(i18n.t('subtitles.errors.controlsBarNotFound'))
       return
+    }
 
     const existingButton = controlsBar.querySelector(`#${TRANSLATE_BUTTON_CONTAINER_ID}`)
     existingButton?.remove()
@@ -167,7 +173,7 @@ export class UniversalVideoAdapter {
       this.subtitlesScheduler?.setState('fetchSuccess')
 
       if (this.originalSubtitles.length === 0) {
-        this.subtitlesScheduler?.setState('error', { message: 'No subtitles found' })
+        this.subtitlesScheduler?.setState('error', { message: i18n.t('subtitles.errors.noSubtitlesFound') })
         return
       }
 
@@ -180,14 +186,20 @@ export class UniversalVideoAdapter {
   }
 
   private async processSubtitles() {
-    this.subtitlesScheduler?.setState('processing')
+    try {
+      this.subtitlesScheduler?.setState('processing')
 
-    const translated = await translateSubtitles(this.originalSubtitles)
+      const translated = await translateSubtitles(this.originalSubtitles)
 
-    if (this.subtitlesScheduler) {
-      this.subtitlesScheduler.supplementSubtitles(translated)
+      if (this.subtitlesScheduler) {
+        this.subtitlesScheduler.supplementSubtitles(translated)
+      }
+
+      this.subtitlesScheduler?.setState('completed')
     }
-
-    this.subtitlesScheduler?.setState('completed')
+    catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      this.subtitlesScheduler?.setState('error', { message: errorMessage })
+    }
   }
 }

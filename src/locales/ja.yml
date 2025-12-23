@@ -528,3 +528,7 @@ subtitles:
     invalidResponse: YouTube字幕のレスポンス形式が無効です
     networkError: 字幕取得時にネットワークエラーが発生しました
     fetchSubTimeout: YouTube字幕の取得がタイムアウトしました
+    buttonNotFound: 字幕ボタンが見つかりません
+    noSubtitlesFound: 字幕が見つかりません
+    videoNotFound: 動画要素が見つかりません
+    controlsBarNotFound: コントロールバーが見つかりません
