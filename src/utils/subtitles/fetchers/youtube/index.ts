@@ -58,15 +58,21 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     }
   }
 
+  private rejectPending(errorMessage: string) {
+    this.pendingReject?.(new Error(errorMessage))
+    this.clearPending()
+  }
+
   private setupMessageListener() {
     this.messageListener = (event: MessageEvent) => {
       const parsed = subtitlesInterceptMessageSchema.safeParse(event.data)
       if (!parsed.success) {
-        this.pendingReject?.(new Error(i18n.t('subtitles.errors.invalidResponse')))
+        this.rejectPending(i18n.t('subtitles.errors.invalidResponse'))
         return
       }
 
-      this.cleanup()
+      this.subtitles = []
+      this.rawEvents = []
       this.handleInterceptedSubtitle(parsed.data)
     }
 
@@ -76,14 +82,14 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
   private handleInterceptedSubtitle(data: SubtitlesInterceptMessage) {
     if (data.errorStatus) {
       const errorMessage = i18n.t(`subtitles.errors.http${data.errorStatus}`)
-      this.pendingReject?.(new Error(errorMessage))
+      this.rejectPending(errorMessage)
       this.clearPending()
       return
     }
 
     const parsed = youtubeSubtitlesResponseSchema.safeParse(JSON.parse(data.payload))
     if (!parsed.success) {
-      this.pendingReject?.(new Error(i18n.t('subtitles.errors.invalidResponse')))
+      this.rejectPending(i18n.t('subtitles.errors.invalidResponse'))
       this.clearPending()
       return
     }
