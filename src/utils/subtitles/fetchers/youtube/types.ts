@@ -9,7 +9,7 @@ export const youtubeTimedTextSegSchema = z.object({
 
 export const youtubeTimedTextSchema = z.object({
   tStartMs: z.number(),
-  dDurationMs: z.number(),
+  dDurationMs: z.number().optional(),
   aAppend: z.number().optional(),
   segs: z.array(youtubeTimedTextSegSchema).optional(),
   wpWinPosId: z.number().optional(),
