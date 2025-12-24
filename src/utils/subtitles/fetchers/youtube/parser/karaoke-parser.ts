@@ -53,7 +53,7 @@ export function parseKaraokeSubtitles(events: YoutubeTimedText[]): SubtitlesFrag
     merged.push({
       text,
       start: event.tStartMs,
-      end: event.tStartMs + event.dDurationMs,
+      end: event.tStartMs + (event.dDurationMs ?? 0),
     })
   }
 
