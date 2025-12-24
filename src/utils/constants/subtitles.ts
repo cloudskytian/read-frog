@@ -10,6 +10,11 @@ export const PAUSE_TIMEOUT_MS = 1000
 export const MAX_WORDS = 15
 export const SENTENCE_END_PATTERN = /[,.?!…\])]$/
 
+// Batch translation constants
+export const FIRST_BATCH_DURATION_MS = 100_000
+export const SUBSEQUENT_BATCH_DURATION_MS = 60_000
+export const PRELOAD_AHEAD_MS = 30_000
+
 // DOM IDs
 export const TRANSLATE_BUTTON_CONTAINER_ID = 'read-frog-subtitles-translate-button-container'
 export const HIDE_NATIVE_CAPTIONS_STYLE_ID = 'read-frog-hide-native-captions'

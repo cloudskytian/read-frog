@@ -28,9 +28,19 @@ export class SubtitlesScheduler {
       return
     }
 
-    this.subtitles.push(...subtitles)
-    this.currentIndex = -1
-    this.updateCurrentSubtitle()
+    // Merge and deduplicate by start time (for incremental batch translation)
+    const existingStarts = new Set(this.subtitles.map(s => s.start))
+    const newSubtitles = subtitles.filter(s => !existingStarts.has(s.start))
+
+    this.subtitles.push(...newSubtitles)
+    this.subtitles.sort((a, b) => a.start - b.start)
+
+    // Don't reset currentIndex, just re-evaluate current subtitle
+    this.updateSubtitles(this.videoElement.currentTime)
+  }
+
+  getVideoElement(): HTMLVideoElement {
+    return this.videoElement
   }
 
   stop() {
