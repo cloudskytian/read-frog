@@ -1,7 +1,6 @@
 import type { SubtitlesFragment } from '../types'
+import { MAX_WORDS, PAUSE_TIMEOUT_MS, SENTENCE_END_PATTERN } from '@/utils/constants/subtitles'
 
-const PAUSE_TIMEOUT_MS = 1000
-const MAX_WORDS = 15
 const QUALITY_LENGTH_THRESHOLD = 250
 const QUALITY_PERCENTAGE_THRESHOLD = 0.2
 
@@ -105,7 +104,7 @@ function processSubtitles(
     const lastSegment = buffer[buffer.length - 1]
 
     if (lastSegment) {
-      const isEndOfSentence = /[.?!…\])]$/.test(lastSegment.text)
+      const isEndOfSentence = SENTENCE_END_PATTERN.test(lastSegment.text)
       const isPauseOfSentence = lastSegment.text.endsWith(',')
       const isTimeout = frag.start - lastSegment.end > PAUSE_TIMEOUT_MS
       const isWordLimitExceeded = (usePause || isPauseOfSentence) && bufferWordCount >= MAX_WORDS
