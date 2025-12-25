@@ -2,8 +2,8 @@ import type { SubtitlesFragment } from '../../types'
 import type { SubtitlesFetcher } from '../types'
 import type { SubtitlesInterceptMessage, YoutubeTimedText } from './types'
 import { i18n } from '#imports'
-import { toast } from 'sonner'
 import { FETCH_SUBTITLES_TIMEOUT } from '@/utils/constants/subtitles'
+import { OverlaySubtitlesError, ToastSubtitlesError } from '@/utils/subtitles/errors'
 import { optimizeSubtitles } from '@/utils/subtitles/processor/optimizer'
 import { detectFormat } from './format-detector'
 import { parseKaraokeSubtitles, parseScrollingAsrSubtitles, parseStandardSubtitles } from './parser'
@@ -37,7 +37,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
       this.timeoutId = setTimeout(() => {
         if (this.pendingResolve) {
           this.clearPending()
-          reject(new Error(i18n.t('subtitles.errors.fetchSubTimeout')))
+          reject(new OverlaySubtitlesError(i18n.t('subtitles.errors.fetchSubTimeout')))
         }
       }, FETCH_SUBTITLES_TIMEOUT)
     })
@@ -58,8 +58,8 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     }
   }
 
-  private rejectPending(errorMessage: string) {
-    this.pendingReject?.(new Error(errorMessage))
+  private rejectAndClearPending(error: Error) {
+    this.pendingReject?.(error)
     this.clearPending()
   }
 
@@ -67,7 +67,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     this.messageListener = (event: MessageEvent) => {
       const parsed = subtitlesInterceptMessageSchema.safeParse(event.data)
       if (!parsed.success) {
-        this.rejectPending(i18n.t('subtitles.errors.invalidResponse'))
+        this.rejectAndClearPending(new OverlaySubtitlesError(i18n.t('subtitles.errors.invalidResponse')))
         return
       }
 
@@ -81,16 +81,13 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
 
   private handleInterceptedSubtitle(data: SubtitlesInterceptMessage) {
     if (data.errorStatus) {
-      const errorMessage = i18n.t(`subtitles.errors.http${data.errorStatus}`)
-      this.rejectPending(errorMessage)
-      this.clearPending()
+      this.rejectAndClearPending(new OverlaySubtitlesError(i18n.t(`subtitles.errors.http${data.errorStatus}`)))
       return
     }
 
     const parsed = youtubeSubtitlesResponseSchema.safeParse(JSON.parse(data.payload))
     if (!parsed.success) {
-      this.rejectPending(i18n.t('subtitles.errors.invalidResponse'))
-      this.clearPending()
+      this.rejectAndClearPending(new OverlaySubtitlesError(i18n.t('subtitles.errors.invalidResponse')))
       return
     }
 
@@ -124,7 +121,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
   private clickYoutubeSubtitleButton() {
     const ccButton = document.querySelector('.ytp-subtitles-button')
     if (!(ccButton instanceof HTMLElement)) {
-      toast.error(i18n.t('subtitles.errors.buttonNotFound'))
+      this.rejectAndClearPending(new ToastSubtitlesError(i18n.t('subtitles.errors.buttonNotFound')))
       return
     }
 

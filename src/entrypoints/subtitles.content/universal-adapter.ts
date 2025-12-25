@@ -5,6 +5,7 @@ import { i18n } from '#imports'
 import { toast } from 'sonner'
 import { HIDE_NATIVE_CAPTIONS_STYLE_ID, NAVIGATION_HANDLER_DELAY, TRANSLATE_BUTTON_CONTAINER_ID } from '@/utils/constants/subtitles'
 import { waitForElement } from '@/utils/dom/wait-for-element'
+import { ToastSubtitlesError } from '@/utils/subtitles/errors'
 import { translateSubtitles } from '@/utils/subtitles/processor/translator'
 import { renderSubtitlesTranslateButton } from './renderer/render-translate-button'
 import { SubtitlesScheduler } from './subtitles-scheduler'
@@ -132,9 +133,7 @@ export class UniversalVideoAdapter {
     }
 
     const style = document.getElementById(HIDE_NATIVE_CAPTIONS_STYLE_ID)
-    if (style) {
-      style.remove()
-    }
+    style?.remove()
     this.isNativeSubtitlesHidden = false
   }
 
@@ -181,7 +180,13 @@ export class UniversalVideoAdapter {
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
-      this.subtitlesScheduler?.setState('error', { message: errorMessage })
+
+      if (error instanceof ToastSubtitlesError) {
+        toast.error(errorMessage)
+      }
+      else {
+        this.subtitlesScheduler?.setState('error', { message: errorMessage })
+      }
     }
   }
 
