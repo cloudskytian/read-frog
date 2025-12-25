@@ -32,7 +32,7 @@ export const DEFAULT_CONFIG: Config = {
     providerId: 'openai-default',
   },
   translate: {
-    providerId: 'microsoft-default',
+    providerId: 'microsoft-translate-default',
     mode: 'bilingual',
     node: {
       enabled: true,

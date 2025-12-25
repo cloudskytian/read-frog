@@ -2,7 +2,7 @@ import type { TestSeriesObject } from './types'
 
 export const testSeries: TestSeriesObject = {
   'complex-config-from-v020': {
-    description: 'Add clickAction to floatingButton config',
+    description: 'Migrate provider keys to match AI SDK expectations and add videoSubtitles field',
     config: {
       language: {
         sourceCode: 'spa',
@@ -11,16 +11,16 @@ export const testSeries: TestSeriesObject = {
       },
       providersConfig: [
         {
-          id: 'google-default',
+          id: 'google-translate-default',
           enabled: true,
           name: 'Google Translate',
-          provider: 'google',
+          provider: 'google-translate',
         },
         {
-          id: 'microsoft-default',
+          id: 'microsoft-translate-default',
           enabled: true,
           name: 'Microsoft Translator',
-          provider: 'microsoft',
+          provider: 'microsoft-translate',
         },
         {
           id: 'openai-default',
@@ -63,10 +63,10 @@ export const testSeries: TestSeriesObject = {
           },
         },
         {
-          id: 'gemini-default',
+          id: 'google-default',
           enabled: true,
           name: 'Gemini',
-          provider: 'gemini',
+          provider: 'google',
           apiKey: undefined,
           baseURL: undefined,
           models: {
@@ -169,7 +169,7 @@ export const testSeries: TestSeriesObject = {
     },
   },
   'config-with-no-default-openai-model': {
-    description: 'Add clickAction to floatingButton config',
+    description: 'Migrate provider keys to match AI SDK expectations and add videoSubtitles field',
     config: {
       floatingButton: {
         disabledFloatingButtonPatterns: [],
@@ -184,19 +184,19 @@ export const testSeries: TestSeriesObject = {
       },
       providersConfig: [
         {
-          id: 'google-default',
+          id: 'google-translate-default',
           enabled: true,
           name: 'Google Translate',
-          provider: 'google',
+          provider: 'google-translate',
         },
         {
-          id: 'microsoft-default',
+          id: 'microsoft-translate-default',
           enabled: true,
           name: 'Microsoft Translator',
-          provider: 'microsoft',
+          provider: 'microsoft-translate',
         },
         {
-          id: 'gemini-default',
+          id: 'google-default',
           enabled: true,
           apiKey: '1',
           models: {
@@ -212,7 +212,7 @@ export const testSeries: TestSeriesObject = {
             },
           },
           name: 'Gemini',
-          provider: 'gemini',
+          provider: 'google',
         },
         {
           id: 'deeplx-default',
@@ -223,7 +223,7 @@ export const testSeries: TestSeriesObject = {
         },
       ],
       read: {
-        providerId: 'gemini-default',
+        providerId: 'google-default',
       },
       selectionToolbar: {
         enabled: true,
@@ -259,7 +259,7 @@ export const testSeries: TestSeriesObject = {
           patterns: [],
           promptId: null,
         },
-        providerId: 'gemini-default',
+        providerId: 'google-default',
         requestQueueConfig: {
           capacity: 200,
           rate: 2,
@@ -279,6 +279,193 @@ export const testSeries: TestSeriesObject = {
         model: 'tts-1',
         voice: 'alloy',
         speed: 1,
+      },
+      betaExperience: {
+        enabled: false,
+      },
+      contextMenu: {
+        enabled: true,
+      },
+      videoSubtitles: {
+        enabled: false,
+      },
+    },
+  },
+  'comprehensive-provider-migration-test': {
+    description: 'Test all provider key migrations: gemini→google, grok→xai, amazonBedrock→bedrock, google→google-translate, microsoft→microsoft-translate, openaiCompatible→openai-compatible, and add videoSubtitles field',
+    config: {
+      language: {
+        sourceCode: 'auto',
+        targetCode: 'cmn',
+        level: 'intermediate',
+      },
+      providersConfig: [
+        {
+          id: 'google-translate-default',
+          enabled: true,
+          name: 'Google Translate',
+          provider: 'google-translate',
+        },
+        {
+          id: 'microsoft-translate-default',
+          enabled: true,
+          name: 'Microsoft Translator',
+          provider: 'microsoft-translate',
+        },
+        {
+          id: 'google-default',
+          enabled: true,
+          name: 'Gemini',
+          provider: 'google',
+          apiKey: 'test-gemini-key',
+          models: {
+            read: {
+              model: 'gemini-2.5-pro',
+              isCustomModel: false,
+              customModel: null,
+            },
+            translate: {
+              model: 'gemini-2.5-flash',
+              isCustomModel: true,
+              customModel: 'gemini-custom',
+            },
+          },
+        },
+        {
+          id: 'xai-default',
+          enabled: true,
+          name: 'Grok',
+          provider: 'xai',
+          apiKey: 'test-grok-key',
+          models: {
+            read: {
+              model: 'grok-3',
+              isCustomModel: false,
+              customModel: null,
+            },
+            translate: {
+              model: 'grok-3',
+              isCustomModel: false,
+              customModel: null,
+            },
+          },
+        },
+        {
+          id: 'bedrock-default',
+          enabled: true,
+          name: 'Amazon Bedrock',
+          provider: 'bedrock',
+          models: {
+            read: {
+              model: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+              isCustomModel: false,
+              customModel: null,
+            },
+            translate: {
+              model: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+              isCustomModel: true,
+              customModel: 'custom-bedrock-model',
+            },
+          },
+        },
+        {
+          id: 'openai-compatible-default',
+          enabled: true,
+          name: 'Custom OpenAI Compatible',
+          provider: 'openai-compatible',
+          apiKey: 'test-compatible-key',
+          baseURL: 'https://custom-api.example.com/v1',
+          models: {
+            read: {
+              model: 'use-custom-model',
+              isCustomModel: true,
+              customModel: 'custom-read-model',
+            },
+            translate: {
+              model: 'use-custom-model',
+              isCustomModel: true,
+              customModel: 'custom-translate-model',
+            },
+          },
+        },
+        {
+          id: 'openai-default',
+          enabled: true,
+          name: 'OpenAI',
+          provider: 'openai',
+          apiKey: 'test-openai-key',
+          models: {
+            read: {
+              model: 'gpt-4o-mini',
+              isCustomModel: false,
+              customModel: null,
+            },
+            translate: {
+              model: 'gpt-4o-mini',
+              isCustomModel: false,
+              customModel: null,
+            },
+          },
+        },
+      ],
+      read: {
+        providerId: 'bedrock-default',
+      },
+      translate: {
+        providerId: 'google-default',
+        mode: 'translationOnly',
+        enableAIContentAware: false,
+        node: {
+          enabled: true,
+          hotkey: 'Alt',
+        },
+        page: {
+          range: 'all',
+          autoTranslatePatterns: [],
+          autoTranslateLanguages: [],
+          shortcut: ['alt', 'q'],
+          enableLLMDetection: false,
+          preload: {
+            margin: 1000,
+            threshold: 0,
+          },
+        },
+        customPromptsConfig: {
+          promptId: null,
+          patterns: [],
+        },
+        requestQueueConfig: {
+          capacity: 200,
+          rate: 2,
+        },
+        batchQueueConfig: {
+          maxCharactersPerBatch: 1000,
+          maxItemsPerBatch: 4,
+        },
+        translationNodeStyle: {
+          preset: 'default',
+          isCustom: false,
+          customCSS: null,
+        },
+      },
+      tts: {
+        providerId: null,
+        model: 'tts-1',
+        voice: 'alloy',
+        speed: 1,
+      },
+      floatingButton: {
+        enabled: true,
+        position: 0.66,
+        disabledFloatingButtonPatterns: [],
+        clickAction: 'panel',
+      },
+      sideContent: {
+        width: 420,
+      },
+      selectionToolbar: {
+        enabled: true,
+        disabledSelectionToolbarPatterns: [],
       },
       betaExperience: {
         enabled: false,
