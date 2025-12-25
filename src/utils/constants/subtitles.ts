@@ -8,7 +8,7 @@ export const PAUSE_TIMEOUT_MS = 1000
 
 // Segmentation constants
 export const MAX_WORDS = 15
-export const SENTENCE_END_PATTERN = /[.?!…\])]$/
+export const SENTENCE_END_PATTERN = /[,.?!…\])]$/
 
 // DOM IDs
 export const TRANSLATE_BUTTON_CONTAINER_ID = 'read-frog-subtitles-translate-button-container'
