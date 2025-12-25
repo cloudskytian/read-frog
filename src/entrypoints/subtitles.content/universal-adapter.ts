@@ -204,12 +204,16 @@ export class UniversalVideoAdapter {
       const batches = createBatches(this.originalSubtitles)
       subtitlesStore.set(translationBatchesAtom, batches)
 
-      // Translate first batch immediately
-      if (batches.length > 0) {
-        await this.translateBatch(batches[0])
+      // Find batch to translate based on current video time (user may start from any position)
+      const video = this.subtitlesScheduler?.getVideoElement()
+      const currentTimeMs = (video?.currentTime ?? 0) * 1000
+      const firstBatchToTranslate = findNextBatchToTranslate(batches, currentTimeMs, PRELOAD_AHEAD_MS)
+
+      if (firstBatchToTranslate) {
+        await this.translateBatch(firstBatchToTranslate)
       }
 
-      // Start monitoring for subsequent batches
+      // Start monitoring for subsequent batches (only translate the next batch user will see)
       this.startBatchMonitoring()
 
       this.subtitlesScheduler?.setState('completed')
