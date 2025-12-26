@@ -106,19 +106,12 @@ export function findNextBatchToTranslate(
   if (currentBatch)
     return currentBatch
 
-  // 2. Upcoming batch within preload window
+  // 2. Upcoming batch within preload window (only translate when within preload window to save tokens)
   const upcomingBatch = pendingBatches.find(
     b => b.startMs <= currentTimeMs + preloadAheadMs && b.startMs > currentTimeMs,
   )
-  if (upcomingBatch)
-    return upcomingBatch
 
-  // 3. Nearest future batch
-  const futureBatches = pendingBatches
-    .filter(b => b.startMs > currentTimeMs)
-    .sort((a, b) => a.startMs - b.startMs)
-
-  return futureBatches[0] || null
+  return upcomingBatch || null
 }
 
 /**
