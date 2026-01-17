@@ -1,5 +1,19 @@
 # @read-frog/extension
 
+## 1.23.0
+
+### Minor Changes
+
+- [#878](https://github.com/mengxi-ream/read-frog/pull/878) [`59ea5ef`](https://github.com/mengxi-ream/read-frog/commit/59ea5ef812e28ce9ba9f5c4c5daf16f6fca9971f) Thanks [@Yukiniro](https://github.com/Yukiniro)! - feat: add global site whitelist mode
+
+  Add a new Site Control feature that allows users to configure the extension to only run on specific whitelisted sites instead of all sites.
+
+- [#886](https://github.com/mengxi-ream/read-frog/pull/886) [`76aae58`](https://github.com/mengxi-ream/read-frog/commit/76aae58c29dea465a57fa87e17133e5f727678c8) Thanks [@taiiiyang](https://github.com/taiiiyang)! - feat(subtitles): add subtitle display mode and custom style settings
+
+### Patch Changes
+
+- [#883](https://github.com/mengxi-ream/read-frog/pull/883) [`5dc9f8c`](https://github.com/mengxi-ream/read-frog/commit/5dc9f8c0315114a0266227c549502c39360f541d) Thanks [@guoyongchang](https://github.com/guoyongchang)! - refactor(input-translation): update config fields design and fix truncation issue
+
 ## 1.22.1
 
 ### Patch Changes
