@@ -92,6 +92,7 @@ export function PromptGrid({
                       <Checkbox
                         id={`${idPrefix}-check-${pattern.id}`}
                         checked={selectedPrompts.includes(pattern.id)}
+                        onClick={e => e.stopPropagation()}
                         onCheckedChange={(checked) => {
                           setSelectedPrompts((prev) => {
                             return checked
