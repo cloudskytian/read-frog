@@ -4,8 +4,7 @@ import { Icon } from '@iconify/react/dist/iconify.js'
 import { useAtom, useAtomValue } from 'jotai'
 import { Button } from '@/components/base-ui/button'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/shadcn/alert-dialog'
-import { configFieldsAtomMap } from '@/utils/atoms/config'
-import { isExportPromptModeAtom } from './atoms'
+import { usePromptAtoms } from './context'
 
 export function DeletePrompt({
   originPrompt,
@@ -15,16 +14,17 @@ export function DeletePrompt({
   originPrompt: TranslatePromptObj
   className?: string
 } & React.ComponentProps<'button'>) {
-  const isExportMode = useAtomValue(isExportPromptModeAtom)
-  const [translateConfig, setTranslateConfig] = useAtom(configFieldsAtomMap.translate)
-  const { patterns, promptId } = translateConfig.customPromptsConfig
+  const atoms = usePromptAtoms()
+  const isExportMode = useAtomValue(atoms.exportMode)
+  const [config, setConfig] = useAtom(atoms.config)
+
+  const { patterns, promptId } = config
+
   const deletePrompt = () => {
-    void setTranslateConfig({
-      customPromptsConfig: {
-        ...translateConfig.customPromptsConfig,
-        patterns: patterns.filter(p => p.id !== originPrompt.id),
-        promptId: promptId !== originPrompt.id ? promptId : null,
-      },
+    setConfig({
+      ...config,
+      patterns: patterns.filter(p => p.id !== originPrompt.id),
+      promptId: promptId !== originPrompt.id ? promptId : null,
     })
   }
 

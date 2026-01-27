@@ -1,3 +1,4 @@
+import type { PromptResolver } from './api/ai'
 import type { Config } from '@/types/config/config'
 import type { ProviderConfig } from '@/types/config/provider'
 import type { ArticleContent } from '@/types/content'
@@ -16,6 +17,7 @@ export async function executeTranslate(
     forceBackgroundFetch?: boolean
     isBatch?: boolean
     content?: ArticleContent
+    promptResolver?: PromptResolver
   },
 ) {
   const cleanText = text.replace(/\u200B/g, '').trim()
