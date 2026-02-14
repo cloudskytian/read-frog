@@ -1,5 +1,17 @@
 # @read-frog/extension
 
+## 1.25.2
+
+### Patch Changes
+
+- [#957](https://github.com/mengxi-ream/read-frog/pull/957) [`d2ee3d6`](https://github.com/mengxi-ream/read-frog/commit/d2ee3d618d0cc05252d7a7b045a3c1d31e792340) Thanks [@ishiko732](https://github.com/ishiko732)! - fix: update website URL for custom provider to correct path
+
+- [#954](https://github.com/mengxi-ream/read-frog/pull/954) [`306659f`](https://github.com/mengxi-ream/read-frog/commit/306659fad27d3e3c67ad2cdbd17e22bf0f33c0dd) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix(selection): route selection stream requests through background to bypass CORS restrictions
+
+- [#961](https://github.com/mengxi-ream/read-frog/pull/961) [`6f24070`](https://github.com/mengxi-ream/read-frog/commit/6f240701899419c3be1b704b461075393ab6bdd1) Thanks [@taiiiyang](https://github.com/taiiiyang)! - fix(subtitles): enable text selection and copy in subtitle container
+
+- [#962](https://github.com/mengxi-ream/read-frog/pull/962) [`67b75c6`](https://github.com/mengxi-ream/read-frog/commit/67b75c6836519ed6dac39e4ac323fe12f25c2253) Thanks [@taiiiyang](https://github.com/taiiiyang)! - fix(subtitles): add RTL direction and lang attributes to translation subtitles
+
 ## 1.25.1
 
 ### Patch Changes
