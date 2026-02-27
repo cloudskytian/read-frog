@@ -230,7 +230,10 @@ export class UniversalVideoAdapter {
   }
 
   private async processSubtitles() {
-    this.subtitlesScheduler?.setState("loading")
+    const scheduler = this.subtitlesScheduler
+    if (!scheduler)
+      return
+
     const config = await getLocalConfig()
 
     const useAiSegmentation = !!config?.videoSubtitles?.aiSegmentation
@@ -258,10 +261,11 @@ export class UniversalVideoAdapter {
       getFragments: () => this.segmentationPipeline
         ? this.segmentationPipeline.processedFragments
         : this.processedFragments,
-      getVideoElement: () => this.subtitlesScheduler?.getVideoElement() ?? null,
+      getVideoElement: () => scheduler.getVideoElement(),
+      getCurrentState: () => scheduler.getState(),
       segmentationPipeline: this.segmentationPipeline,
-      onTranslated: fragments => this.subtitlesScheduler?.supplementSubtitles(fragments),
-      onStateChange: (state, data) => this.subtitlesScheduler?.setState(state, data),
+      onTranslated: fragments => scheduler.supplementSubtitles(fragments),
+      onStateChange: (state, data) => scheduler.setState(state, data),
     })
     this.translationCoordinator.start(videoContext)
   }
