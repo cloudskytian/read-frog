@@ -1,5 +1,13 @@
 # @read-frog/extension
 
+## 1.26.2
+
+### Patch Changes
+
+- [#1012](https://github.com/mengxi-ream/read-frog/pull/1012) [`25d82c4`](https://github.com/mengxi-ream/read-frog/commit/25d82c42942d8b45ffbb2bdb6613124650f048eb) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix(floating-button): use button element for close trigger to improve accessibility
+
+- [#1014](https://github.com/mengxi-ream/read-frog/pull/1014) [`369b3ce`](https://github.com/mengxi-ream/read-frog/commit/369b3cee6a8923ea4627217fefc68b384ef74933) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - fix: disable Zod JIT to avoid CSP eval violation in MV3 extensions
+
 ## 1.26.1
 
 ### Patch Changes
