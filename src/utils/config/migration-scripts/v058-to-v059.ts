@@ -1,12 +1,10 @@
 /**
  * Migration script from v058 to v059
- * Replaces siteControl mode "all" with "blacklist"
+ * - Replaces siteControl mode "all" with "blacklist"
+ * - Splits shared `patterns` into `blacklistPatterns` and `whitelistPatterns`
  *
- * Before: { siteControl: { mode: "all", patterns: [] } }
- * After:  { siteControl: { mode: "blacklist", patterns: [] } }
- *
- * Users with mode "all" get "blacklist" with empty patterns (same behavior).
- * Users with mode "whitelist" are unchanged.
+ * Before: { siteControl: { mode: "all" | "whitelist", patterns: [] } }
+ * After:  { siteControl: { mode: "blacklist" | "whitelist", blacklistPatterns: [], whitelistPatterns: [] } }
  *
  * IMPORTANT: All values are hardcoded inline. Migration scripts are frozen
  * snapshots — never import constants or helpers that may change.
@@ -17,11 +15,15 @@ export function migrate(oldConfig: any): any {
     return oldConfig
   }
 
+  const mode = siteControl.mode === "all" ? "blacklist" : siteControl.mode
+  const patterns = siteControl.patterns ?? []
+
   return {
     ...oldConfig,
     siteControl: {
-      ...siteControl,
-      mode: siteControl.mode === "all" ? "blacklist" : siteControl.mode,
+      mode,
+      blacklistPatterns: [],
+      whitelistPatterns: patterns,
     },
   }
 }

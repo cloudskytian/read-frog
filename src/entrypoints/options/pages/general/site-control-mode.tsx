@@ -8,7 +8,11 @@ import { DisabledPatternsTable } from "../../components/disabled-patterns-table"
 
 export default function SiteControlMode() {
   const [siteControl, setSiteControl] = useAtom(configFieldsAtomMap.siteControl)
-  const { patterns = [] } = siteControl
+
+  const patternsKey = siteControl.mode === "blacklist"
+    ? "blacklistPatterns" as const
+    : "whitelistPatterns" as const
+  const patterns = siteControl[patternsKey] ?? []
 
   const addPattern = (pattern: string) => {
     const cleanedPattern = pattern.trim()
@@ -17,14 +21,14 @@ export default function SiteControlMode() {
 
     void setSiteControl({
       ...siteControl,
-      patterns: [...patterns, cleanedPattern],
+      [patternsKey]: [...patterns, cleanedPattern],
     })
   }
 
   const removePattern = (pattern: string) => {
     void setSiteControl({
       ...siteControl,
-      patterns: patterns.filter(p => p !== pattern),
+      [patternsKey]: patterns.filter(p => p !== pattern),
     })
   }
 
@@ -40,7 +44,6 @@ export default function SiteControlMode() {
           void setSiteControl({
             ...siteControl,
             mode: value as "blacklist" | "whitelist",
-            patterns: [],
           })
         }}
         className="flex flex-col gap-2"

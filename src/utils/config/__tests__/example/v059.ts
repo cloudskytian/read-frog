@@ -3,7 +3,7 @@ import { createDefaultTTSLanguageVoices, EDGE_TTS_FALLBACK_VOICE } from "@/types
 
 export const testSeries: TestSeriesObject = {
   "complex-config-from-v020": {
-    description: "Replaces siteControl mode all with blacklist",
+    description: "Replaces siteControl mode all with blacklist, splits patterns into independent arrays",
     config: {
       language: {
         sourceCode: "spa",
@@ -222,12 +222,13 @@ export const testSeries: TestSeriesObject = {
       },
       siteControl: {
         mode: "blacklist",
-        patterns: [],
+        blacklistPatterns: [],
+        whitelistPatterns: [],
       },
     },
   },
   "config-with-no-default-openai-model": {
-    description: "Replaces siteControl mode all with blacklist",
+    description: "Replaces siteControl mode all with blacklist, splits patterns into independent arrays",
     config: {
       floatingButton: {
         disabledFloatingButtonPatterns: [],
@@ -416,7 +417,8 @@ export const testSeries: TestSeriesObject = {
       },
       siteControl: {
         mode: "blacklist",
-        patterns: [],
+        blacklistPatterns: [],
+        whitelistPatterns: [],
       },
     },
   },

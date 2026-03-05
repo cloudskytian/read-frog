@@ -160,7 +160,8 @@ export const DEFAULT_CONFIG: Config = {
   },
   siteControl: {
     mode: "blacklist",
-    patterns: [],
+    blacklistPatterns: [],
+    whitelistPatterns: [],
   },
 }
 
