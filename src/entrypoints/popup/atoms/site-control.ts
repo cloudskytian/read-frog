@@ -62,7 +62,7 @@ async function toggleSiteInPatterns(get: Getter, set: Setter, checked: boolean) 
 
   if (checked) {
     if (!currentPatterns.some(pattern => matchDomainPattern(activeTabUrl, pattern))) {
-      void set(configFieldsAtomMap.siteControl, {
+      await set(configFieldsAtomMap.siteControl, {
         ...siteControlConfig,
         [patternsKey]: [...currentPatterns, hostname],
       })
@@ -72,7 +72,7 @@ async function toggleSiteInPatterns(get: Getter, set: Setter, checked: boolean) 
     const filteredPatterns = currentPatterns.filter(pattern =>
       !matchDomainPattern(activeTabUrl, pattern),
     )
-    void set(configFieldsAtomMap.siteControl, {
+    await set(configFieldsAtomMap.siteControl, {
       ...siteControlConfig,
       [patternsKey]: filteredPatterns,
     })
