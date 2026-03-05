@@ -7,8 +7,8 @@ export function isSiteEnabled(url: string, config: Config | null): boolean {
 
   const { mode, patterns } = config.siteControl
 
-  if (mode === "all")
-    return true
+  if (mode === "blacklist")
+    return !patterns.some(pattern => matchDomainPattern(url, pattern))
 
   // whitelist mode: only enabled if matches a pattern
   return patterns.some(pattern => matchDomainPattern(url, pattern))

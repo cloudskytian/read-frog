@@ -39,15 +39,16 @@ export default function SiteControlMode() {
         onValueChange={(value) => {
           void setSiteControl({
             ...siteControl,
-            mode: value as "all" | "whitelist",
+            mode: value as "blacklist" | "whitelist",
+            patterns: [],
           })
         }}
         className="flex flex-col gap-2"
       >
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="all" id="mode-all" />
-          <Label htmlFor="mode-all" className="cursor-pointer">
-            {i18n.t("options.siteControl.mode.all")}
+          <RadioGroupItem value="blacklist" id="mode-blacklist" />
+          <Label htmlFor="mode-blacklist" className="cursor-pointer">
+            {i18n.t("options.siteControl.mode.blacklist")}
           </Label>
         </div>
         <div className="flex items-center space-x-2">
@@ -57,16 +58,14 @@ export default function SiteControlMode() {
           </Label>
         </div>
       </RadioGroup>
-      {siteControl.mode === "whitelist" && (
-        <DisabledPatternsTable
-          patterns={patterns}
-          onAddPattern={addPattern}
-          onRemovePattern={removePattern}
-          placeholderText={i18n.t("options.siteControl.patterns.enterUrlPattern")}
-          tableHeaderText={i18n.t("options.siteControl.patterns.urlPattern")}
-          className="mt-6"
-        />
-      )}
+      <DisabledPatternsTable
+        patterns={patterns}
+        onAddPattern={addPattern}
+        onRemovePattern={removePattern}
+        placeholderText={i18n.t("options.siteControl.patterns.enterUrlPattern")}
+        tableHeaderText={i18n.t("options.siteControl.patterns.urlPattern")}
+        className="mt-6"
+      />
     </ConfigCard>
   )
 }

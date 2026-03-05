@@ -4,7 +4,7 @@ import { Activity } from "react"
 import { Switch } from "@/components/ui/base-ui/switch"
 import { isCurrentSiteInPatternsAtom, toggleCurrentSiteAtom } from "../atoms/auto-translate"
 import { isIgnoreTabAtom } from "../atoms/ignore"
-import { isCurrentSiteInWhitelistAtom, isWhitelistModeAtom } from "../atoms/site-control"
+import { isBlacklistModeAtom, isCurrentSiteInBlacklistAtom, isCurrentSiteInWhitelistAtom, isWhitelistModeAtom } from "../atoms/site-control"
 
 export function AlwaysTranslate() {
   const isCurrentSiteInPatterns = useAtomValue(isCurrentSiteInPatternsAtom)
@@ -12,8 +12,10 @@ export function AlwaysTranslate() {
   const isIgnoreTab = useAtomValue(isIgnoreTabAtom)
   const isWhitelistMode = useAtomValue(isWhitelistModeAtom)
   const isCurrentSiteInWhitelist = useAtomValue(isCurrentSiteInWhitelistAtom)
+  const isBlacklistMode = useAtomValue(isBlacklistModeAtom)
+  const isCurrentSiteInBlacklist = useAtomValue(isCurrentSiteInBlacklistAtom)
 
-  const shouldShow = !isWhitelistMode || isCurrentSiteInWhitelist
+  const shouldShow = (!isWhitelistMode || isCurrentSiteInWhitelist) && (!isBlacklistMode || !isCurrentSiteInBlacklist)
 
   return (
     <Activity mode={shouldShow ? "visible" : "hidden"}>

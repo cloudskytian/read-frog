@@ -16,7 +16,7 @@ export const GOOGLE_DRIVE_TOKEN_STORAGE_KEY = "__googleDriveToken"
 
 export const DETECTED_CODE_STORAGE_KEY = "detectedCode"
 export const DEFAULT_DETECTED_CODE = "eng" as const
-export const CONFIG_SCHEMA_VERSION = 58
+export const CONFIG_SCHEMA_VERSION = 59
 
 export const DEFAULT_FLOATING_BUTTON_POSITION = 0.66
 
@@ -159,7 +159,7 @@ export const DEFAULT_CONFIG: Config = {
     position: DEFAULT_SUBTITLE_POSITION,
   },
   siteControl: {
-    mode: "all",
+    mode: "blacklist",
     patterns: [],
   },
 }

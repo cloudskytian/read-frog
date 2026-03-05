@@ -75,7 +75,7 @@ export type InputTranslationLang = z.infer<typeof inputTranslationLangSchema>
 
 // site control schema
 const siteControlSchema = z.object({
-  mode: z.enum(["all", "whitelist"]),
+  mode: z.enum(["blacklist", "whitelist"]),
   patterns: z.array(z.string()),
 })
 

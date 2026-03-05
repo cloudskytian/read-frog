@@ -6,7 +6,6 @@ import { UserAccount } from "@/components/user-account"
 import { version } from "../../../package.json"
 import { initIsIgnoreTabAtom } from "./atoms/ignore"
 import { initSiteControlAtomsAtom } from "./atoms/site-control"
-import { AddToWhitelist } from "./components/add-to-whitelist"
 import { AISmartContext } from "./components/ai-smart-context"
 import { AlwaysTranslate } from "./components/always-translate"
 import BlogNotification from "./components/blog-notification"
@@ -14,6 +13,7 @@ import { DiscordButton } from "./components/discord-button"
 import LanguageOptionsSelector from "./components/language-options-selector"
 import { MoreMenu } from "./components/more-menu"
 import Hotkey from "./components/node-translation-hotkey-selector"
+import { SiteControlToggle } from "./components/site-control-toggle"
 import TranslateButton from "./components/translate-button"
 import TranslatePromptSelector from "./components/translate-prompt-selector"
 import TranslateProviderField from "./components/translate-provider-field"
@@ -47,7 +47,7 @@ function App() {
         <div className="w-full">
           <TranslateButton className="w-full" />
         </div>
-        <AddToWhitelist />
+        <SiteControlToggle />
         <AlwaysTranslate />
         <Hotkey />
         <AISmartContext />

@@ -7,7 +7,7 @@ import { formatHotkey } from "@/utils/os.ts"
 import { cn } from "@/utils/styles/utils"
 import { isPageTranslatedAtom } from "../atoms/auto-translate"
 import { isIgnoreTabAtom } from "../atoms/ignore"
-import { isCurrentSiteInWhitelistAtom, isWhitelistModeAtom } from "../atoms/site-control"
+import { isBlacklistModeAtom, isCurrentSiteInBlacklistAtom, isCurrentSiteInWhitelistAtom, isWhitelistModeAtom } from "../atoms/site-control"
 
 export default function TranslateButton({ className }: { className?: string }) {
   const [isPageTranslated, setIsPageTranslated] = useAtom(isPageTranslatedAtom)
@@ -15,6 +15,8 @@ export default function TranslateButton({ className }: { className?: string }) {
   const translateConfig = useAtomValue(configFieldsAtomMap.translate)
   const isWhitelistMode = useAtomValue(isWhitelistModeAtom)
   const isCurrentSiteInWhitelist = useAtomValue(isCurrentSiteInWhitelistAtom)
+  const isBlacklistMode = useAtomValue(isBlacklistModeAtom)
+  const isCurrentSiteInBlacklist = useAtomValue(isCurrentSiteInBlacklistAtom)
 
   const toggleTranslation = async () => {
     const [currentTab] = await browser.tabs.query({
@@ -32,7 +34,7 @@ export default function TranslateButton({ className }: { className?: string }) {
     }
   }
 
-  const isDisabled = isIgnoreTab || (isWhitelistMode && !isCurrentSiteInWhitelist)
+  const isDisabled = isIgnoreTab || (isWhitelistMode && !isCurrentSiteInWhitelist) || (isBlacklistMode && isCurrentSiteInBlacklist)
 
   return (
     <Button
