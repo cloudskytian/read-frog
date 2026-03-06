@@ -22,6 +22,7 @@ export function migrate(oldConfig: any): any {
     ...oldConfig,
     siteControl: {
       mode,
+      // Blacklist is a new concept in v058 — no prior data to migrate, always starts empty
       blacklistPatterns: [],
       whitelistPatterns: patterns,
     },

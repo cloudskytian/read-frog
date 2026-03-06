@@ -2,8 +2,9 @@ import { i18n } from "#imports"
 import { useAtomValue, useSetAtom } from "jotai"
 import { Activity } from "react"
 import { Switch } from "@/components/ui/base-ui/switch"
+import { configFieldsAtomMap } from "@/utils/atoms/config"
 import { isIgnoreTabAtom } from "../atoms/ignore"
-import { isBlacklistModeAtom, isCurrentSiteInBlacklistAtom, isCurrentSiteInWhitelistAtom, isWhitelistModeAtom, toggleCurrentSiteInBlacklistAtom, toggleCurrentSiteInWhitelistAtom } from "../atoms/site-control"
+import { isCurrentSiteInBlacklistAtom, isCurrentSiteInWhitelistAtom, toggleCurrentSiteInBlacklistAtom, toggleCurrentSiteInWhitelistAtom } from "../atoms/site-control"
 
 export function SiteControlToggle() {
   const isCurrentSiteInWhitelist = useAtomValue(isCurrentSiteInWhitelistAtom)
@@ -11,12 +12,11 @@ export function SiteControlToggle() {
   const isCurrentSiteInBlacklist = useAtomValue(isCurrentSiteInBlacklistAtom)
   const toggleCurrentSiteInBlacklist = useSetAtom(toggleCurrentSiteInBlacklistAtom)
   const isIgnoreTab = useAtomValue(isIgnoreTabAtom)
-  const isWhitelistMode = useAtomValue(isWhitelistModeAtom)
-  const isBlacklistMode = useAtomValue(isBlacklistModeAtom)
+  const { mode } = useAtomValue(configFieldsAtomMap.siteControl)
 
   return (
     <>
-      <Activity mode={isWhitelistMode ? "visible" : "hidden"}>
+      <Activity mode={mode === "whitelist" ? "visible" : "hidden"}>
         <div className="flex items-center justify-between gap-2">
           <span className="text-[13px] font-medium">
             {i18n.t("popup.addToWhitelist")}
@@ -28,7 +28,7 @@ export function SiteControlToggle() {
           />
         </div>
       </Activity>
-      <Activity mode={isBlacklistMode ? "visible" : "hidden"}>
+      <Activity mode={mode === "blacklist" ? "visible" : "hidden"}>
         <div className="flex items-center justify-between gap-2">
           <span className="text-[13px] font-medium">
             {i18n.t("popup.addToBlacklist")}

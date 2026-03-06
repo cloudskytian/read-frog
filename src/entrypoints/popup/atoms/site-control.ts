@@ -8,12 +8,6 @@ import { getActiveTabUrl } from "@/utils/utils"
 
 type SiteControlConfig = Config["siteControl"]
 
-// Atom to track if whitelist mode is enabled
-export const isWhitelistModeAtom = atom<boolean>(false)
-
-// Atom to track if blacklist mode is enabled
-export const isBlacklistModeAtom = atom<boolean>(false)
-
 // Atom to track if current site is in patterns
 export const isCurrentSiteInWhitelistAtom = atom<boolean>(false)
 export const isCurrentSiteInBlacklistAtom = atom<boolean>(false)
@@ -30,11 +24,6 @@ export const initSiteControlAtomsAtom = atom(
   async (get, set) => {
     const siteControlConfig = get(configFieldsAtomMap.siteControl)
     const activeTabUrl = await getActiveTabUrl()
-    const isWhitelist = siteControlConfig.mode === "whitelist"
-    const isBlacklist = siteControlConfig.mode === "blacklist"
-
-    set(isWhitelistModeAtom, isWhitelist)
-    set(isBlacklistModeAtom, isBlacklist)
 
     if (activeTabUrl) {
       const inWhitelist = siteControlConfig.whitelistPatterns.some(p => matchDomainPattern(activeTabUrl, p))

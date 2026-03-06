@@ -2,20 +2,20 @@ import { i18n } from "#imports"
 import { useAtom, useAtomValue } from "jotai"
 import { Activity } from "react"
 import { Switch } from "@/components/ui/base-ui/switch"
+import { configFieldsAtomMap } from "@/utils/atoms/config"
 import { isCurrentSiteInPatternsAtom, toggleCurrentSiteAtom } from "../atoms/auto-translate"
 import { isIgnoreTabAtom } from "../atoms/ignore"
-import { isBlacklistModeAtom, isCurrentSiteInBlacklistAtom, isCurrentSiteInWhitelistAtom, isWhitelistModeAtom } from "../atoms/site-control"
+import { isCurrentSiteInBlacklistAtom, isCurrentSiteInWhitelistAtom } from "../atoms/site-control"
 
 export function AlwaysTranslate() {
   const isCurrentSiteInPatterns = useAtomValue(isCurrentSiteInPatternsAtom)
   const [, toggleCurrentSite] = useAtom(toggleCurrentSiteAtom)
   const isIgnoreTab = useAtomValue(isIgnoreTabAtom)
-  const isWhitelistMode = useAtomValue(isWhitelistModeAtom)
+  const { mode } = useAtomValue(configFieldsAtomMap.siteControl)
   const isCurrentSiteInWhitelist = useAtomValue(isCurrentSiteInWhitelistAtom)
-  const isBlacklistMode = useAtomValue(isBlacklistModeAtom)
   const isCurrentSiteInBlacklist = useAtomValue(isCurrentSiteInBlacklistAtom)
 
-  const shouldShow = (!isWhitelistMode || isCurrentSiteInWhitelist) && (!isBlacklistMode || !isCurrentSiteInBlacklist)
+  const shouldShow = mode === "whitelist" ? isCurrentSiteInWhitelist : !isCurrentSiteInBlacklist
 
   return (
     <Activity mode={shouldShow ? "visible" : "hidden"}>
