@@ -14,19 +14,19 @@ export default function SiteControlMode() {
     : "whitelistPatterns" as const
   const patterns = siteControl[patternsKey] ?? []
 
-  const addPattern = (pattern: string) => {
+  const addPattern = async (pattern: string) => {
     const cleanedPattern = pattern.trim()
     if (!cleanedPattern || patterns.includes(cleanedPattern))
       return
 
-    void setSiteControl({
+    await setSiteControl({
       ...siteControl,
       [patternsKey]: [...patterns, cleanedPattern],
     })
   }
 
-  const removePattern = (pattern: string) => {
-    void setSiteControl({
+  const removePattern = async (pattern: string) => {
+    await setSiteControl({
       ...siteControl,
       [patternsKey]: patterns.filter(p => p !== pattern),
     })
@@ -40,8 +40,8 @@ export default function SiteControlMode() {
     >
       <RadioGroup
         value={siteControl.mode}
-        onValueChange={(value) => {
-          void setSiteControl({
+        onValueChange={async (value) => {
+          await setSiteControl({
             ...siteControl,
             mode: value as "blacklist" | "whitelist",
           })
