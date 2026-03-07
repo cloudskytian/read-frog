@@ -1,5 +1,13 @@
 # @read-frog/extension
 
+## 1.27.4
+
+### Patch Changes
+
+- [#1068](https://github.com/mengxi-ream/read-frog/pull/1068) [`f95f116`](https://github.com/mengxi-ream/read-frog/commit/f95f1166ad81209f5bc3f09f74e600b7226d981a) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - feat: add disable hover translation option in option page
+
+- [#1071](https://github.com/mengxi-ream/read-frog/pull/1071) [`c3a7fe9`](https://github.com/mengxi-ream/read-frog/commit/c3a7fe93f65922aba4720aaaf4f52e37d1f5ddbb) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - feat: add default ollama base url
+
 ## 1.27.3
 
 ### Patch Changes
