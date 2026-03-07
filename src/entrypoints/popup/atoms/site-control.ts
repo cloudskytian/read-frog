@@ -1,22 +1,13 @@
 import type { Getter, Setter } from "jotai"
-import type { Config } from "@/types/config/config"
 import { browser } from "#imports"
 import { atom } from "jotai"
 import { configFieldsAtomMap } from "@/utils/atoms/config"
 import { matchDomainPattern } from "@/utils/url"
 import { getActiveTabUrl } from "@/utils/utils"
 
-type SiteControlConfig = Config["siteControl"]
-
 // Atom to track if current site is in patterns
 export const isCurrentSiteInWhitelistAtom = atom<boolean>(false)
 export const isCurrentSiteInBlacklistAtom = atom<boolean>(false)
-
-function getPatternsKey(config: SiteControlConfig) {
-  return config.mode === "blacklist"
-    ? "blacklistPatterns" as const
-    : "whitelistPatterns" as const
-}
 
 // Async atom to initialize the site control state
 export const initSiteControlAtomsAtom = atom(
@@ -38,24 +29,28 @@ export const initSiteControlAtomsAtom = atom(
   },
 )
 
-async function toggleSiteInPatterns(get: Getter, set: Setter, checked: boolean) {
+async function toggleSiteInPatterns(
+  get: Getter,
+  set: Setter,
+  checked: boolean,
+  patternsKey: "blacklistPatterns" | "whitelistPatterns",
+) {
   const siteControlConfig = get(configFieldsAtomMap.siteControl)
   const activeTabUrl = await getActiveTabUrl()
 
   if (!activeTabUrl)
     return
 
-  const patternsKey = getPatternsKey(siteControlConfig)
   const currentPatterns = siteControlConfig[patternsKey]
   const hostname = new URL(activeTabUrl).hostname
 
   if (checked) {
-    if (!currentPatterns.some(pattern => matchDomainPattern(activeTabUrl, pattern))) {
-      await set(configFieldsAtomMap.siteControl, {
-        ...siteControlConfig,
-        [patternsKey]: [...currentPatterns, hostname],
-      })
-    }
+    if (currentPatterns.some(pattern => matchDomainPattern(activeTabUrl, pattern)))
+      return
+    await set(configFieldsAtomMap.siteControl, {
+      ...siteControlConfig,
+      [patternsKey]: [...currentPatterns, hostname],
+    })
   }
   else {
     const filteredPatterns = currentPatterns.filter(pattern =>
@@ -77,7 +72,7 @@ async function toggleSiteInPatterns(get: Getter, set: Setter, checked: boolean) 
 export const toggleCurrentSiteInWhitelistAtom = atom(
   null,
   async (get, set, checked: boolean) => {
-    await toggleSiteInPatterns(get, set, checked)
+    await toggleSiteInPatterns(get, set, checked, "whitelistPatterns")
     set(isCurrentSiteInWhitelistAtom, checked)
   },
 )
@@ -86,7 +81,7 @@ export const toggleCurrentSiteInWhitelistAtom = atom(
 export const toggleCurrentSiteInBlacklistAtom = atom(
   null,
   async (get, set, checked: boolean) => {
-    await toggleSiteInPatterns(get, set, checked)
+    await toggleSiteInPatterns(get, set, checked, "blacklistPatterns")
     set(isCurrentSiteInBlacklistAtom, checked)
   },
 )

@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/base-ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/base-ui/radio-group"
 import { configFieldsAtomMap } from "@/utils/atoms/config"
 import { ConfigCard } from "../../components/config-card"
-import { DisabledPatternsTable } from "../../components/disabled-patterns-table"
+import { PatternsTable } from "../../components/patterns-table"
 
 export default function SiteControlMode() {
   const [siteControl, setSiteControl] = useAtom(configFieldsAtomMap.siteControl)
@@ -61,7 +61,7 @@ export default function SiteControlMode() {
           </Label>
         </div>
       </RadioGroup>
-      <DisabledPatternsTable
+      <PatternsTable
         patterns={patterns}
         onAddPattern={addPattern}
         onRemovePattern={removePattern}
