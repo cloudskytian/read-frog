@@ -15,8 +15,9 @@ export function initYoutubeSubtitles() {
     }
     initialized = true
 
-    await mountSubtitlesUI(youtubeConfig)
-    setupYoutubeSubtitles()
+    const adapter = setupYoutubeSubtitles()
+    await mountSubtitlesUI(youtubeConfig, adapter.toggleSubtitles)
+    void adapter.initialize()
   }
 
   void tryInit()

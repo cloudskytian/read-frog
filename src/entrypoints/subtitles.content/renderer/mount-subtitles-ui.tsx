@@ -11,7 +11,10 @@ import { ShadowHostBuilder } from "@/utils/react-shadow-host/shadow-host-builder
 import { subtitlesStore } from "../atoms"
 import { SubtitlesContainer } from "../ui/subtitles-container"
 
-export async function mountSubtitlesUI(config: PlatformConfig): Promise<void> {
+export async function mountSubtitlesUI(
+  config: PlatformConfig,
+  onToggleSubtitles: (enabled: boolean) => void,
+): Promise<void> {
   const videoContainer = await waitForElement(config.selectors.playerContainer)
   if (!videoContainer)
     return
@@ -33,7 +36,7 @@ export async function mountSubtitlesUI(config: PlatformConfig): Promise<void> {
     pointer-events: none;
     z-index: 9999;
     transition: bottom 0.2s ease-out;
-    overflow: hidden;
+    overflow: visible;
   `
 
   const shadowRoot = shadowHost.attachShadow({ mode: "open" })
@@ -48,6 +51,7 @@ export async function mountSubtitlesUI(config: PlatformConfig): Promise<void> {
       right: "0",
       bottom: "0",
       pointerEvents: "none",
+      overflow: "visible",
     },
   })
   const reactContainer = hostBuilder.build()
@@ -65,7 +69,10 @@ export async function mountSubtitlesUI(config: PlatformConfig): Promise<void> {
     <JotaiProvider store={subtitlesStore}>
       <ShadowWrapperContext value={reactContainer}>
         <ThemeProvider container={reactContainer}>
-          <SubtitlesContainer controlsConfig={config.controls} />
+          <SubtitlesContainer
+            controlsConfig={config.controls}
+            onToggleSubtitles={onToggleSubtitles}
+          />
           <Toaster richColors className="z-2147483647 notranslate" />
         </ThemeProvider>
       </ShadowWrapperContext>
