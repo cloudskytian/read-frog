@@ -74,28 +74,27 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
       throw new OverlaySubtitlesError(i18n.t("subtitles.errors.videoNotFound"))
     }
 
-    const currentHash = await this.computeTrackHash()
+    const fastPathResult = await this.tryFastFetch(videoId)
+    const currentHash = fastPathResult.currentHash
 
     if (currentHash && this.subtitles.length > 0 && this.cachedTrackHash === currentHash) {
       return this.subtitles
     }
 
-    // Wait for player state >= 1 (video ready) BEFORE getting POT
-    // YouTube only makes timedtext XHR request when video is ready to play
-    await this.waitForPlayerState(videoId)
+    let resolvedTrack = fastPathResult.track
+    let events = fastPathResult.events
 
-    const playerData = await this.getPlayerDataWithPot(videoId)
+    if (!events) {
+      const fallbackResult = await this.fetchWithFallback(videoId, fastPathResult.track)
+      resolvedTrack = fallbackResult.track
+      events = fallbackResult.events
+    }
 
-    const track = this.selectTrack(playerData.captionTracks, playerData.selectedTrackLanguageCode)
-    if (!track) {
+    if (!resolvedTrack) {
       throw new OverlaySubtitlesError(i18n.t("subtitles.errors.noSubtitlesFound"))
     }
 
-    const potToken = extractPotToken(track, playerData)
-    const url = buildSubtitleUrl(track, playerData, potToken)
-    const events = await this.fetchWithRetry(url)
-
-    this.sourceLanguage = track.languageCode
+    this.sourceLanguage = resolvedTrack.languageCode
     this.subtitles = await this.processRawEvents(events)
     this.cachedTrackHash = currentHash
 
@@ -150,11 +149,84 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     }
 
     const track = this.selectTrack(response.data.captionTracks, response.data.selectedTrackLanguageCode)
+    return this.computeTrackHashFromPlayerData(videoId, response.data, track)
+  }
+
+  private computeTrackHashFromPlayerData(
+    videoId: string,
+    _playerData: PlayerData,
+    track: CaptionTrack | null,
+  ): string | null {
     if (!track) {
       return null
     }
 
     return `${videoId}:${track.languageCode}:${track.kind ?? ""}:${track.vssId}`
+  }
+
+  private async tryFastFetch(videoId: string): Promise<{
+    currentHash: string | null
+    track: CaptionTrack | null
+    events: YoutubeTimedText[] | null
+  }> {
+    const response = await this.requestPlayerData(videoId)
+    if (!response.success || !response.data) {
+      return {
+        currentHash: null,
+        track: null,
+        events: null,
+      }
+    }
+
+    const playerData = response.data
+    const track = this.selectTrack(playerData.captionTracks, playerData.selectedTrackLanguageCode)
+    const currentHash = this.computeTrackHashFromPlayerData(videoId, playerData, track)
+
+    if (!track) {
+      throw new OverlaySubtitlesError(i18n.t("subtitles.errors.noSubtitlesFound"))
+    }
+
+    try {
+      const events = await this.fetchTrackEvents(track, playerData)
+      return {
+        currentHash,
+        track,
+        events,
+      }
+    }
+    catch (error) {
+      if (error instanceof OverlaySubtitlesError) {
+        throw error
+      }
+
+      return {
+        currentHash,
+        track,
+        events: null,
+      }
+    }
+  }
+
+  private async fetchWithFallback(
+    videoId: string,
+    preferredTrack: CaptionTrack | null,
+  ): Promise<{
+    track: CaptionTrack
+    events: YoutubeTimedText[]
+  }> {
+    // Wait for player state >= 1 before retrying with the slower POT/timedtext flow.
+    await this.waitForPlayerState(videoId)
+
+    const playerData = await this.getPlayerDataWithPot(videoId)
+    const track = preferredTrack
+      ?? this.selectTrack(playerData.captionTracks, playerData.selectedTrackLanguageCode)
+
+    if (!track) {
+      throw new OverlaySubtitlesError(i18n.t("subtitles.errors.noSubtitlesFound"))
+    }
+
+    const events = await this.fetchTrackEvents(track, playerData)
+    return { track, events }
   }
 
   private async waitForPlayerState(videoId: string): Promise<void> {
@@ -205,6 +277,12 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     }
 
     return playerData
+  }
+
+  private async fetchTrackEvents(track: CaptionTrack, playerData: PlayerData): Promise<YoutubeTimedText[]> {
+    const potToken = extractPotToken(track, playerData)
+    const url = buildSubtitleUrl(track, playerData, potToken)
+    return this.fetchWithRetry(url)
   }
 
   private hasPotInAudioTracks(playerData: PlayerData): boolean {
