@@ -1,5 +1,27 @@
 # @read-frog/extension
 
+## 1.32.2
+
+### Patch Changes
+
+- [#1283](https://github.com/mengxi-ream/read-frog/pull/1283) [`219a8d2`](https://github.com/mengxi-ream/read-frog/commit/219a8d29c6a093b822a56cec43e1c3336778e4c9) Thanks [@taiiiyang](https://github.com/taiiiyang)! - feat(subtitles): add a settings toggle menu for video subtitles
+
+- [#1295](https://github.com/mengxi-ream/read-frog/pull/1295) [`75fafc5`](https://github.com/mengxi-ream/read-frog/commit/75fafc5a3e198667094bdbffa6b77858ce49d499) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - refactor: unify webpage translation context and prompt flow
+
+- [#1287](https://github.com/mengxi-ream/read-frog/pull/1287) [`4a56faa`](https://github.com/mengxi-ream/read-frog/commit/4a56faa44c47f8157528fb9bd734a0e51712004c) Thanks [@ishiko732](https://github.com/ishiko732)! - style: improve selection preview scrolling in the selection toolbar
+
+- [#1297](https://github.com/mengxi-ream/read-frog/pull/1297) [`acdd296`](https://github.com/mengxi-ream/read-frog/commit/acdd296e19681b4d2987f2edc2dbdbedd6cd57c8) Thanks [@frogGuaGuaGuaGua](https://github.com/frogGuaGuaGuaGua)! - fix(extension): soften page translation loading spinner with a thinner muted-gray arc
+
+- [#1300](https://github.com/mengxi-ream/read-frog/pull/1300) [`da8d937`](https://github.com/mengxi-ream/read-frog/commit/da8d9376e77939b2ac7be6e85653e467bbcb8019) Thanks [@frogGuaGuaGuaGua](https://github.com/frogGuaGuaGuaGua)! - fix(extension): namespace theme tokens to avoid shadow-root css collisions
+
+- [#1299](https://github.com/mengxi-ream/read-frog/pull/1299) [`1464d77`](https://github.com/mengxi-ream/read-frog/commit/1464d774fddc34c950cf7f44852388af65e3e503) Thanks [@frogGuaGuaGuaGua](https://github.com/frogGuaGuaGuaGua)! - docs(extension): document the real-browser Edge extension testing workflow for UI verification
+
+- [#1303](https://github.com/mengxi-ream/read-frog/pull/1303) [`3e9f374`](https://github.com/mengxi-ream/read-frog/commit/3e9f374770841d0c03aa66d817958aa5f8035485) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - fix(page-translation): only prime webpage context for AI-aware title translation
+
+- [#1302](https://github.com/mengxi-ream/read-frog/pull/1302) [`f1d9256`](https://github.com/mengxi-ream/read-frog/commit/f1d92569ba224571fae5b221f0432804f1af9f1e) Thanks [@frogGuaGuaGuaGua](https://github.com/frogGuaGuaGuaGua)! - fix(tts): change default English voice to Davis and colocate preview button
+
+- [#1307](https://github.com/mengxi-ream/read-frog/pull/1307) [`38be1ed`](https://github.com/mengxi-ream/read-frog/commit/38be1edea97040ecda6753bb557711a76c08aa35) Thanks [@taiiiyang](https://github.com/taiiiyang)! - feat(subtitles): add source subtitle download as SRT
+
 ## 1.32.1
 
 ### Patch Changes
