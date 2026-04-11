@@ -92,23 +92,27 @@ export class SegmentationPipeline {
       if (config) {
         const segmented = await aiSegmentBlock(chunk, config)
         const optimized = optimizeSubtitles(segmented, this.getSourceLanguage())
-        const chunkStart = chunk[0].start
-        const chunkEnd = chunk.at(-1)!.end
-        this.processedFragments = this.processedFragments.filter(
-          f => f.start < chunkStart || f.start > chunkEnd,
-        )
-        this.processedFragments.push(...optimized)
-        this.processedFragments.sort((a, b) => a.start - b.start)
+        this.replaceProcessedChunk(chunk, optimized)
       }
     }
     catch {
       chunk.forEach(f => this.aiSegmentFailedRawStarts.add(f.start))
       const optimized = optimizeSubtitles(chunk, this.getSourceLanguage())
-      this.processedFragments.push(...optimized)
-      this.processedFragments.sort((a, b) => a.start - b.start)
+      this.replaceProcessedChunk(chunk, optimized)
     }
 
     return true
+  }
+
+  private replaceProcessedChunk(chunk: SubtitlesFragment[], nextFragments: SubtitlesFragment[]) {
+    const chunkStart = chunk[0].start
+    const chunkEnd = chunk.at(-1)!.end
+
+    this.processedFragments = this.processedFragments.filter(
+      fragment => fragment.start < chunkStart || fragment.start > chunkEnd,
+    )
+    this.processedFragments.push(...nextFragments)
+    this.processedFragments.sort((a, b) => a.start - b.start)
   }
 
   private findNextChunk(currentTimeMs: number): SubtitlesFragment[] {
