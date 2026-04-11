@@ -18,11 +18,13 @@ export class SegmentationPipeline {
   private getSourceLanguage: () => string
 
   constructor(options: {
+    baselineFragments?: SubtitlesFragment[]
     rawFragments: SubtitlesFragment[]
     getVideoElement: () => HTMLVideoElement | null
     getSourceLanguage: () => string
   }) {
     this.rawFragments = options.rawFragments
+    this.processedFragments = [...(options.baselineFragments ?? [])]
     this.getVideoElement = options.getVideoElement
     this.getSourceLanguage = options.getSourceLanguage
   }
