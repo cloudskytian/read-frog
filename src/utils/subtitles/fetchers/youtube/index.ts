@@ -183,7 +183,11 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     const currentHash = this.computeTrackHashFromPlayerData(videoId, playerData, track)
 
     if (!track) {
-      throw new OverlaySubtitlesError(i18n.t("subtitles.errors.noSubtitlesFound"))
+      return {
+        currentHash,
+        track: null,
+        events: null,
+      }
     }
 
     try {
@@ -194,11 +198,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
         events,
       }
     }
-    catch (error) {
-      if (error instanceof OverlaySubtitlesError) {
-        throw error
-      }
-
+    catch {
       return {
         currentHash,
         track,
