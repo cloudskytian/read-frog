@@ -2,7 +2,7 @@ import type { Config } from "@/types/config/config"
 import type { ConfigMeta } from "@/types/config/meta"
 import { storage } from "#imports"
 import { configSchema } from "@/types/config/config"
-import { isAPIProviderConfig } from "@/types/config/provider"
+import { getDeprecatedLLMProviderModelNormalizationResult, isAPIProviderConfig } from "@/types/config/provider"
 import { CONFIG_SCHEMA_VERSION, CONFIG_STORAGE_KEY, DEFAULT_CONFIG } from "../constants/config"
 import { logger } from "../logger"
 import { runMigration } from "./migration"
@@ -44,11 +44,17 @@ export async function initializeConfig() {
     }
   }
 
-  if (!configSchema.safeParse(config).success) {
+  const normalizationResult = getDeprecatedLLMProviderModelNormalizationResult(config)
+  const parsedConfigResult = configSchema.safeParse(normalizationResult.config)
+  if (!parsedConfigResult.success) {
     logger.warn("Config is invalid, using default config")
     config = DEFAULT_CONFIG
     currentVersion = CONFIG_SCHEMA_VERSION
     didConfigChange = true
+  }
+  else {
+    didConfigChange = didConfigChange || normalizationResult.changed
+    config = parsedConfigResult.data
   }
 
   if (import.meta.env.DEV) {
