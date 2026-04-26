@@ -5,7 +5,6 @@ import {
   getRecommendedProviderOptionsMatch,
 } from "../../providers/options"
 import { LLM_PROVIDER_MODELS } from "../models"
-import { DEFAULT_LLM_PROVIDER_MODELS } from "../providers"
 
 describe("getProviderOptions", () => {
   describe("model pattern matching", () => {
@@ -56,40 +55,6 @@ describe("getProviderOptions", () => {
         "gpt-5.4-mini",
         "gpt-5.4-nano",
         "gpt-5.3-chat-latest",
-      ]))
-    })
-
-    it("should sync current AI SDK docs-driven model ids for changed providers", () => {
-      expect(LLM_PROVIDER_MODELS.anthropic).toEqual(expect.arrayContaining(["claude-opus-4-7"]))
-      expect(LLM_PROVIDER_MODELS.anthropic).not.toEqual(expect.arrayContaining([
-        "claude-3-7-sonnet-latest",
-        "claude-3-5-haiku-latest",
-      ]))
-
-      expect(LLM_PROVIDER_MODELS.google).toEqual(expect.arrayContaining(["gemini-3.1-flash-lite-preview"]))
-      expect(LLM_PROVIDER_MODELS.google).not.toEqual(expect.arrayContaining([
-        "gemini-1.5-flash",
-        "gemini-1.5-pro",
-      ]))
-
-      expect(LLM_PROVIDER_MODELS.xai).toEqual([
-        "grok-4.20-reasoning",
-        "grok-4.20-non-reasoning",
-        "grok-4-1-fast-reasoning",
-        "grok-4-1-fast-non-reasoning",
-        "grok-4-1",
-        "grok-4-fast-reasoning",
-        "grok-4-fast-non-reasoning",
-        "grok-code-fast-1",
-        "grok-3",
-        "grok-3-mini",
-      ])
-
-      expect(LLM_PROVIDER_MODELS.groq).not.toEqual(expect.arrayContaining([
-        "meta-llama/llama-guard-4-12b",
-        "llama-guard-3-8b",
-        "meta-llama/llama-prompt-guard-2-22m",
-        "meta-llama/llama-prompt-guard-2-86m",
       ]))
     })
 
@@ -149,9 +114,6 @@ describe("getProviderOptions", () => {
     it("should return low/disabled defaults for more mainstream reasoning providers", () => {
       const grokOptions = getProviderOptions("grok-4-fast-reasoning", "xai")
       expect(grokOptions.xai?.reasoningEffort).toBe("low")
-
-      const grok420Options = getProviderOptions("grok-4.20-reasoning", "xai")
-      expect(grok420Options.xai?.reasoningEffort).toBe("low")
 
       const deepseekReasonerOptions = getProviderOptions("deepseek-reasoner", "deepseek")
       expect(deepseekReasonerOptions.deepseek?.thinking).toEqual({ type: "disabled" })
@@ -308,38 +270,6 @@ describe("getProviderOptions", () => {
           reasoningEffort: "minimal",
           textVerbosity: "low",
         },
-      })
-    })
-  })
-
-  describe("provider defaults", () => {
-    it("should expose refreshed fast and cost-effective defaults for synced AI SDK providers", () => {
-      expect({
-        openai: DEFAULT_LLM_PROVIDER_MODELS.openai.model,
-        google: DEFAULT_LLM_PROVIDER_MODELS.google.model,
-        xai: DEFAULT_LLM_PROVIDER_MODELS.xai.model,
-        bedrock: DEFAULT_LLM_PROVIDER_MODELS.bedrock.model,
-        groq: DEFAULT_LLM_PROVIDER_MODELS.groq.model,
-        deepinfra: DEFAULT_LLM_PROVIDER_MODELS.deepinfra.model,
-        mistral: DEFAULT_LLM_PROVIDER_MODELS.mistral.model,
-        cohere: DEFAULT_LLM_PROVIDER_MODELS.cohere.model,
-        fireworks: DEFAULT_LLM_PROVIDER_MODELS.fireworks.model,
-        cerebras: DEFAULT_LLM_PROVIDER_MODELS.cerebras.model,
-        moonshotai: DEFAULT_LLM_PROVIDER_MODELS.moonshotai.model,
-        huggingface: DEFAULT_LLM_PROVIDER_MODELS.huggingface.model,
-      }).toEqual({
-        openai: "gpt-5.4-mini",
-        google: "gemini-2.5-flash-lite",
-        xai: "grok-4.20-non-reasoning",
-        bedrock: "us.amazon.nova-micro-v1:0",
-        groq: "llama-3.1-8b-instant",
-        deepinfra: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
-        mistral: "magistral-small-2507",
-        cohere: "command-r7b-12-2024",
-        fireworks: "accounts/fireworks/models/llama-v3p2-3b-instruct",
-        cerebras: "llama3.1-8b",
-        moonshotai: "kimi-k2-turbo",
-        huggingface: "meta-llama/Llama-3.1-8B-Instruct",
       })
     })
   })

@@ -86,48 +86,6 @@ describe("initializeConfig", () => {
     expect(setMetaMock).not.toHaveBeenCalled()
   })
 
-  it("persists normalized deprecated provider models when stored config uses removed ids", async () => {
-    const config: any = buildStableConfig()
-    config.providersConfig = config.providersConfig.map((provider: any) => {
-      if (provider.id === "google-default" && "model" in provider) {
-        return {
-          ...provider,
-          model: {
-            ...provider.model,
-            model: "gemini-1.5-flash",
-          },
-        }
-      }
-      return provider
-    })
-
-    getItemMock.mockResolvedValueOnce(config)
-    getMetaMock.mockResolvedValueOnce({
-      schemaVersion: CONFIG_SCHEMA_VERSION,
-      lastModifiedAt: 321,
-    })
-
-    const { initializeConfig } = await import("../init")
-    await initializeConfig()
-
-    expect(setItemMock).toHaveBeenCalledTimes(1)
-    expect(setItemMock).toHaveBeenCalledWith("local:config", expect.objectContaining({
-      providersConfig: expect.arrayContaining([
-        expect.objectContaining({
-          id: "google-default",
-          model: expect.objectContaining({
-            model: "gemini-2.5-flash-lite",
-          }),
-        }),
-      ]),
-    }))
-    expect(setMetaMock).toHaveBeenCalledTimes(1)
-    expect(setMetaMock).toHaveBeenCalledWith("local:config", {
-      schemaVersion: CONFIG_SCHEMA_VERSION,
-      lastModifiedAt: 321,
-    })
-  })
-
   it("writes config and meta when config is missing", async () => {
     getItemMock.mockResolvedValueOnce(null)
     getMetaMock.mockResolvedValueOnce(null)

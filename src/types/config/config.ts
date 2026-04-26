@@ -8,7 +8,7 @@ import {
 } from "@/utils/constants/selection"
 import { MIN_SIDE_CONTENT_WIDTH } from "@/utils/constants/side"
 import { languageDetectionConfigSchema } from "./language-detection"
-import { isLLMProvider, NON_API_TRANSLATE_PROVIDERS_MAP, normalizeDeprecatedLLMProviderModelsInConfig, providersConfigSchema } from "./provider"
+import { isLLMProvider, NON_API_TRANSLATE_PROVIDERS_MAP, providersConfigSchema } from "./provider"
 import { selectionToolbarCustomActionsSchema } from "./selection-toolbar"
 import { videoSubtitlesSchema } from "./subtitles"
 import { translateConfigSchema } from "./translate"
@@ -94,7 +94,7 @@ const siteControlSchema = z.object({
 })
 
 // Complete config schema
-const configSchemaObject = z.object({
+export const configSchema = z.object({
   language: languageSchema,
   providersConfig: providersConfigSchema,
   translate: translateConfigSchema,
@@ -218,7 +218,5 @@ const configSchemaObject = z.object({
     }
   })
 })
-
-export const configSchema = z.preprocess(normalizeDeprecatedLLMProviderModelsInConfig, configSchemaObject)
 
 export type Config = z.infer<typeof configSchema>

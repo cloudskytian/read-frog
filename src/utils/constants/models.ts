@@ -158,7 +158,7 @@ export const LLM_MODEL_OPTIONS: Array<{
 
   // xAI Grok reasoning-capable text models - keep effort at the lowest supported level
   {
-    pattern: /^grok-(?:4\.20-reasoning|4(?:-1)?(?:-fast-reasoning)?|4(?:-latest|-0709)?|3(?:-mini)?(?:-latest)?)$/,
+    pattern: /^grok-(?:4(?:-1)?(?:-fast-reasoning)?|4(?:-latest|-0709)?|3(?:-mini)?(?:-latest)?)$/,
     options: { reasoningEffort: "low" } satisfies XaiProviderOptions as Record<string, JSONValue>,
   },
 
