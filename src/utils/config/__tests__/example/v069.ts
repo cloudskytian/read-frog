@@ -1,8 +1,8 @@
 import type { VersionTestData } from "./types"
-import { testSeries as v067TestSeries } from "./v067"
+import { testSeries as v068TestSeries } from "./v068"
 
 export const testSeries = Object.fromEntries(
-  Object.entries(v067TestSeries).map(([seriesId, seriesData]) => [
+  Object.entries(v068TestSeries).map(([seriesId, seriesData]) => [
     seriesId,
     {
       ...seriesData,
@@ -10,7 +10,7 @@ export const testSeries = Object.fromEntries(
         ...seriesData.config,
         floatingButton: {
           ...seriesData.config.floatingButton,
-          locked: false,
+          side: "right",
         },
       },
     },
