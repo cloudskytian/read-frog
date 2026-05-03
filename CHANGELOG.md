@@ -1,5 +1,11 @@
 # @read-frog/extension
 
+## 1.33.3
+
+### Patch Changes
+
+- [#1443](https://github.com/mengxi-ream/read-frog/pull/1443) [`69ff9c9`](https://github.com/mengxi-ream/read-frog/commit/69ff9c9fed75192780b57b756b82658e48a26158) Thanks [@taiiiyang](https://github.com/taiiiyang)! - fix(subtitles): align subtitle settings labels
+
 ## 1.33.2
 
 ### Patch Changes
